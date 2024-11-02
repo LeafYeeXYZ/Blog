@@ -1,0 +1,6053 @@
+---
+title: JavaScript学习笔记
+comment: true
+excerpt: false
+date: 2024-01-17 15:42:48
+categories: 笔记
+tags: [Note,JavaScript,Network,Coding]
+cover: "/images/cover/js.png"
+---
+**封面作者:[NOEYEBROW](https://x.com/noeyebrow313)**
+
+**内容并非完全线性, 如有不解可暂时跳过**
+
+# &#x2B50;基础
+`JavaScript` 是一种**弱类型**、**解释型**的**脚本语言**, **主要**用于网页开发, 既可以面向对象编程, 也可以面向过程编程（在前端开发中, 一般都是面向对象编程）
+
+**面向对象**的编程语言中, 每个对象都是一个某一主题的功能中心; 完成某个任务的过程就是调用各种对象的属性和方法（功能）进行处理; 具有灵活、易维护、易开发、**封装性**（可复用）、**继承性**、**多态性**的特点
+
+而**面向过程**的编程语言, 如 `C`、`MATLAB`, 强调解决问题的各个步骤, 每个步骤都被设计为一个函数, 然后依此调用这些函数, 即先干什么再干什么; 而面向对象的编程强调解决问题的对象, 即先找谁干什么, 再找谁干什么; 面向过程一般具有**高性能**的特点
+
+{% notel green 本节内容 %}
+{% btn 运行和调试::#运行和调试 %} {% btn 断点调试的方法::#断点调试的方法 %} {% btn `defer` 属性::#defer-属性 %} {% btn 基本输入输出::#基本输入输出 %} {% btn 注释::#注释 %} {% btn 变量::#变量 %}
+{% endnotel %}
+
+#### 运行和调试
+`JavaScript` 程序需要在一定的环境, 如 `浏览器`、`Node.js`、`Deno`、`Bun` 中运行, 在基础部分, 我们主要以 `浏览器` 为例; 有两种方式可以将 `JavaScript` 代码引入 `HTML`: 
+
+```html
+<!-- 内联形式: 通过 script 标签包裹 JavaScript 代码 -->
+<script>
+  alert('这是内联形式引入的JavaScript代码');
+</script>
+
+<!-- 外部形式: 通过 script 的 src 属性引入独立的 .js 文件 -->
+<script src="demo.js">
+  // 使用此方法后, script标签中的代码将不会被执行！
+</script>
+```
+
+```javascript
+// demo.js
+alert('这是外部形式引入的JavaScript代码');
+```
+
+> `JavaScript` 中每节代码末尾的 `;` 是可以省略的, 后面的代码都将以省略 `;` 的形式书写
+
+#### 断点调试的方法
+1. 在浏览器中打开文件
+2. 通过 `F12` 或 `ctrl + shift + i` 打开开发者工具
+3. 在 `Sources` 中找到要调试的 JavaScript 文件
+4. 点击行号左侧添加断点
+5. 刷新页面
+6. 使用 `F10` 或 `F11` 单步调试, 后者会进入函数内部
+
+#### defer 属性
+- `defer` 属性用于延迟脚本的执行, 即脚本会在文档解析完毕后再执行, 即使脚本在页面中的位置靠前
+- 可用于避免代码内容获取不到页面元素、代码阻塞页面渲染等问题
+- 对于 `module` 类型的脚本, `defer` 属性是默认的
+
+```html
+<script defer src="script.js"></script>
+```
+
+#### 基本输入输出 
+|方法|描述|
+|:---:|:---:|
+|`alert()`|在浏览器中弹出提示框, 显示指定内容|
+|`document.write()`|在 `HTML` 文件中添加指定内容<br>位置取决于 `script` 标签的位置|
+|`console.log()`|在浏览器的控制台中输出指定内容<br>一般用于调试程序, 应在正式上线前删除|
+|`res = prompt('提示内容')`|在浏览器中弹出提示框, 用户可以输入内容<br>输入的字符串将被赋值给 `res`|
+|`res = confirm('提示内容')`|在浏览器中弹出提示框, 用户可以点击确定或取消<br>确定则将 `true` 赋值给 `res`, 取消则将 `false` 赋值给 `res`|
+
+> 要通过 `prompt` 获取数值型数据, 可以用 `num = +prompt('提示内容')` 或 `num = Number(prompt('提示内容'))` 进行类型转换 `详见后文`
+
+#### 注释
+通过注释可以屏蔽代码被执行或者添加备注信息, `JavaScript` 支持三种形式注释语法: 
+
+- **单行注释**: 使用 `//` 注释单行代码, `VScode` 中快捷键为 `ctrl + /`
+- **多行注释**: 使用 `/* */` 注释多行代码, `VScode` 中快捷键为 `shift + alt + a`
+- **文档注释**: 使用 `/** */` 注释函数或类, 用来声明函数或类的作用、参数、返回值等信息
+
+```javascript
+// 这是一个单行注释
+
+/* 这是一个
+多行注释 */
+
+/*
+  这也是一个
+  多行注释
+*/
+```
+
+##### 文档注释
+{% note green %}
+详见[`JSDoc`](#JSDoc)部分
+{% endnote %}
+
+```javascript
+/**
+ * 这是一个加法函数
+ * 用于计算两个数的和
+ * @param {number} a 加数
+ * @param {number} b 加数
+ * @returns {number} 两个数的和
+ * @example
+ * console.log(plus(1, 2)) // 1 加 2, 输出 3
+ */
+function plus(a, b) {
+  return a + b
+}
+// 书写文档注释后, 可以通过鼠标悬停在函数名上查看注释
+
+// 对对象参数进行文档注释
+/**
+ * @param {Object} obj 参数对象
+ * @param {string} obj.name 姓名
+ * @param {number} obj.age 年龄
+ * @returns {string} 返回姓名和年龄
+ */
+function getName(obj) {
+  return obj.name + obj.age
+}
+```
+
+|语句|描述|
+|:---:|:---:|
+|`@param {type} name description`|参数及其类型和描述|
+|`@returns {type} description`|返回值及其类型和描述|
+|`@example`|示例|
+|`@author name <contact>(可选)`|作者及联系方式|
+|`@license license`|许可证|
+
+> `{}` 中可以是 `*`、`string`、`boolean`、`object`、`function` 等数据类型, 也可以是 `Date`、`Array`、`RegExp` 等对象, 还可以是 `'GET' | 'POST'`、`1 | 0` 等特定值
+
+#### 变量
+计算机存储数据的容器
+
+##### 声明
+- 用 `let 变量名` 声明可变变量
+- 用 `const 变量名` 声明不可变变量, 即常量（`不可变` 只表示变量名指向的内容不可变, 详见[数据类型](#数据类型)）
+- 早期用 `var 变量名` 声明变量, 现在不推荐使用
+- 变量名可以: 包含字母、数字、下划线、$ `在较新的浏览器中可以包含中文`
+- 变量名不能: 以数字开头、是 `JavaScript` 内置的关键字, 如 `let`, 或保留字, 如 `int`
+- 变量名应该: 有一定意义、用驼峰命名法 `userName、sumScoreMath`
+- **变量名区分大小写**
+
+##### 赋值
+- 在声明变量后赋值, 如 `let name; name = '小叶子'`
+- 在声明变量的同时赋值, 如 `let name = '小叶子'`
+- 常量必须在声明的同时赋值, 如 `const PI = 3.14`, 且**不允许重新赋值**
+- <b>能用 `const` 就不要用 `let`</b>
+
+> 函数内部声明的变量, 称为**局部变量**, 只能在函数内部使用; 详见[作用域](#作用域)
+
+## 数据
+`JavaScript` 中, 声明变量时无需指定数据类型, 系统会根据变量的值自动判断数据类型, 这种特性称为**弱类型语言**, 可以通过 `typeof` 检测数据类型, 如  `console.log(typeof 变量名)` 或 `console.log(typeof(变量名))`
+
+{% notel green 本段内容 %}
+{% btn 基本数据类型::#基本数据类型 %} {% btn 复杂数据类型::#复杂数据类型 %} {% btn 模板字符串::#模板字符串 %} {% btn 类型转换::#类型转换 %} {% btn 进制::#进制 %} {% btn 二进制运算符::#二进制运算符 %}
+{% endnotel %}
+
+#### 基本数据类型
+也称为<b>[包装类型](#包装类型)</b>
+
+|           类型           |                                                 说明                                                 |
+| :----------------------: | :--------------------------------------------------------------------------------------------------: |
+|   **数值型** `number`    |                       `JavaScript` 中的数值类型包含整数和浮点数                        |
+|  **字符串型** `string`   |             通过单引号 `''`、双引号 `""`、反引号 <code>\`\`</code> 包裹的数据都叫字符串              |
+|   **布尔型** `boolean`   |                          表示真或假的数据, 有两个固定的值 `true` 或 `false`                          |
+| **未定义型** `undefined` |      表示声明了变量但未赋值, 如 `let name = ''` 为 `string` 型, 而 `let name` 为 `undefined` 型      |
+|    **空值型** `null`     | 表示声明了变量并赋值, 但值为空, 如 `let name = null`|
+
+- 因历史原因, `typeof null` 的结果是 `object` 而非 `null`
+- 转义符 `\` 可以将表意字符转换成普通字符, 如 `\'` 表示单引号 
+- 需要在字符串内使用引号时, 应用不同的引号, 或者使用转义符
+- 除上述的基本数据类型外, 还有 `Symbol` 和 `BigInt` 两种类型, 会在后面介绍
+- 由于小数（浮点数）在计算机中是以二进制存储的, 所以在计算时会有精度问题, 如 `0.1 + 0.2` 结果为 `0.30000000000000004`; 如果需要精确计算, 可以转换为整数再计算
+- 比较大的数值可以使用分隔符 `_` 分隔, 如 `let num = 1_000_000`
+
+##### NaN, Not a Number
+- 在数字计算失败时, 显示的结果是 `NaN`
+- `NaN` 和任何值都不相等, 包括它自己
+- 任何对 `NaN` 的运算, 结果都是 `NaN`
+- `NaN` 与任何值比较, 结果都是 `false`
+
+#### 复杂数据类型
+也称为**引用类型**
+
+|         类型          |                            说明                            |
+| :-------------------: | :--------------------------------------------------------: |
+|  **对象型** `object`  | 表示一组数据的集合, 类似于 C 语言中的结构体, 但功能更强大  |
+|  **数组型** `array`   |   表示一组数据的集合, 长度不固定, 也属于**对象**类型数据   |
+| **函数型** `function` | 表示一段可执行的代码, 如 `function getNumber() {一些代码}` |
+
+- **栈内存**: 由系统自动分配, 存储基本数据类型的值和复杂数据类型的地址
+- **堆内存**: 由程序员分配和释放, 存储复杂数据类型的值
+- **基本数据类型**的变量存储的是数据的**值**, 即变量名指向数据的值
+- **复杂数据类型**的变量存储的是数据的**地址**, 即变量名指向数据的地址
+- 两种数据类型的变量名都指向**栈内存**, 其中基本数据类型指向数据的值, 复杂数据类型指向数据的地址
+- 复杂数据类型的数据的值存储在**堆内存**, 通过存储在栈内存中的地址来进行访问
+- `const` 声明的变量, 只是不允许修改变量名指向的栈内存中的内容, 但是可以修改堆内存中的内容
+
+> `JavaScript` 中其实没有真正意义上的栈和堆, 这里借用了其他语言中的概念
+
+##### 上述特性示例
+```javascript
+// 声明一个对象
+let obj1 = { name: '小叶子', age: 18 } 
+// obj1 指向栈内存中的地址, 如 0x001
+// 该地址指向堆内存中的数据 { xxx }
+
+// 将 obj1 赋值给 obj2
+let obj2 = obj1
+// 此操作仅仅是将 obj1 指向的地址赋值给了 obj2
+// 即 obj2 也指向栈内存中的地址 0x001
+
+// 修改 obj2 的值
+obj2.age = 12
+// 此时 obj2 指向的地址中的数据 { xxx } 被修改
+
+// 查看 obj1 的值
+console.log(obj1.age) // 12
+// 由于 obj1 和 obj2 指向同一个地址
+// 所以 obj1 的数据也被修改了
+
+// --------------------------------------
+
+// 声明一个常量
+const obj3 = { name: '小叶子', age: 18 }
+// obj3 指向栈内存中的地址, 如 0x002
+// 由于常量的特性, 不允许修改 obj3 指向的地址
+
+obj3 = { name: '小叶子', age: 12 } // 报错
+
+// 但是可以修改堆内存中的数据
+obj3.age = 12
+console.log(obj3.age) // 12
+```
+
+#### 模板字符串
+- 模板字符串用于方便地拼接字符串（而非使用多个加号, 如 `console.log('我叫' + name + ', 今年' + age + '岁了')`）
+- 模板字符串**必须使用反引号** <code>\`\`</code> 包裹, 字符串中的变量使用 `${变量名}` 表示
+- 用 `''` 和 `""` 时, 一对引号必须位于同一行, 而模板字符串 <code>\`\`</code> 可以换行
+- `alert` 和 `console.log` 中, 换行会如实显示
+- `HTML` 中（即 `document.write` 中）无论多少换行都会显示为一个空格, 应该用 `<br>` 换行
+- `${}` 中可以进行简单的运算, 如 `${age + years}`、`${name.toUpperCase()}`
+
+```javascript
+const name = '小叶子'
+const age = 18
+const years = 3
+// 传统方法
+console.log('我叫' + name + ', 今年' + age + '岁了')
+// 模板字符串
+console.log(`我叫${name}, 今年${age}岁了, ${years}年后我就${age + years}岁了`)
+```
+
+#### 类型转换
+##### 隐式转换
+某些运算符被执行时, 系统内部自动将数据类型进行转换, 这种转换称为隐式转换
+
+- 通过 `+` 可以将字符串转换成数值类型, 如 `+'1'` 结果为 `1`, 此时 `+` 表示 `正号`（这个机制有时很有用, 如通过 `prompt` 获取数字型数据: `let age = +prompt('请输入您的年龄')`）
+- 当字符串和数字进行 `+` 运算时, 数字会转换成字符串, 如 `'1' + 1` 结果为 `'11'`
+- 当字符串和数字进行 `-`、`*`、`/`、`%` 运算时, 字符串会转换成数值类型, 如 `'1' - 1` 结果为 `0`, 其中 `''` 会转换成 `0`
+- `null` 进行数字运算时, 会转换成 `0`
+- `undefined` 进行数字运算时, 会转换成 `NaN`
+- 通过 `!` 可以将数据转换成布尔类型, 如 `!0` 结果为 `true`, `!1` 结果为 `false`
+
+##### 显式转换
+隐式转换规律不清晰, 为了避免因其带来的问题, 通常需要对数据进行显式转换
+
+|方法|描述|
+|:---:|:---:|
+|      `Number()`       |将数据转换成数值类型, 当转换失败时结果为 `NaN`|
+|     `parseInt()`      |将数据只保留整数, 如 `parseInt('12.8px')` 结果为 `12`|
+|    `parseFloat()`     |将数据只保留浮点数, 如 `parseFloat('12.8px')` 结果为 `12.8`|
+|      `String()`       |将数据转换成字符串类型|
+| `变量.toString(进制)` |将变量转换成字符串类型, 进制为可选参数<br>如 `num.toString(2)` 将数字转换成二进制字符串|
+|      `Boolean()`      |将数据转换成布尔类型<br>只有 `0`、`NaN`、`''`、`null`、`undefined` 会转换成 `false`, 其他都会转换成 `true`|
+
+> `parseInt` 和 `parseFloat` 只支持转换以数字开头的字符串, 如 `'12px'` 可以转换, 而 `'px12'` 不可以转换
+
+```javascript 
+const num = 1 // 数值
+const str = '2' // 字符串
+
+console.log(num + str) // 结果为 12
+// 数值 num 转换成了字符串, 相当于 '1'
+// 然后 + 将两个字符串拼接到了一起
+
+console.log(num - str) // 结果为 -1
+// 字符串 num2 转换成了数值, 相当于 2
+// 然后数值 1 减去 数值 2
+
+console.log(num + Number(str)) // 结果为 3
+// 通过 Number() 将字符串 num2 转换成了数值 2
+// 然后数值 1 加上 数值 2
+```
+
+{% folding red::用 <code>parseInt</code> 实现秒数转时分秒 %}
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>类型转换</title>
+</head>
+<body>
+  <script> 
+    let sec = +prompt('请输入秒数: ')
+    function secToTime(sec) {
+      if (isNaN(sec) || sec < 0) {
+        return '请输入正确的秒数'
+      }
+      let s = parseInt(sec % 60)
+      let m = parseInt(sec / 60 % 60)
+      let h = parseInt(sec / 60 / 60 % 24)
+      s < 10 ? s = '0' + s : s
+      m < 10 ? m = '0' + m : m
+      h < 10 ? h = '0' + h : h
+      return `${h}时${m}分${s}秒`
+    }
+    alert(secToTime(sec))
+  </script>
+</body>
+</html>
+```
+{% endfolding %}
+
+#### 进制
+`JavaScript` 中的数值型数据不止可以是十进制, 还可以是二进制、八进制、十六进制, 分别用 `0b`、`0o`、`0x` 开头表示
+
+```javascript
+// 十进制表示 324
+const num10 = 324
+// 二进制表示 324
+const num2 = 0b101000100
+// 八进制表示 324
+const num8 = 0o504
+// 十六进制表示 324
+const num16 = 0x144
+// 打印时都是十进制
+console.log(num10, num2, num8, num16) // 324 324 324 324
+```
+
+#### 二进制运算符
+下面的运算符会将操作数 (十进制) 转换成 `32` 位整数 (由 `0` 和 `1` 组成), 然后执行操作, 最后返回结果 (十进制)
+
+|运算符|说明|
+|:---:|:---:|
+|`&`: 按位与|`1010 & 1100` 结果为 `1000`|
+|`\|`: 按位或|`1010 \| 1100` 结果为 `1110`|
+|`~`: 按位非|`~1010` 结果为 `0101`|
+|`^`: 按位异或|`1010 ^ 1100` 结果为 `0110`<br>异或门: 两个输入相同时输出为 `0`, 不同时输出为 `1`|
+|`<<`: 左移|`1010 << 1` 结果为 `10100`<br>左移一位相当于乘以 `2`|
+|`>>`: 右移|`1010 >> 1` 结果为 `0101`<br>右移一位相当于除以 `2`|
+|`>>>`: 无符号右移|`1010 >>> 1` 结果为 `0101`<br>右移一位, 最高位补 `0`|
+|`&=`: 按位与赋值|`a &= b` 相当于 `a = a & b`|
+|`\|=`: 按位或赋值|`a \|= b` 相当于 `a = a \| b`|
+|`^=`: 按位异或赋值|`a ^= b` 相当于 `a = a ^ b`|
+|`<<=`: 左移赋值|`a <<= b` 相当于 `a = a << b`|
+|`>>=`: 右移赋值|`a >>= b` 相当于 `a = a >> b`|
+|`>>>=`: 无符号右移赋值|`a >>>= b` 相当于 `a = a >>> b`|
+
+```javascript
+const a = 10 // 1010
+const b = 12 // 1100
+console.log(a & b) // 8 即 1000
+console.log(a | b) // 14 即 1110
+console.log(~a) // -11 即 0101
+console.log(a ^ b) // 6 即 0110
+console.log(a << 1) // 20 即 10100
+console.log(a >> 1) // 5 即 0101
+console.log(a >>> 1) // 5 即 0101
+```
+
+## 数组
+**Array**, 用于存放一组数据的集合, 长度不固定, 属于**对象**类型数据
+
+```javascript
+const arr = [] 
+// 声明一个空数组
+const arr = [1, '小叶子', true]
+// 用 '[]' 包裹数据, 数据之间用 ',' 分隔
+// 内部各元素的数据类型可以不同
+```
+
+#### 数组索引
+数组的每一个元素都有一个唯一的索引 `也叫下标`, 通过索引可以访问或修改数组中的元素 `也叫数组单元`, 索引从 0 开始
+
+- 通过索引**访问**数组中的元素, 如 `arr[0]` 获取数组中的第一个元素
+- 通过索引**修改**数组中的元素, 如 `arr[0] = 1` 将数组中的第一个元素修改为 `1`
+- 通过索引**添加**数组中的元素, 如 `arr[6] = 1` 将数组中的第五个元素添加为 `1`, 此时第四个元素不存在, 为 `undefined`
+- 通过索引**删除**数组中的元素, 如 `delete arr[0]` 删除数组中的第一个元素, 删除后该元素变为 `undefined`, 数组长度不变
+
+|   索引的相关属性和方法   |                                                描述                                                |
+| :----------------------: | :------------------------------------------------------------------------------------------------: |
+|       `arr.length`       |                               获取**数组的长度**, 即数组中元素的个数                               |
+|   `arr.indexOf('xxx')`   | 获取数组中 `'xxx'` 这个特定元素的索引; 若有重复, 则返回最小索引; 若数组中不存在该元素, 则返回 `-1` |
+| `arr.lastIndexOf('xxx')` |                                    同上, 但有重复时返回最大索引                                    |
+|    `arr.findIndex()`     |          查找元素, 返回符合测试条件的**第一个**数组元素**索引值**, 如果没有符合条件的则返回 `-1`           |
+|    `arr.slice(0, 2)`     |                   **截取**数组中索引为 `0` 到 `1` 的元素, 不包含 `2`, 返回新数组; 不传参数时, 返回整个数组                   |
+
+{% folding red::<b><code>findIndex()</code> 的用法</b> %}
+```javascript
+// 查找数组中大于 3 的第一个元素的索引
+let arr = [1, 3, 2, 5, 4]
+let ans = arr.findIndex(ele => ele > 3)
+console.log(ans) // 3
+```
+{% endfolding %}
+
+### 修改原数组
+|   修改的相关属性和方法   |                         描述                          |
+| :----------------------: | :---------------------------------------------------: |
+|   `arr.push('啦啦啦')`   | 向数组**末尾添加**元素 `'啦啦啦'`, 并返回新数组的长度 |
+|       `arr.pop()`        |    **删除**数组**末尾**的元素, 并返回被删除的元素     |
+| `arr.unshift('啦啦啦')`  | 向数组**开头添加**元素 `'啦啦啦'`, 并返回新数组的长度 |
+|      `arr.shift()`       |    **删除**数组**开头**的元素, 并返回被删除的元素     |
+|     `arr.reverse()`      |                     **反转**数组                      |
+|       `arr.sort()`       |     对数组进行**排序**, 默认按照**字符编码** (注意不是数字数值) 升序排序      |
+|      `arr.splice()`      |          从指定位置**删除和（或）添加**元素           |
+|    `arr.fill(xxx, 1)`    |  用 `xxx` **填充**索引 `1` 开始的所有元素, 包括 `1`   |
+
+{% folding red::<b><code>sort()</code> 方法</b> %}
+```javascript
+let arr = [1, 3, 2, 5, 4]
+let ans = []
+
+ans = arr.sort((a, b) => {
+  // 这是一个比较函数
+  // 返回值的正负会决定 a 和 b 的相对顺序
+  // 若返回值为正, 则 a 在 b 后面
+  // 若返回值为负, 则 a 在 b 前面
+  // 若返回值为 0, 则 a 和 b 的相对顺序不变
+  return a - b
+})
+
+console.log(ans) // [1, 2, 3, 4, 5]
+```
+
+> `=>` 称为箭头函数, 详见[箭头函数](#箭头函数)
+{% endfolding %}
+
+{% folding red::<b><code>splice()</code> 的用法</b> %}
+- `arr.splice(0, 2)`: 从索引 `0` 开始, **删除** `2` 个元素, 即 `0` 和 `1`
+- `arr.splice(0, 0, '啦啦啦')`: 从索引 `0` 开始, **添加** `'啦啦啦'` 元素, 原来的元素依次后移
+- `arr.splice(0, 1, '啦啦啦')`: 将索引 `0` 的元素**替换**为 `'啦啦啦'`
+- `arr.splice(0, 2, '啦啦啦')`: 从索引 `0` 开始, **删除** `2` 个元素, 然后**添加** `'啦啦啦'` 元素
+{% endfolding %}
+
+### 创建新数组
+|       方法        |                                描述                                |
+| :---------------: | :----------------------------------------------------------------: |
+| `arr.concat(x, y, ...)` |   在 `arr` 末尾依此**连接**数组 `x` 和 `y`, 并返回新数组|
+|    `arr.map()`    |          对数组中的每个元素进行**处理**, 并返回一个新数组          |
+|  `arr.reduce()`   |            对数组中的每个元素进行**累加**, 并返回一个值            |
+|   `arr.join()`    |        将数组**转换成字符串**, 可指定分隔符, 返回这个字符串        |
+|  `arr.forEach()`  |         对数组中的每个元素进行**调用**, 并返回 `undefined`         |
+|  `arr.filter()`   |          对数组中的每个元素进行**筛选**, 并返回一个新数组          |
+|   `arr.every()`   |   **检测**是否数组中每个元素都满足条件, 并返回 `true` 或 `false`   |
+|   `arr.some()`    |     **检测**是否数组中有元素满足条件, 并返回 `true` 或 `false`     |
+|   `arr.find()`    | **检测并返回**数组中符合条件的第一个元素, 若没有则返回 `undefined` |
+| `Array.from(xxx)` |         将类数组或可迭代对象**转换成数组**, 并返回这个数组         |
+| `arr.includes(xxx)` | **检测**数组中是否包含 `xxx`, 并返回 `true` 或 `false` |
+| `arr.at(index)` | **获取**数组中指定索引的元素, 若索引为负数, 则从末尾开始计算 |
+| `arr.toReversed()` | `ES2023` 新增, 不修改原数组, 返回一个**反转**后的新数组 |
+| `arr.toSorted()` | `ES2023` 新增, 不修改原数组, 返回一个**排序**后的新数组 |
+| `arr.toSpliced()` | `ES2023` 新增, 不修改原数组, 返回一个**截取**后的新数组 |
+
+{% folding red::<b><code>map()</code>、<code>join()</code> 方法</b> %}
+```javascript
+const arr = ['red', 'blue', 'pink']
+
+// map
+const newArr = arr.map(function (ele, index) {
+  // 第一个参数表示数组元素
+  // 第二个参数表示索引号, 可选
+  return '<td>' + ele + '</td>'
+  // 如果是对象数组, 可用 ele.xxx 获取对象的属性
+})
+console.log(newArr) // ['<td>red</td>', '<td>blue</td>', '<td>pink</td>']
+
+// join
+// 默认逗号分割
+console.log(newArr.join()) // <td>red</td>,<td>blue</td>,<td>pink</td>
+// 空字符表示没有分隔符
+console.log(newArr.join('')) // <td>red</td><td>blue</td><td>pink</td>
+// 指定分隔符
+console.log(newArr.join('<br>')) // <td>red</td><br><td>blue</td><br><td>pink</td>
+```
+{% endfolding %}
+
+{% folding red::<b><code>reduce()</code> 方法</b> %}
+```javascript
+const arr = [1, 2, 3, 4, 5]
+const sum = arr.reduce(function (pre, cur, index, arr) {
+  // pre 表示上一次调用回调函数的返回值
+  // cur 表示当前元素
+  // index 表示索引号, 可选
+  // arr 表示数组本身, 可选
+  return pre + cur
+}, 0) // 0 表示初始值, 即第一次运行时 pre 的值
+// 若不指定初始值, 初始值为数组的第一个元素, 且从数组的第二个元素开始循环
+console.log(sum) // 15
+```
+{% endfolding %}
+
+{% folding red::<b><code>forEach()</code> 方法</b> %}
+```javascript
+const arr = ['red', 'blue', 'pink']
+const newArr = arr.forEach(function (ele, index) {
+  // 第一个参数表示数组元素
+  // 第二个参数表示索引号, 可选
+  console.log(ele)
+  console.log(index)
+  // 总是返回 undefined
+})
+console.log(newArr) // undefined
+```
+
+> `forEach()` 方法无法中断循环, 如需中断循环, 应使用 `for` 循环
+{% endfolding %}
+
+{% folding red::<b><code>filter()</code> 方法</b> %}
+```javascript
+const arr = ['red', 'blue', 'pink']
+const newArr = arr.filter(function (ele, index) {
+  // 第一个参数表示数组元素
+  // 第二个参数表示索引号, 可选
+  return ele.length > 3
+  // 返回值为 true 时, 将元素添加到新数组中
+  // 返回值为 false 时, 将元素过滤掉
+})
+console.log(newArr) // ['blue', 'pink']
+```
+{% endfolding %}
+
+{% folding red::<b><code>every()</code>、<code>some()</code>、<code>find()</code> 方法</b> %}
+```javascript
+const arr = [1, 2, 3, 4, 5]
+
+// every
+let ans = arr.every(function(ele, index) {
+  // ele 表示数组元素
+  // index 表示索引号, 可选
+  // 返回值为 true 时, 继续循环, 直到所有元素都满足条件, 返回 true
+  // 返回值为 false 时, 中断循环并返回 false
+  return ele > 2
+})
+console.log(ans) // false
+
+// some
+let ans = arr.some(function(ele, index) {
+  // 返回值为 true 时, 中断循环并返回 true
+  // 返回值为 false 时, 继续循环, 直到所有元素都不满足条件, 返回 false
+  return ele > 2
+})
+console.log(ans) // true
+
+// find
+let ans = arr.find(function(ele, index) {
+  // 返回值为 true 时, 中断循环并返回当前元素
+  // 返回值为 false 时, 继续循环, 直到所有元素都不满足条件, 返回 undefined
+  return ele > 2
+})
+console.log(ans) // 3
+```
+{% endfolding %}
+
+{% folding red::<b><code>from()</code> 方法</b> %}
+```javascript
+// 类数组
+let obj = document.querySelectorAll('div')
+Array.from(obj).forEach(ele => console.log(ele)) // 类数组没有 forEach 方法
+
+// 字符串
+let str = 'hello'
+Array.from(str).forEach(ele => console.log(ele)) // h e l l o
+
+// 子元素
+element.addEventListener('click', e => {
+  if (Array.from(element.children).indexOf(e.target) === 0) {
+    console.log('点击了第一个子元素')
+  }
+})
+```
+{% endfolding %}
+
+{% folding red::<b><code>at()</code> 方法</b> %}
+`ECMAScript 2022` 中引入了 `Array.prototype.at` 和 `String.prototype.at` 方法, 用于获取数组和字符串中的值
+
+```javascript
+const arr = [1, 2, 3, 4, 5]
+// 获取下标为 2 的值
+console.log(arr.at(2)) // 3
+// 获取倒数第 2 个值
+console.log(arr.at(-2)) // 4
+// 获取倒数第 1 个值
+console.log(arr.at(-1)) // 5
+// 获取超出范围的值
+console.log(arr.at(5)) // undefined
+```
+{% endfolding %}
+
+> `Array` 表示数组[构造函数](#构造函数), `arr` 表示数组, 不能混用; **除了[数组修改](#数组修改)这一节, 其他的实例方法请默认不会修改原实例**
+
+## 运算符
+{% notel green 本段内容 %}
+{% btn 优先级::#优先级 %} {% btn 逻辑赋值::#逻辑赋值 %} {% btn 逻辑中断::#逻辑中断 %}
+{% endnotel %}
+
+| 运算符 |    分类    |                        说明                        |
+| :----: | :--------: | :------------------------------------------------: |
+|   +    | 算术运算符 |       加法运算符 `若包含字符串, 则表示拼接`        |
+|   -    | 算术运算符 |                     减法运算符                     |
+|   *    | 算术运算符 |                     乘法运算符                     |
+|   /    | 算术运算符 |                     除法运算符                     |
+|   %    | 算术运算符 |      取模 `余数` 运算符, 常用于判断能否被整除      |
+|   **   | 算术运算符 |                     幂（指数）运算符, 相当于 `^`   |
+|   =    | 赋值运算符 |             将右侧的值赋值给左侧的变量             |
+|   +=   | 赋值运算符 |    加法赋值, `num += 1` 等同于 `num = num + 1`     |
+|   -=   | 赋值运算符 |    减法赋值, `num -= 1` 等同于 `num = num - 1`     |
+|   *=   | 赋值运算符 |    乘法赋值, `num *= 1` 等同于 `num = num * 1`     |
+|   /=   | 赋值运算符 |    除法赋值, `num /= 1` 等同于 `num = num / 1`     |
+|   %=   | 赋值运算符 |    取模赋值, `num %= 1` 等同于 `num = num % 1`     |
+|   ++   | 自增运算符 | 将**变量**的值加 1, `num++` 等同于 `num = num + 1` |
+|   --   | 自减运算符 | 将**变量**的值减 1, `num--` 等同于 `num = num - 1` |
+|   >    | 比较运算符 |        表示是否大于, `1 > 2` 结果为 `false`        |
+|   <    | 比较运算符 |        表示是否小于, `1 < 2` 结果为 `true`         |
+|   >=   | 比较运算符 |     表示是否大于等于, `1 >= 2` 结果为 `false`      |
+|   <=   | 比较运算符 |      表示是否小于等于, `1 <= 2` 结果为 `true`      |
+|   ==   | 比较运算符 |     表示是否**等于**, `1 == '1'` 结果为 `true`     |
+|  ===   | 比较运算符 |  表示是否**严格等于**, `1 === '1'` 结果为 `false`  |
+|   !=   | 比较运算符 |   表示是否**不等于**, `1 != '1'` 结果为 `false`    |
+|  !==   | 比较运算符 | 表示是否**严格不等于**, `1 !== '1'` 结果为 `true`  |
+|   &&   | 逻辑运算符 |  逻辑与, 一假则假, `true && false` 结果为 `false`  |
+|  \|\|  | 逻辑运算符 | 逻辑或, 一真则真, `true \|\| false` 结果为 `true`  |
+|   !    | 逻辑运算符 |   逻辑非, 取反, 若 `a = true` 则 `!a` 为 `false`   |
+
+- 推荐使用 `===` 和 `!==` 而非 `==` 和 `!=`
+- `num++` 和 `++num` 的区别在于前者先使用后加, 后者先加后使用 `同C语言`
+- 用比较运算符比较字符串时, 会依此比较字符的 `ASCII` 码, 如 `'a' < 'b'`、`'aa' < 'ab'`、`'bba' > 'bb'` 的结果都为 `true` 
+
+#### 优先级
+| 优先级 |     运算符     |                 说明                  |
+| :----: | :------------: | :-----------------------------------: |
+|   1    |     小括号     |                 `()`                  |
+|   2    | 其他一元运算符 |            `++`、`--`、`!`、`**`       |
+|   3    |   算术运算符   | **先** `*`、`/`、`%`, **后** `+`、`-` |
+|   4    | 大小比较运算符 |         `>`、`<`、`>=`、`<=`          |
+|   5    | 相等比较运算符 |       `==`、`!=`、`===`、`!==`        |
+|   6    |   逻辑运算符   |      **先** `&&`, **后** `\|\|`       |
+|   7    |   赋值运算符   |   `=`、`+=`、`-=`、`*=`、`/=`、`%=`   |
+|   8    |   逗号运算符   |                  `,`                  |
+
+> 使用 `**` 时, 不能将一元运算符 `+/-/~/!/typeof` 放在底数之前, 例如, `-2 ** 2` 是无效的, 必须写成 `- (2 ** 2)` 或 `(-2) ** 2`
+
+#### 逻辑赋值
+|  运算符  |     说明     |                   示例                   |
+| :------: | :----------: | :--------------------------------------: |
+| `&&=`    | 逻辑与赋值   | `a &&= b` 等同于 `a = a && b`            |
+| `\|\|=`  | 逻辑或赋值   | `a \|\|= b` 等同于 `a = a \|\| b`        |
+| `??=`    | 空值合并赋值 | `a ??= b` 等同于 `a = a !== null ? a : b` |
+
+#### 逻辑中断
+逻辑运算符 `&&` 和 `||` 有一个特殊的功能, 即**逻辑中断**
+
+- 当 `&&` 左侧为假时, 右侧的表达式不会被执行, 返回左侧值; 为真时, 返回右侧值
+- 当 `||` 左侧为真时, 右侧的表达式不会被执行, 返回左侧值; 为假时, 返回右侧值
+- **注意**: `&&` 和 `||` 的返回值不是布尔类型, `if` 的判断条件中, 实际上将返回值隐式转换为了布尔类型
+- **但是**: `&&` 和 `||` 在决定返回值时, 会将数据隐式转换成布尔类型, 然后再进行判断
+
+```javascript
+// || 可用于设置默认值
+(function test(a, b) {
+  a = a || 1
+  b = b || 2
+  console.log(a, b)
+})() // 结果是 1 2
+
+// && 用法示例
+function test(a = false, b = 0) {
+  let s = parseInt(b % 60)
+  let m = parseInt(b / 60 % 60)
+  let h = parseInt(b / 60 / 60 % 24)
+  a && (s < 10 ? s = '0' + s : s)
+  a && (m < 10 ? m = '0' + m : m)
+  a && (h < 10 ? h = '0' + h : h)
+  return `${h}时${m}分${s}秒`
+}
+
+// || 用法示例
+const dpr = window.devicePixelRatio || 1
+// 如果无法获取到 window.devicePixelRatio, 则使用 1
+
+// 演示易产生困惑的地方
+console.log(1 && 2) // 2
+console.log(1 || 2) // 1
+console.log(false && 2) // false
+console.log(false || 2) // 2
+console.log(0 && 2) // 0
+console.log(0 || 2) // 2
+console.log(1 < 2 && 2) // 2
+console.log(1 < 2 || 2) // true（比较运算的返回值为布尔类型）
+```
+
+## 操作符
+| 操作符 | 说明 |
+| :----: | :--: |
+|  `in`  | 用于检测对象中是否有某个属性<br>`const name = 'name' in obj ? '有' : '无'` |
+| `new`  | 用于创建对象实例<br>`const obj = new Object()` |
+| `typeof` | 用于检测数据类型<br>`const type = typeof obj // 'object'` |
+| `instanceof` | 用于检测对象是否是某个类的实例<br>`const isArr = arr instanceof Array // true` |
+| `delete` | 用于删除对象的属性<br>`delete obj.name`, `delete arr[0]` |
+| `void` | 用于返回 `undefined`<br>`const result = void 0 // undefined` |
+| `...` | 用于展开数组或对象<br>`const arr = [1, 2, 3]; const newArr = [...arr]` |
+| `??` | 空值合并运算符, 用于判断**左侧**是否为 `null` 或 `undefined`, 若是则返回右侧值<br>`const name = obj.name ?? '无名'`<br>相比于 `\|\|`, `??` 不会将 `0`、`''`、`false` 等值判定为 `false` |
+| `?.` | 可选链运算符, 用于判断**左侧**是否为 `null` 或 `undefined`, 若是则返回 `undefined`<br>`const name = obj?.name`<br>若 `obj` 为 `null` 或 `undefined`, 则 `name` 为 `undefined` |
+
+```javascript
+// 用 void 标识立即执行函数
+void function() {
+  console.log('立即执行函数')
+}()
+// 与 +function(){}() 同理, 但语义更明确
+
+// 用 void 强制箭头函数返回 undefined
+button.onclick = () => void console.log('点击了按钮')
+```
+
+> 本部分内容为后文内容总结和补充, 可先略过; 完整详见[MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators)
+
+## 语句和表达式
+{% notel green 本节内容 %}
+{% btn `if`::#if %} {% btn `switch`::#switch %} {% btn `三元表达式`::#三元表达式 %} {% btn `while`::#while %} {% btn `do while`::#do-while %} {% btn `for`::#for %} {% btn 无限循环::#无限循环 %} {% btn 循环嵌套::#循环嵌套 %} {% btn 标签::#标签 %}
+{% endnotel %}
+
+- **表达式**: 由变量、运算符组成的表示一个**值**的式子, 如 `1 + 1`、`a > b`、`a && b`、`func()`
+- **语句**: 控制某些行为的一段代码, 不一定有返回值, 如 `alert()`、`if (a > b) {一些代码}`、`break`
+- **分支语句**: 根据条件执行不同的代码, 如 `if`、`switch`
+- **循环语句**: 重复执行某些代码, 如 `while`、`for`
+
+#### if
+```javascript
+if (条件表达式) {
+  // 条件为真时执行的代码
+} else {
+  // 条件为假时执行的代码
+}
+
+// 可以嵌套
+const score = +prompt('请输入您的成绩: ')
+if (score >= 90) alert(`你的成绩是${score}, 成绩优秀`)
+else if (score >= 80) alert(`你的成绩是${score}, 成绩良好`)
+else if (score >= 60) alert(`你的成绩是${score}, 成绩及格`)
+else alert(`你的成绩是${score}, 成绩不及格`)
+// 只有一行代码时, 可以省略大括号
+```
+
+> 条件表达式中的结果会被自动转换成布尔类型, 相当于 `Boolean(条件表达式)`
+
+#### switch
+```javascript
+switch (表达式) {
+  case 值1:
+    // 表达式的值为值1时执行的代码
+    break 
+  case 值2:
+    // 表达式的值为值2时执行的代码
+    break
+  default:
+    // 表达式的值为其他时执行的代码
+    break
+}
+```
+
+- `break` 用于退出 `switch`, 若没有 `break`, 则会依此执行后续所有 `case`
+- 分支较少时, 一般使用 `if else` 而非 `switch`
+
+{% folding red::用 <code>switch</code> 实现简单计算器 %}
+```javascript
+// 1. 用户输入
+const num1 = +prompt('请输入第一个数字: ')
+const operator = prompt('请输入运算符: ')
+const num2 = +prompt('请输入第二个数字: ')
+// 2. 判断输出
+switch (operator) {
+  case '+':
+    alert(`${num1} + ${num2} = ${num1 + num2}`)
+    break
+  case '-':
+    alert(`${num1} - ${num2} = ${num1 - num2}`)
+    break
+  case '*':
+    alert(`${num1} * ${num2} = ${num1 * num2}`)
+    break
+  case '/':
+    alert(`${num1} / ${num2} = ${num1 / num2}`)
+    break
+  default:
+    alert('您输入的运算符有误')
+    break
+}
+```
+{% endfolding %}
+
+#### 三元表达式
+一些简单的双分支可以用三元运算符代替 `if else`, 语法为 `条件表达式 ? 为真时执行的代码 : 为假时执行的代码`, 一般用于赋值
+
+```javascript
+// 用于赋值
+let score = +prompt('请输入您的成绩: ')
+let grade = score >= 60 ? '及格' : '不及格'
+
+// 用于执行语句
+score = +prompt('请输入您的成绩: ')
+score >= 60 ? alert('及格') : alert('不及格') 
+
+// 在模板字符串中使用
+score = +prompt('请输入您的成绩: ')
+alert(`您的成绩是${score}, 成绩${score >= 60 ? '及格' : '不及格'}`)
+```
+
+{% folding red::用三元运算符实现数字补零 %}
+```javascript
+// 1. 用户输入
+let num = +prompt('请输入一个数字: ')
+// 2. 判断输出
+alert(num < 10 ? `你输入的数字是0${num}` : `你输入的数字是${num}`)
+```
+{% endfolding %}
+
+#### while
+```javascript
+while (条件表达式) {
+  // 循环体
+  // 即条件为真时, 重复执行的代码
+}
+```
+
+- 条件表达式的性质同 `if` 语句
+- 使用 `break` 退出循环
+- 使用 `continue` 结束本次循环, 即跳过循环体中 `continue` 之后的代码, 继续下一次循环
+
+{% folding red::用 <code>while</code> 循环实现打印偶数 %}
+```javascript
+// 1. 初始化变量
+const num = +prompt('请输入一个数字: ')
+console.log(`小于${num}的偶数有: `)
+let i = 0
+// 2. 循环判断
+while (i <= num) {
+  // 3. 打印偶数
+  if (num % 2 === 0) {
+    console.log(num)
+  }
+  // 4. 变量自增
+  i++
+}
+```
+{% endfolding %}
+
+#### do while
+先执行代码后判断条件, 即至少执行一次
+
+```javascript
+do {
+  // 循环体
+} while (条件表达式)
+```
+
+> 实际开发中 `do while` 循环使用较少
+
+#### for
+```javascript
+for (起始值; 条件表达式; 变化量) {
+  // 循环体
+}
+```
+
+- **起始值**: 声明循环变量, 如 `let i = 0`
+- **条件表达式**: 同 `while` 循环
+- **变化量**: 循环体执行完毕后, 循环变量的变化, 如 `i++`
+- 同样可以使用 `break` 和 `continue`
+
+{% folding red::用 <code>for</code> 循环实现打印偶数 %}
+```javascript
+// 1. 初始化变量
+const num = +prompt('请输入一个数字: ')
+console.log(`小于${num}的偶数有: `)
+// 2. 循环判断
+for (let i = 0; i <= num; i++) {
+  // 3. 打印偶数
+  if (num % 2 === 0) {
+    console.log(num)
+  }
+}
+```
+{% endfolding %}
+
+{% folding red::用 <code>for</code> 循环实现遍历数组 %}
+```javascript 
+// 1. 初始化数组
+const arr = ['定风波', '苏轼', '莫听传林打叶声', '何妨吟啸且徐行', '竹杖芒鞋轻胜马', '谁怕', '一蓑烟雨任平生', '料峭春风吹酒醒', '微冷', '山头斜照却相迎', '回首向来萧瑟处', '归去', '也无风雨也无晴']
+// 2. 遍历数组
+for (let i = 0; i < arr.length; i++) {
+  console.log(arr[i])
+}
+```
+{% endfolding %}
+
+{% folding red::用 <code>for</code> 循环计算数组统计量 %}
+```javascript
+// 定义数组
+const arr = [1, 2, 3, 4, 5]
+// 求数组的均值
+let sum = 0
+for (let i = 0; i < arr.length; i++) {
+  sum += arr[i]
+}
+let avg = sum / arr.length
+console.log(avg)
+// 求数组的最大值
+let max = arr[0]
+for (let i = 1; i < arr.length; i++) {
+  if (arr[i] > max) {
+    max = arr[i]
+  }
+}
+console.log(max)
+// 求最小值同理
+```
+{% endfolding %}
+
+> 相比于 `while` 循环, `for` 循环更加简洁, 且循环变量仅限于循环体内使用, 所以更加常用
+
+#### 无限循环
+用 `while(true)` 或 `for(;;)` 实现无限循环, 需要通过 `break` 退出循环
+
+```javascript
+// while 无限循环
+while (true) {
+  let ans = confirm('您是否同意用户协议？')
+  if (ans) {
+    alert('谢谢')
+    break
+  }
+}
+// for 无限循环
+for (;;) {
+  let ans = confirm('您是否同意用户协议？')
+  if (ans) {
+    alert('谢谢')
+    break
+  }
+}
+```
+
+#### 循环嵌套
+在循环体中再嵌套循环, 注意: 循环变量不能相同
+
+```javascript
+// 九九乘法表
+for (let i = 1; i <= 9; i++) {
+  for (let j = 1; j <= i; j++) {
+    console.log(`${j} * ${i} = ${i * j}`)
+  }
+}
+```
+
+#### 标签
+在循环语句前加上标签, 可以在循环体内使用 `break` 和 `continue` 退出或跳过指定循环
+
+```javascript
+// 标签
+outer: for (let i = 0; i < 3; i++) {
+  for (let j = 0; j < 3; j++) {
+    if (i === 1 && j === 1) {
+      break outer
+    }
+    console.log(i, j)
+  }
+}
+```
+
+## 函数
+函数是执行特定任务的一个代码块, 用于将常用的代码封装起来, 从而方便重复使用, 前面用过的 `alert()` 等就是 `JavaScript` 内置的函数
+
+{% notel green 函数基础 %}
+{% btn 函数的注意事项::#函数的注意事项 %} {% btn 回调函数::#回调函数 %} {% btn 函数表达式::#函数表达式 %} {% btn 立即执行函数::#立即执行函数 %} {% btn 定时函数::#定时函数 %}
+{% endnotel %}
+
+{% notel green 函数进阶 %}
+{% btn 动态参数::#动态参数 %} {% btn 剩余参数::#剩余参数 %} {% btn 展开运算符::#展开运算符 %} {% btn 箭头函数::#箭头函数 %}
+{% endnotel %}
+
+```javascript
+// 声明函数
+function 函数名(形式参数1 = 默认值1, 形式参数2 = 默认值2, ...) {
+  // 参数非必须, 可以不写默认值
+  // 只有在调用函数时没有传入实际参数时, 才会使用默认值
+  // 如果不写默认值, 各参数的默认值为 undefined
+  函数体 // 即要执行的代码
+  return 返回值 
+  // return 非必须, 返回值可以是数据、变量、表达式
+  // 只能有一个返回值, 可以用数组或对象返回多个数据
+  // 如果不写 return, 则返回值为 undefined
+}
+
+// 调用函数
+函数名(实际参数1, 实际参数2, ...)
+
+// 调用函数, 并将返回值赋值给变量 ans
+const ans = 函数名(实际参数1, 实际参数2, ...)
+```
+
+- **函数名**: 函数的名称, 命名规则同变量名, 建议用动词开头, 提示函数功能
+- **函数体**: 函数的功能代码, 运行到 `return` 时会**结束函数**, 并返回返回值
+- **形式参数** `形参`: 在声明函数时使用的变量, 只在函数内生效, 在函数体内只能引用形式参数
+- **实际参数** `实参`: 在调用函数时使用的变量或表达式, 实际参数在函数内部被赋值给形式参数
+- **返回值**: 函数执行完毕后对外输出 `即赋给"函数名()"` 的数据或变量
+
+{% folding red::用函数实现打印偶数 %}
+```javascript
+// 声明函数
+function printEven(num) {
+  console.log(`小于${num}的偶数有: `)
+  for (let i = 0; i <= num; i++) {
+    if (i % 2 === 0) {
+      console.log(i)
+    }
+  }
+}
+// 声明变量
+const input = +prompt('请输入一个数字: ')
+// 调用函数
+printEven(input)
+```
+{% endfolding %}
+
+{% folding red::用函数实现冒泡排序 %}
+```javascript
+// 声明函数
+function bubbleSort(arr) {
+  for (let i = 0; i < arr.length - 1; i++) {
+    for (let j = 0; j < arr.length - 1 - i; j++) {
+      if (arr[j] > arr[j + 1]) {
+        let temp = arr[j]
+        arr[j] = arr[j + 1]
+        arr[j + 1] = temp
+      } 
+    }
+  }
+  // 每次循环, 将前 arr.length - i 个元素中最大的元素放到最后
+  return arr
+}
+// 声明变量
+const input = [3, 1, 4, 2, 5]
+// 调用函数
+const ans = bubbleSort(input)
+```
+{% endfolding %}
+
+#### 函数的注意事项
+- 如果声明相同的函数名, 则后面的函数会覆盖前面的函数, 且在严格模式下会报错
+- 形参和实参的个数可以不同
+- 形参多于实参时, 多余的形参值为默认值
+- 实参多于形参时, 多余的实参会被忽略
+- 函数可以调用外部声明的变量, 但函数内部声明的变量不能被外部调用, <b>详见[作用域](#作用域)</b>
+- 函数会优先调用内部声明的变量, 如果没有才会调用外部声明的变量
+
+#### 回调函数
+即**回头再调用的函数**, 将 `A` 函数作为参数传递给 `B` 函数, 这个 `A` 函数就叫做回调函数 `callback`, `A` 函数会在 `B` 函数内部被调用; 多用匿名函数作为回调函数; **使用回调函数 `A` 时只需写函数名, 加上括号表示调用函数 `A` 的返回值, 即函数 `A` 会立即执行, 并以返回值作为参数传递给 `B` 函数**
+
+```javascript
+// 以添加事件监听为例
+// <button id="btn">按钮</button>
+// 声明回调函数
+function fn() {
+  console.log('我是一个回调函数...')
+  return 1
+}
+// 声明函数
+const btn = document.querySelector('#btn')
+btn.addEventListener('click', fn) // 传入函数
+btn.addEventListener('click', fn()) // 传入 1, 事件触发时会报错
+btn.addEventListener('click', function () {
+  fn()
+}) // 通过匿名回调函数传入函数
+btn.addEventListener('click', () => {
+  fn()
+}) // 通过箭头回调函数传入函数
+```
+
+```javascript
+// 调用定时器, 匿名函数做为参数
+setInterval(function () {
+  console.log('我是一个匿名回调函数...')
+}, 1000)
+```
+
+#### 函数表达式
+将函数赋值给一个变量, 并通过变量调用匿名函数; 与具名函数的区别在于: 在书写 `JavaScript` 代码时, 可以先使用具名函数再声明, 但函数表达式必须先声明后使用
+
+```javascript
+// 声明函数
+let fn = function () {}
+// 调用函数
+fn()
+// 必须先声明再调用
+```
+
+- 这个区别的实质是函数声明会被提升, 而函数表达式不会被提升, 后续会介绍
+- 前面介绍的函数具有函数名, 叫做具名函数; 而有些函数没有函数名, 叫做匿名函数
+- 匿名函数不能直接调用, 必须通过变量调用 (即函数表达式)、作为回调函数传递给其他函数、立即执行 (即[立即执行函数](#立即执行函数)) 等方式调用
+
+#### 立即执行函数
+通过自执行调用匿名函数, 可以避免函数名和内部变量名污染全局变量, **必须加分号** `可在前可在后`
+
+```javascript
+// 方法一
+(function(形参){函数体})(实参); // 这个方法逻辑上好理解一点
+// 方法二
+(function(形参){函数体}(实参));// 多个立即执行函数间, 必须用分号隔开
+// 方法三
+!function(形参){函数体}(实参);
++function(形参){函数体}(实参);
+~function(形参){函数体}(实参);
+
+// 如果要重复使用, 也可以包含变量名
+(function fn(形参){函数体})(实参);
+// 等同于
+function fn(形参){函数体}
+fn(实参)
+```
+
+#### 定时函数
+|          函数名          |                                功能                                |
+| :----------------------: | :----------------------------------------------------------------: |
+|  `setTimeout(函数, ms)`  | 延时函数; 在指定的毫秒数后执行函数, 只执行一次, **返回定时器的ID** |
+| `setInterval(函数, ms)`  | 间歇函数; 每隔指定的毫秒数执行函数, 会一直执行, **返回定时器的ID** |
+| `clearTimeout(定时器ID)` |             取消 `setTimeout` 或 `setInterval` 的执行              |
+
+```javascript
+// 间歇执行函数
+let timer = setInterval(function() {
+  console.log(typeof timer) // number
+}, 1000)
+
+// 间歇执行函数
+function timer() {
+  console.log('Hello World')
+}
+let sayHello = setInterval(timer, 1000)
+// 第一次执行前也有 1000ms 的间隔
+
+// 取消间歇函数
+setTimeout(clearInterval(timer), 5000)
+setTimeout(clearInterval(sayHello), 5000)
+```
+
+{% folding red::用 <code>setInterval</code> 实现倒计时 %}
+```javascript
+// 声明变量
+let time = 10
+
+// 声明函数
+function countDown() {
+  console.log(time)
+  time--
+  if (time < 0) {
+    clearInterval(timer) // 清除间歇函数
+    time = 10
+    timer = setInterval(countDown, 1000)
+    // 重新执行间歇函数
+  }
+}
+
+// 间歇执行函数
+let timer = setInterval(countDown, 1000)
+```
+{% endfolding %}
+
+#### 动态参数
+`arguments` 是一个类数组对象, 包含了函数的所有参数, 可以通过索引访问参数, 也可以通过 `length` 属性获取参数的个数
+
+```javascript
+// 声明函数
+function func() {
+  for (let i = 0; i < arguments.length; i++) {
+    console.log(arguments[i])
+  }
+}
+// 调用函数
+func(1, true, 'xiaoyezi') // 1 true 'xiaoyezi'
+```
+
+#### 剩余参数
+语法符号 `...` 用于获取函数的剩余参数, 所有多余的实参会存储到 `...` 后的形参中, 返回一个**真数组**
+
+```javascript
+// 声明函数
+function func(x, y, ...z) {
+  for (let i = 0; i < z.length; i++) {
+    console.log(z[i])
+  }
+}
+// 调用函数
+func(1, 2, 3, 4, 5) // 3 4 5
+```
+
+#### 展开运算符
+在函数外使用时, `...` 用于展开数组、类数组对象、对象, 将其展开成多个参数（以逗号分隔）, 不会影响原数组
+
+```javascript
+const arr = [1, 2, 3]
+console.log(...arr) // 1 2 3
+// 相当于 console.log(1, 2, 3)
+
+// 求数组的最大值
+Math.max(...arr) // 3
+// 相当于 Math.max(1, 2, 3)
+
+// 合并数组
+const arr1 = [1, 2, 3]
+const arr2 = [4, 5, 6]
+const arr3 = [...arr1, ...arr2] // [1, 2, 3, 4, 5, 6]
+
+// 合并对象
+const obj1 = { name: 'xiaoyezi', age: 18 }
+const obj2 = { ...obj1, gender: 'male' }
+const obj3 = { ...obj2 } // 浅拷贝
+```
+
+#### 箭头函数
+`ES6` 新增的一种函数声明方式, 使用 `=>` 定义函数, 可以看作是匿名函数的简写
+
+- 属于函数表达式, 因此不存在函数提升
+- 只有一个参数时, 可以省略圆括号 `()`
+- 函数体只有一行代码时, 可以省略花括号 `{}`, 并自动做为返回值被返回
+- 不能使用 `arguments`, 可以使用 `...`
+- **不能用作构造函数**
+- **不能作为对象的方法, 但能作为方法内的匿名函数, 此时箭头函数的 `this` 与方法的 `this` 指向相同**
+- **箭头函数没有自己的 `this`, 详见[MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/arrow_functions), 且 `this` 值在函数声明时便固定**
+
+```javascript
+// 基本语法
+const func = () => {
+  console.log('Hello World!')
+}
+
+// 只有一个参数的简写
+const func = x => {
+  return x + 1
+}
+
+// 只有一行代码的简写
+const func = x => x + 1
+
+// 返回对象
+const func = x => ({ name: x }) // 要把对象包裹在圆括号中, 否则会被解析为函数体
+console.log(func('xiaoyezi')) // { name: 'xiaoyezi' }
+
+// 阻止默认事件
+document.addEventListener('click', e => e.preventDefault())
+
+// 箭头函数作为方法内的匿名函数
+const obj = {
+  count: 10,
+  doSomethingLater() {
+    // 该方法语法将 this 与 obj 上下文绑定。
+    setTimeout(() => {
+      // 由于箭头函数没有自己的绑定, 
+      // 而 setTimeout（作为函数调用）本身也不创建绑定, 
+      // 因此使用了外部方法的 obj 上下文。
+      this.count++
+      console.log(this.count)
+    }, 1000)
+  },
+};
+```
+
+## 对象
+对象是面向对象编程中的基本实体, 可以包含一系列数据和逻辑, 是一种数据类型
+
+{% notel green 本节内容 %}
+{% btn 遍历对象::#遍历对象 %} {% btn 环境对象::#环境对象 %} {% btn `console`::#console %} {% btn `Math`::#Math %} {% btn `Date`::#Date %} {% btn `Object`::#Object %} {% btn `String`::#String %} {% btn `Number`::#Number %}
+{% endnotel %}
+
+- **属性**: 对象中数据的存在形式, 相当于依附于对象的变量
+- **方法**: 对象中代码的存在形式, 相当于依附于对象的函数
+- 属性和方法也可以在对象声明后动态添加或修改
+- 属性和方法的名称统称为**键**, 值称为**值**, **键**是应唯一的 `否则后面的会覆盖前面的`
+- 属性和方法名如果打破了变量的命名规则, 如使用特殊符号 `-`、`空格` 等或以数字开头, 此时该名称必须用引号包裹, 如 `'user-name': 'xiaoyezi'`; 引用时只能用 `xiaoyezi['user-name']`, 不能用 `xiaoyezi.user-name`
+- `JavaScript` 中内置了一些对象, 称为**内置对象**, 这些对象包含许多属性和方法, 可以直接使用
+
+```javascript
+// 声明空对象
+const emptyObj = {}
+// 声明对象
+const obj = {
+  属性: 值,
+  方法: function(形参, ...) {
+    // 方法体
+    return 返回值
+  }
+  // 或者:
+  方法(形参, ...) {
+    // 方法体
+    return 返回值
+  }
+}
+// 从已有变量创建
+const obj = { uname, age }
+// 相当于 { uname: uname, age: age }
+
+// 访问属性
+// 访问不存在的属性会返回 undefined
+obj.属性
+obj['属性']
+// 调用方法
+// 调用不存在的方法会报错
+obj.方法(实参1, 实参2, ...)
+obj['方法'](实参1, 实参2, ...)
+
+// 动态添加属性或方法
+obj.新属性 = 值
+obj['新属性'] = 值
+obj.新方法 = function(形参, ...) {
+  // 方法体
+  return 返回值
+}
+obj['新方法'] = function(形参 ...) {
+  // 方法体
+  return 返回值
+}
+
+// 删除属性或方法
+delete obj.属性
+delete obj['属性']
+delete obj.方法
+delete obj['方法']
+```
+
+{% folding red::对象创建和使用示例 %}
+```javascript
+// 声明对象
+const xiaoyezi = {
+  uname: '小叶子', // 建议不要使用 name, 因为 name 是 window 对象的属性
+  gender: '男',
+  printName: function(do = true) {
+    if(do) {
+      console.log(this.uname)
+    }
+  },
+  getGender: function() {
+    return this.gender
+  }
+}
+
+// 访问属性
+let name = xiaoyezi.uname // 小叶子
+console.log(xiaoyezi.gender) // 男
+// 调用方法
+xiaoyezi.printName() // 小叶子
+let gender = xiaoyezi.getGender() // 男
+// 动态添加
+xiaoyezi.age = 18
+xiaoyezi.printAge = function() {
+  console.log(this.age)
+}
+```
+{% endfolding %}
+
+#### 遍历对象
+对象 `非数组` 内的属性和方法是无序的, 不能用 `for` 循环遍历, 可以用 `for in` 循环遍历
+
+```javascript
+// 声明对象
+let xiaoyezi = {
+  uname: '小叶子',
+  gender: '男',
+  printName: function(do = true) {
+    if(do) {
+      console.log(this.uname)
+    }
+  },
+  getGender: function() {
+    return this.gender
+  }
+}
+
+// 遍历对象
+for (let key in xiaoyezi) {
+  console.log(key, xiaoyezi[key])
+  // 这里不能用 xiaoyezi.key, 因为 key 是变量
+  // xiaoyezi[key] 相当于 xiaoyezi['xxxxx']
+  key === 'gender' ? break : null
+  // 同一般 for 循环, 可以用 break 和 continue
+}
+// key 的名称没有要求, 也可以用 k、i、j 等
+// key 相当与循环变量, 会被依此赋值为对象的键
+// key 的数据类型和键一样, 是字符串类型
+```
+
+> 不建议用 `for in` 遍历数组, 因为数组的键是数字, 会被隐式转换成字符串
+
+#### 环境对象
+函数中的特殊变量 `this` 指向的是环境对象, 即函数所在的环境, 如果函数是在全局环境中声明的, 则 `this` 指向 `window` 对象; 通常 `this` 指向调用它的对象
+
+|      对象      |描述|
+| :------------: | :-------------------: |
+|  **`window`**  | 浏览器窗口对象, 是 `JavaScript` 中内置的对象, 称为全局对象, 我们定义在全局作用域的 `var` 变量和函数实际上都是 `window` 对象的属性和方法; 详见[WebAPI](/2024/01/17/WebAPI学习笔记)|
+| **`document`** |                                         文档对象, 是 `JavaScript` 中内置的对象, 称为文档对象模型, 是 `DOM` 的入口, 详见下一章                                          |
+
+```javascript
+// 声明函数
+function sayHi() { console.log(this) }
+// 声明对象
+let user = { sayHi: sayHi }
+let person = { sayHi: sayHi }
+
+// 调用
+sayHi() // window
+window.sayHi() // 上面 sayHi() 的实质
+user.sayHi() // user
+person.sayHi() // person
+```
+
+#### console
+|        方法         |        描述        |
+| :-----------------: | :----------------: |
+|   `console.log()`   |      打印信息      |
+|  `console.info()`   |      打印信息      |
+|  `console.warn()`   |      打印警告      |
+|  `console.error()`  |      打印错误      |
+|  `console.table()`  |      打印表格      |
+|  `console.time()`   |      计时开始      |
+| `console.timeEnd()` |      计时结束      |
+|  `console.clear()`  |     清空控制台     |
+|   `console.dir()`   | 打印对象的详细信息 |
+
+#### Math
+|      属性      |         描述          |
+| :------------: | :-------------------: |
+|   `Math.PI`    |        圆周率         |
+|    `Math.E`    |    自然对数的底数     |
+|   `Math.LN2`   |     2 的自然对数      |
+|  `Math.LN10`   |     10 的自然对数     |
+|  `Math.LOG2E`  | 以 2 为底的 e 的对数  |
+| `Math.LOG10E`  | 以 10 为底的 e 的对数 |
+| `Math.SQRT1_2` |     1/2 的平方根      |
+|  `Math.SQRT2`  |      2 的平方根       |
+
+|          方法           |                         描述                          |
+| :---------------------: | :---------------------------------------------------: |
+|      `Math.abs(x)`      |                    返回 x 的绝对值                    |
+|     `Math.ceil(x)`      |          向上取整: 返回大于等于 x 的最小整数          |
+|     `Math.floor(x)`     | 同 `parseInt()`, 向下取整: 返回小于等于 x 的最大整数  |
+|     `Math.round(x)`     | 返回 x 的四舍五入值, 注意: `Math.round(-1.5)` 是 `-1` |
+| `Math.max(x1, x2, ...)` |              返回 x1、x2、... 中的最大值              |
+| `Math.min(x1, x2, ...)` |              返回 x1、x2、... 中的最小值              |
+|    `Math.pow(x, y)`     |          返回 x 的 y 次幂, 即 x<sup>y</sup>           |
+|     `Math.sqrt(x)`      |                    返回 x 的平方根                    |
+|     `Math.random()`     |              返回 `[0, 1)` 之间的随机数               |
+
+> 详见 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math)
+
+##### `Math.random()` 使用示例
+
+- 生成 `[0, 100)` 之间的随机整数: `Math.floor(Math.random() * 100)`
+- 生成 `[0, 100]` 之间的随机整数: `Math.floor(Math.random() * 101)`
+- 生成 `[N, M]` 之间的随机数: `Math.random() * (M - N + 1) + N`
+- 随机抽取数组中的元素: `arr[Math.floor(Math.random() * arr.length)]`
+
+> 将数字保留 `x` 位小数: `num.toFixed(x)`, 返回字符串类型
+
+#### Date
+`Date` 是 `JavaScript` 中内置的对象, 称为日期对象, 这个对象包含许多日期属性和方法; 使用它之前需要先用 `new` 关键字创建一个 `Date` 对象实例
+
+- **实例化**: 通过 `new` 关键字创建一个对象实例, 即创建一个对象
+- <mark>任何变量都可以用 `new` 创建, 详见[包装类型](#包装类型)和[构造函数](#构造函数)</mark>
+- **时间戳**: 从 `1970-01-01 00:00:00` 至今的毫秒数
+- **日期字符串**: `yyyy-mm-dd hh:mm:ss` 格式的字符串, 时分秒可省略
+
+|                 操作                  |                      描述                      |
+| :-----------------------------------: | :--------------------------------------------: |
+|       `const date = new Date()`       | 创建一个 `Date` 对象实例, 值为创建时的本地时间 |
+|    `const date = new Date(时间戳)`    |    创建一个 `Date` 对象实例, 值为指定时间戳    |
+| `const date = new Date('日期字符串')` |     创建一个 `Date` 对象实例, 值为指定日期     |
+
+|            方法            |                      描述                      |
+| :------------------------: | :--------------------------------------------: |
+|    `date.getFullYear()`    |              返回年份, 如 `2020`               |
+|     `date.getMonth()`      | 返回月份, 从 `0` 开始, <b>`0` 表示 `1` 月</b>  |
+|      `date.getDate()`      |   返回日期, 从 `1` 开始, 如 `1` 表示 `1` 日    |
+|      `date.getDay()`       | 返回星期几, 从 `0` 开始, <b>`0` 表示星期天</b> |
+|     `date.getHours()`      |   返回小时, 从 `0` 开始, 如 `0` 表示 `0` 点    |
+|    `date.getMinutes()`     |   返回分钟, 从 `0` 开始, 如 `0` 表示 `0` 分    |
+|    `date.getSeconds()`     |   返回秒数, 从 `0` 开始, 如 `0` 表示 `0` 秒    |
+|  `date.getMilliseconds()`  | 返回毫秒数, 从 `0` 开始, 如 `0` 表示 `0` 毫秒  |
+|      `date.getTime()`      |         返回时间戳, 如 `1590000000000`         |
+|  `date.toLocaleString()`   |     返回本地时间, 如 `2020/5/21 03:20:00`      |
+| `date.toLocalDateString()` |          返回本地日期, 如 `2020/5/21`          |
+| `date.toLocalTimeString()` |          返回本地时间, 如 `03:20:00`           |
+
+> 也可以写成 `new Date().getFullYear()` 等, 效果相同, 但是每次都会创建多余的对象实例, 不推荐
+
+**获取时间戳**
+
+```javascript
+// 上述方法
+const date = new Date()
+let timestamp = date.getTime()
+
+// 直接调用 Date.now() 方法
+timestamp = Date.now() // 只能获取当前时间戳
+
+// 通过 + 运算符将实例转换为数字
+timestamp = +new Date()
+```
+
+**时间戳转换为时间**
+
+```javascript
+// 获取时间戳
+const time = Date.now() // 毫秒
+
+// 转换为时间
+const d = parseInt(time / 1000 / 60 / 60 / 24) // 天
+const h = parseInt(time / 1000 / 60 / 60 % 24) // 时
+const m = parseInt(time / 1000 / 60 % 60) // 分
+const s = parseInt(time / 1000 % 60) // 秒
+```
+
+#### Object
+对象的[构造函数](#构造函数), 以下是它的静态属性和方法
+
+|                    属性或方法                    |                         描述                         |
+| :----------------------------------------------: | :--------------------------------------------------: |
+|               `Object.keys(对象)`                |          返回对象的所有键, **返回值是数组**          |
+|              `Object.values(对象)`               |          返回对象的所有值, **返回值是数组**          |
+|              `Object.entries(对象)`              | 返回对象的所有键值对, **返回值是二维数组**<br>如 `[[key, value], [key, value], ...]` |
+| `Object.assign(目标对象, 源对象1, 源对象2, ...)` | 将源对象的所有可枚举属性复制到目标对象<br>返回目标对象（同时也会修改目标对象） |
+|              `Object.freeze(对象)`               |  冻结对象, 使对象的属性和方法不可修改、删除或添加   |
+
+```javascript
+// 声明对象
+let obj = {
+  name: 'xiaoyezi',
+  age: 18
+}
+// 获取对象的所有键
+let keys = Object.keys(obj) // ['name', 'age']
+// 获取对象的所有值
+let values = Object.values(obj) // ['xiaoyezi', 18]
+// 获取对象的所有键值对
+let entries = Object.entries(obj) // [['name', 'xiaoyezi'], ['age', 18]]
+// 复制对象
+const copy = Object.assign({}, obj)
+// 给对象添加属性
+Object.assign(copy, {gender: '男'})
+```
+
+> `Array` 对象的静态和实例属性和方法见[数组](#数组)
+
+#### String
+
+{% note green %}
+#### 包装类型
+`JavaScript` 中的基本数据类型 `Number`、`String`、`Boolean` 等, 在底层都是用对象"包装"出来的, 具有对象的特征（有静态方法和静态属性）, 称为包装类型; 一般用字面量创建包装类型, 但也可以通过 `new` 关键字实例化包装类型, 详见[构造函数](#构造函数)
+{% endnote %}
+
+|                       属性或方法                       |                                                          描述                                                          |
+| :----------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------: |
+|                      `String(x)`                       |                                                将 `x` 转换为字符串类型                                                 |
+|                      `str.length`                      |                                                  返回字符串的**长度**                                                  |
+|                      `str.trim()`                      |                                       **去除**字符串两端的**空格**, 返回新字符串                                       |
+|                  `str.toUpperCase()`                   |                                          将字符串**转换成大写**, 返回新字符串                                          |
+|                  `str.toLowerCase()`                   |                                          将字符串**转换成小写**, 返回新字符串                                          |
+|                 `str.split('分隔符')`                  |                                       将字符串按照分隔符**分割成数组**, 返回数组                                       |
+| `str.substring(start, end)`<br>`str.slice(start, end)` |                   按照索引**截取**字符串, 返回新字符串<br>`end` 可选, 返回值不包含 `end` 索引的字符                    |
+|           `str.startsWith('xxx', posititon)`           |              判断字符串**是否以 `xxx` 开头**, 返回布尔值<br>`position` 可选, 表示从指定索引位置检测 `xxx`              |
+|                 `str.endsWith('xxx')`                  |                                      判断字符串**是否以 `xxx` 结尾**, 返回布尔值                                       |
+|            `str.includes('xxx', posititon)`            |           判断字符串<b>是否包含 `xxx`</b>, 返回布尔值<br>`position` 可选, 表示只从指定索引及其后方检测 `xxx`           |
+|            `str.indexOf('xxx', posititon)`             | 返回 <b>`xxx`</b> 在字符串中**首次出现的索引**, 没有则返回 `-1`<br>`position` 可选, 表示只从指定索引及其后方检测 `xxx` |
+|                   `str.match('xxx')`                   |                    **查找**并返回字符串中**首次**出现的 `xxx`, 没有则返回 `null`<br>支持正则表达式                     |
+|               `str.replace('xxx', 'xx')`               |                     将字符串中**首次**出现的 `xxx` **替换**为 `xx`, 返回新字符串<br>支持正则表达式                     |
+|`str.padStart(targetLength[, padString])`|用 `padString` 填充 `str` 的前面<br>直到 `str` 的长度达到 `targetLength`<br>返回填充后的字符串|
+|`str.padEnd(targetLength[, padString])`|用 `padString` 填充 `str` 的后面<br>直到 `str` 的长度达到 `targetLength`<br>返回填充后的字符串|
+
+- `padString` 默认为空格, `targetLength` 如果小于 `str` 的长度, 则返回 `str` 本身
+- `substr` 与 `substring` 相同, 但已弃用; 字符串中的索引和数组类似, 从 `0` 开始; **中文字符只占一个索引和一个长度**
+
+{% folding red::<b><code>padStart</code> 方法</b> %}
+```javascript
+const arr = [1, 2, 3, 4, 5]
+// 给数字补 0
+for (const value of arr) console.log(value.toString().padStart(3, '0'))
+// 001 002 003 004 005
+
+// 如果用老办法
+for (const value of arr) {
+  let str = value.toString()
+  while (str.length < 3) str = '0' + str
+  console.log(str)
+}
+```
+{% endfolding %}
+
+{% folding red::<b><code>split</code> 方法</b> %}
+```javascript
+// 声明字符串
+let str = 'x; y; z'
+// 分割字符串
+let arr = str.split('') // ['x', ';', ' ', 'y', ';', ' ', 'z'] 
+let arr = str.split(' ') // ['x;', 'y;', 'z']
+let arr = str.split(';') // ['x', ' y', ' z']
+// 分隔符本身不会被包含在数组中
+```
+{% endfolding %}
+
+#### Number
+|       属性或方法       |                      描述                      |
+| :--------------------: | :--------------------------------------------: |
+|    `num.toFixed(x)`    |     将数字保留 `x` 位小数, 返回字符串类型; **四舍五入** |
+|  `num.toPrecision(x)`  |  将数字转换为指定长度的字符串, 返回字符串类型  |
+|   `num.toString(x)`    |  将数字转换为指定进制的字符串, 返回字符串类型  |
+| `num.toExponential(x)` | 将数字转换为科学计数法的字符串, 返回字符串类型 |
+
+## JSON
+**JavaScript Object Notation, JSON**, 是一种轻量级的数据交换格式, 书写简单、一目了然, 常用于前后端数据交互; 它可以作为一个**对象**、**字符串**、<b>`.json` 文件</b>存在
+
+```json
+{
+  "title": "Blog", // 键和字符串必须用双引号包裹
+  "year": 2024, // 数值必须用十进制
+  "active": true, // 支持布尔值
+  "others": null, // 支持 null
+  "tags": [], // 支持数组和空数组
+  "category": {}, // 支持对象和空对象
+  "members": [
+    {
+      "name": "xiaoyezi",
+      "mail": "o.0@o0-0o.icu"
+    },
+    {
+      "name": "xiaoyezi",
+      "mail": ""
+    }
+  ] // 最后一个元素后面不要加逗号
+  // 不支持函数、正则表达式、日期对象、undefined、NaN
+}
+```
+
+|                  方法                  |                            描述                            |
+| :------------------------------------: | :--------------------------------------------------------: |
+| `JSON.stringify(对象, 处理方法, 缩进)` | 将对象转换为 `JSON` 字符串; 缩进（空格）默认 `0`, 推荐 `2` |
+|        `JSON.parse(JSON字符串)`        |                 将 `JSON` 字符串转换为对象                 |
+
+- **对象**内的不支持的数据类型会被忽略
+- **数组**内的不支持的数据类型会被转换为 `null`
+- 正则对象会被转换为空对象
+- `JSON.stringify()` 会忽略对象的不可遍历属性
+
+#### 处理方法
+```javascript
+// 指定只转换对象的部分属性
+JSON.stringify(对象, ['属性1', '属性2', ...])
+
+// 对属性值进行处理
+JSON.stringify(对象, function(key, value) {
+  // key 是属性名, value 是属性值
+  // 返回值为处理后的属性值
+  // 如果返回 undefined, 则表示忽略该属性
+  // 如果返回函数、正则表达式、日期对象, 则返回值转换为字符串
+  // 如果返回 NaN、Infinity、-Infinity, 则返回值转换为 null
+  // 如果返回其他值, 则表示将该值转换为字符串
+})
+
+// 只适用于一般对象, 不适用于数组
+// 如果对象内存在 toJSON() 方法, 则优先使用该方法
+```
+
+#### 导入 `.json` 文件
+```javascript
+$.ajax({
+	type: "get",
+	url: "xxx.json",
+	dataType: "json",
+	success: function(data) {
+		// data 就是 json 对象
+	},
+  error: function() {
+		alert("请求失败")
+	}
+})
+```
+
+# &#x2B50;进阶
+## DOM
+**Document Object Model, DOM**, 文档对象模型, 是 `JavaScript` 操作网页内容的接口, 它将网页转换成一个多层节点结构, **每个节点都是一个 DOM 对象**, 从而可以用 `JavaScript` 操作这些对象, 从而改变网页的结构、样式和内容
+
+![](/images/note/web-api.jpg)
+
+- `document` 对象是 `DOM` 的**根节点**, 即 `document` 对象是 `DOM` 的入口
+- **元素节点**: HTML 标签, 如 `head`、`div`、`body` 等都属于元素节点
+- **属性节点**: HTML 标签中的属性, 如 `a` 标签的 `href` 属性、`div` 标签的 `class` 属性
+- **文本节点**: HTML 标签的文字内容, 如 `title` 标签中的文字
+
+> 所有 `DOM` 对象都有 `nodeType` 属性, 用于返回节点类型, 元素节点的 `nodeType` 值为 `1`, 属性节点的 `nodeType` 值为 `2`, 文本节点的 `nodeType` 值为 `3`
+
+### 操作元素
+{% notel green 本段内容 %}
+{% btn 获取元素::#获取元素 %} {% btn 常用属性::#常用属性 %} {% btn 控制内容::#控制内容 %} {% btn 控制样式::#控制样式 %} {% btn 表单操作::#表单操作 %} {% btn 自定义属性::#自定义属性 %} {% btn 滚动事件相关::#滚动事件相关 %} {% btn 元素拖拽::#元素拖拽 %}
+{% endnotel %}
+
+#### 获取元素
+|                   方法                   |                                          描述                                          |
+| :--------------------------------------: | :------------------------------------------------------------------------------------: |
+|  `document.querySelector('CSS选择器')`   |                 返回第一个匹配的元素对象, 没有匹配的元素时返回 `null`                  |
+| `document.querySelectorAll('CSS选择器')` | 返回包含所有匹配的元素对象的 `NodeList` 对象, 没有匹配的元素时返回空的 `NodeList` 对象 |
+|        `document.documentElement`        |                          返回文档对象的根元素, 即 `html` 标签                          |
+|             `document.head`              |                               返回文档对象的 `head` 元素                               |
+|             `document.body`              |                               返回文档对象的 `body` 元素                               |
+|             `document.title`             |                              返回文档对象的 `title` 元素                               |
+| `document.currentScript` | 返回当前正在执行的 `script` 元素<br>一般用于获取元素的属性 |
+
+> `NodeList` 和 `HTMLCollection` 对象类似数组, 内含以数字作为属性名排序的各个对象以及 `lenth` 属性, 但是不能使用数组的方法, 称为**伪数组**; 可以通过 `for` 循环, 用遍历数组的写法遍历它们
+
+```javascript
+// <ul id="list">
+//   <li>1</li>
+//   <li>2</li>
+//   <li>3</li>
+// </ul>
+
+// 获取元素
+const lis = document.querySelectorAll('#list li')
+
+// 遍历元素
+for (let i = 0; i < lis.length; i++) {
+  console.log(lis[i])
+}
+
+// 获取指定元素
+const li1 = document.querySelector('#list li:first-child') // 这是 CSS 语法
+const li2 = document.querySelector('#list li:nth-child(2)') // 从 1 开始计数
+const li3 = document.querySelector('#list li:last-child')
+```
+
+> 如果用 `element.querySelector()` 获取元素, 只会在该元素内部查找, 而不会在整个文档中查找
+
+{% folding red::用 <code>querySelector</code> 获取元素 %}
+```html
+<body>
+  <h1>DOM</h1>
+  <div>
+    <span id="someText" data-uname="xiaoyezi">获取元素</span>
+    <span></span>
+    <span class="innerText">操作元素</span>
+  </div>
+</body>
+```
+
+```javascript
+// 通过标签名获取元素 - 返回第一个匹配的元素
+const h1 = document.querySelector('h1')
+// 通过标签名获取元素 - 返回所有匹配的元素
+const spanInDiv = document.querySelectorAll('div span')
+// 通过 id 获取元素 - 返回第一个匹配的元素
+const span = document.querySelector('#someText')
+// 通过 class 获取元素 - 返回第一个匹配的元素
+const span = document.querySelector('.innerText')
+// 通过属性获取元素 - 返回第一个匹配的元素
+const span = document.querySelector('[data-uname="xiaoyezi"]')
+
+// 返回多个元素中的指定元素
+const firstSpan = document.querySelector('div span:first-child')
+const secondSpan = document.querySelector('div span:nth-child(2)')
+const lastSpan = document.querySelector('div span:last-child')
+```
+{% endfolding %}
+
+{% folding red::其他不常用的获取元素方法 %}
+- `document.getElementById('id')`: 返回指定 `id` 的元素对象, 没有匹配的元素时返回 `null`
+- `document.getElementsByClassName('类名')`: 返回包含所有匹配的元素对象的 `HTMLCollection` 对象, 没有匹配的元素时返回空的 `HTMLCollection` 对象
+- `document.getElementsByTagName('标签名')`: 返回包含所有匹配的元素对象的 `HTMLCollection` 对象, 没有匹配的元素时返回空的 `HTMLCollection` 对象
+{% endfolding %}
+
+#### 常用属性
+在元素的 `HTML` 标签中的书写的属性, 如 `<img src="/images/00001.png" alt="小叶子">`, 可以通过 `element.属性名` 获取和修改
+
+|                 属性或方法                 |                         描述                         |
+| :----------------------------------------: | :--------------------------------------------------: |
+|            **`element.属性名`**            | 获取或设置元素的属性值, 如 `src`、`href`、`title` 等 |
+|      `element.getAttribute('属性名')`      |                 获取元素的指定属性值                 |
+| `element.setAttribute('属性名', '属性值')` |                 设置元素的指定属性值                 |
+|    `element.removeAttribute('属性名')`     |                  移除元素的指定属性                  |
+|      `element.hasAttribute('属性名')`      |         判断元素是否含有指定属性, 返回布尔值         |
+
+```javascript
+// <img id="favicon" src="/images/00001.png" alt="小叶子">
+
+// 获取元素
+const img = document.querySelector('#favicon')
+
+// 修改属性
+img.src = '/images/00002.png'
+```
+
+#### 控制内容
+|         属性或方法         |                                                                      描述                                                                       |
+| :------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------: |
+| <b>`element.innerHTML`</b> |                  返回元素内的 `HTML` 片段, 包括所有的标签、空白、缩进; 设置 `innerHTML` 的值会解析 `HTML` 片段并替换元素的内容                  |
+| <b>`element.innerText`</b> | 返回元素及其所有子元素的文本内容, 没有 `<script>` 和 `<style>` 元素的标签和文本; 设置 `innerText` 的值会替换元素的内容为纯文本 `不解析HTML标签` |
+|   `element.textContent`    |         样式类似于 `innerHTML`, 但不显示 `script` 和 `style` 标签, 只显示其文本; 并且设置 `textContent` 的值也会替换元素的内容为纯文本          |
+
+```html
+<div id="demo">
+  我是 <span>小叶子</span>.
+  <script>alert('你好')</script>
+  <style>
+    #demo span {
+      color: red;
+    }
+  </style>
+</div>
+<script>
+  const demo = document.querySelector('#demo')
+
+  console.log(demo.innerHTML)
+  /*
+    我是 <span>小叶子</span>.
+    <scrip>alert('你好')</scrip>
+    <styl>
+      #demo span {
+        color: red;
+      }
+    </styl>
+  */
+
+  console.log(demo.innerText)
+  /*
+  我是 小叶子.
+  */  
+
+  console.log(demo.textContent)
+  /*
+    我是 小叶子.
+    alert('你好')
+    
+      #demo span {
+        color: red;
+      }
+    
+  */  
+</script>
+```
+
+#### 控制样式
+|                   属性或方法                    |                   描述                    |
+| :---------------------------------------------: | :---------------------------------------: |
+|           **`element.style.样式名`**            |   元素的 `style` 对象的属性值 `字符串`    |
+|**`element.style.setProperty('样式名', '样式值')`**| 设置元素的 `style` 对象的属性值 `字符串` |
+|               `element.className`               |      元素的 `class` 属性值 `字符串`       |
+|             **`element.classList`**             | 元素的 `class` 属性值 `DOMTokenList 对象` |
+|         `element.classList.add('类名')`         |                 添加类名                  |
+|       `element.classList.remove('类名')`        |                 移除类名                  |
+|       `element.classList.toggle('类名')`        |    切换类名, 存在则移除, 不存在则添加     |
+|      `element.classList.contains('类名')`       |             判断是否含有类名              |
+| `element.classList.replace('旧类名', '新类名')` |                 替换类名                  |
+
+**特殊属性名的使用**
+
+- 部分属性名, 如 `background-color`, 含有特殊字符 `-`, 不能直接使用
+- 可以用短驼峰命名法, 如 `element.style.backgroundColor`
+- 也可以用引号包裹, 如 `element.style['background-color']`
+- 但 `--xxx` 变量必须用 `style.setProperty()` 方法设置, 不能用以上两种方法; 且内容必须包含`""`, 如 `element.style.setProperty('--xxx', '"#fff"')`
+
+**样式优先级**
+
+- `!important` > 内联样式 > `id` 选择器 > `class` 选择器 > 标签选择器
+- 因为 `element.style.样式名` 是修改内联样式, 而另两者是修改 `class`
+- 所以 `element.style.样式名` 优先级高于另两者
+
+```javascript
+// <style> .demo { background-color: red; } </style>
+// <div id="demo" class="box"></div>
+
+// 获取元素
+const demo = document.querySelector('#demo')
+
+// 修改样式
+demo.style.width = '100px' // 修改宽度为 100px
+demo.classList.add('demo') // 添加类名, 从而修改背景颜色
+demo.className = '' // 清空类名, 从而移除背景颜色
+```
+
+#### 表单操作
+| `form` 元素对象的方法 |        描述         |
+| :-------------------: | :-----------------: |
+|  `element.submit()`   | `form` 元素提交表单 |
+|   `element.reset()`   | `form` 元素重置表单 |
+
+| `input` 对象的属性和方法 |         描述         |
+| :----------------------: | :------------------: |
+|    `element.focus()`     | `input` 元素获取焦点 |
+|     `element.blur()`     | `input` 元素失去焦点 |
+|    `element.select()`    | `input` 元素选中内容 |
+|     `element.value`      |   `input` 元素的值   |
+|   `element.innerHTML`    |  **得不到表单内容**  |
+|    `element.checked`     |  `true` 或 `false`   |
+|    `element.disabled`    |  `true` 或 `false`   |
+
+|     `select` 对象的属性和方法     |           描述            |
+| :-------------------------------: | :-----------------------: |
+|      `element.selectedIndex`      | `select` 元素选中项的索引 |
+|         `element.options`         |  `select` 元素的所有选项  |
+|     `element.options[index]`      |  `select` 元素的指定选项  |
+| `element.options[index].selected` |     `true` 或 `false`     |
+
+|     `button` 对象的属性和方法     |         描述          |
+| :-------------------------------: | :-------------------: |
+|        `element.disabled`         |   `true` 或 `false`   |
+|         `element.click()`         |   `button` 元素点击   |
+| `element.onclick = function() {}` | `button` 元素点击事件 |
+
+> 注意: `value` 属性才是用户输入的值, `placeholder` 是提示内容
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" value="密码">
+    <button disabled>按钮</button>
+    <input type="checkbox" class="agree">
+    <script>
+        // 1. 获取元素
+        const input = document.querySelector('input')
+        const btn = document.querySelector('button')
+        const checkbox = document.querySelector('.agree')
+        // 2. 启用按钮
+        btn.disabled = false
+        // 3. 设置按钮点击事件
+        btn.onclick = function () {
+            // 切换 input 的 type 属性
+            if (input.type === 'password') {
+                input.type = 'text'
+            } else {
+                input.type = 'password'
+            }
+            // 切换复选框的选中状态
+            checkbox.checked = !checkbox.checked
+        }
+    </script>
+</body>
+</html>
+```
+
+#### 自定义属性
+`HTML` 标签可以添加自定义属性, 但要在属性名前加上 `data-` 前缀, 如 `<img src="/images/00001.png" data-uname="xiaoyezi">`, 引用时要加上 `dataset` 前缀, 如 `img.dataset.uname`
+
+```javascript
+// <img id="favicon" src="/images/00001.png" data-uname="xiaoyezi">
+
+// 获取元素
+const img = document.querySelector('#favicon')
+
+// 修改属性
+img.dataset.uname = 'leaf'
+
+// 使用示例
+if (img.dataset.uname === 'xiaoyezi') {
+  console.log('你好, 小叶子')
+} else {
+  console.log('你好, 陌生人')
+}
+```
+
+#### 滚动事件相关
+|              属性或方法               |                                                               描述                                                               |
+| :-----------------------------------: | :------------------------------------------------------------------------------------------------------------------------------: |
+|         `element.clientWidht`         |                                       返回元素的可视宽度像素**数值**, 不包括边框; **只读**                                       |
+|        `element.clientHeight`         |                                       返回元素的可视高度像素**数值**, 不包括边框; **只读**                                       |
+|         `element.clientLeft`          |                               返回元素的相对于父元素的左侧外边距像素**数值**, 不包括边框; **只读**                               |
+|          `element.clientTop`          |                               返回元素的相对于父元素的顶部外边距像素**数值**, 不包括边框; **只读**                               |
+|         `element.offsetWidth`         |                                        返回元素的可视宽度像素**数值**, 包括边框; **只读**                                        |
+|        `element.offsetHeight`         |                                        返回元素的可视高度像素**数值**, 包括边框; **只读**                                        |
+|       **`element.offsetLeft`**        |                返回元素的相对于父元素的左侧外边距像素**数值**, 包括边框; **只读**<br>可用于制作导航栏的下划线效果                |
+|        **`element.offsetTop`**        |                 返回元素的相对于父元素的顶部外边距像素**数值**, 包括边框; **只读**<br>可用于制作导航栏的下拉效果                 |
+| **`element.getBoundingClientRect()`** | 返回元素的 `DOMRect` 对象, 包含**相对于视口的** `top`、`left`、`right`、`bottom`、`width`、`height` 等属性, 包括边框; **可读写** |
+|        **`element.scrollTop`**        |          元素的顶部被滚出的部分的像素**数值**, **可读写**; 一般取 `HTML` 对象, 即 `document.documentElement.scrollTop`           |
+|       **`element.scrollLeft`**        |          元素的左侧被滚出的部分的像素**数值**, **可读写**; 一般取 `HTML` 对象, 即 `document.documentElement.scrollLeft`          |
+|        `window.scrollTo(x, y)`        |       将页面滚动到指定位置, 参数为 `x` 和 `y` 坐标数值, 单位为像素<br>例如, 执行 `window.scrollTo(0, 0)`, 则页面滚动到顶部       |
+
+**设置滚动平滑过渡**
+
+```css
+html {
+  scroll-behavior: smooth;
+}
+```
+
+#### 元素拖拽
+`HTML5` 提供了一系列的拖放事件, 用于实现元素的拖拽功能; 要实现拖拽, 首先要设置元素的 `draggable` 属性为 `true`, 然后监听相关事件 (如果内容较多可以使用事件委托)
+
+详见[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API)
+
+| 事件 | 描述 | 回调函数参数 |
+| :--: | :--: | :----------: |
+| `drag` | 当拖拽元素或选中的文本时触发 | `event` (`target` 为拖拽元素) |
+| `dragstart` | 当开始拖拽元素时触发 | `event` (`target` 为拖拽元素) |
+| `dragend` | 当拖拽操作结束时触发 | `event` (`target` 为拖拽元素) |
+| `dragenter` | 当拖拽元素进入目标元素时触发一次 | `event` (`target` 为目标元素) |
+| `dragover` | 当拖拽元素时每 `100ms` 触发一次 | `event` (`target` 为目标元素) |
+| `dragleave` | 当拖拽元素离开目标元素时触发 | `event` (`target` 为目标元素) |
+| `drop` | 当拖拽元素在**可释放元素**上释放时触发 | `event` (`target` 为目标元素) |
+
+- 操作系统向浏览器拖拽文件不属于 `HTML5` 拖拽事件, **但可以通过 `drop`、`dragover`、`dragenter`、`dragleave` 事件监听**
+- 上面的 `event.target` 是指当这些事件附加在被拖拽的元素上时的指向
+- 如果需要向目标元素传递数据, 可以使用 `dataTransfer` 对象, 并在其身上设置 `drop` 或 `dragover` 事件
+- 在事件处理函数中, 推荐使用 `event.preventDefault()` 阻止默认行为, 因为拖拽往往会有很多浏览器的默认行为
+- 如果需要控制不同的元素是否可以接受拖拽的元素, 或设置不同的接受反应, 可以使用自定义属性
+
+##### dataTransfer
+`dataTransfer` 对象用于保存拖拽元素的数据, 通过 `event.dataTransfer` 获取, 用于在拖拽元素和释放元素之间传递数据 (常常在 `dragstart` 事件中设置数据, 在 `drop` 事件中获取数据)
+
+| 方法 | 描述 |
+| :--: | :--: |
+| `setData('数据类型', '数据')` | 设置拖拽元素的数据 |
+| `getData('数据类型')` | 获取释放元素的数据 |
+| `setDragImage('元素', x, y)` | 设置拖拽时的预览图片, `x` 和 `y` 为图片的偏移量 |
+| `dropEffect` | 设置释放元素的效果, 如 `copy`, `move`, `link` 等 |
+| `getData('数据类型')` | 获取释放元素的数据 |
+
+> 上面的 `数据类型` 是自定义的, 用于区分不同的数据, 如 `application/json`, `text/mydata` 等; 可以将其视作 `key`
+
+##### 拖放文件
+```ts
+// 省略导入内容
+
+export default function DropFile() {
+
+  const element = useRef<HTMLDivElement | null>(null)
+  const [text, setText] = useState<string>('拖拽文件到此处')
+
+  const onDragOver = (e: DragEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+  }
+
+  const onDragEnter = (e: DragEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    setText('松开鼠标')
+  }
+
+  const onDragLeave = (e: DragEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    setText('拖拽文件到此处')
+  }
+  
+  const onDrop = (e: DragEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    const files = e.dataTransfer?.files ?? []
+    setText(`
+      已拖拽 ${files.length} 个文件:
+      ${files.map(file => {
+        return `${file.name} - ${file.size} 字节`
+      }).join('\n')}
+    `)
+  }
+
+  return (
+    <div
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
+      ref={element}
+    >
+      {text}
+    </div>
+  )
+}
+```
+
+### 事件
+指当系统或用户进行某些操作时 `如点击`, 自动调用相应的函数, 这些操作称为**事件**, 相应的函数称为**事件处理函数**
+
+{% notel green 本段内容 %}
+{% btn 事件类型::#事件类型 %} {% btn 事件监听::#事件监听 %} {% btn 事件对象::#事件对象 %} {% btn 事件流::#事件流 %} {% btn 事件委托::#事件委托 %}
+{% endnotel %}
+
+#### 事件类型
+|       事件类型       |                                    描述                                    |        事件类型        |                                     描述                                      |
+| :------------------: | :------------------------------------------------------------------------: | :--------------------: | :---------------------------------------------------------------------------: |
+|     **`click`**      |                                鼠标点击事件                                |     **`dblclick`**     |                                 鼠标双击事件                                  |
+|     `mouseover`      |                                鼠标移入事件                                |       `mouseout`       |                                 鼠标移出事件                                  |
+|   **`mouseenter`**   |                         鼠标移入事件, **不会冒泡**                         |    **`mouseleave`**    |                          鼠标移出事件, **不会冒泡**                           |
+|   **`mousemove`**    |                                鼠标移动事件                                |      `mousedown`       |                                 鼠标按下事件                                  |
+|      `mouseup`       |                                鼠标松开事件                                |     **`keydown`**      |                                 键盘按下事件                                  |
+|     **`keyup`**      |                                键盘松开事件                                |       `keypress`       |                                 键盘按动事件                                  |
+|     **`focus`**      |                              元素获取焦点事件                              |       **`blur`**       |                               元素失去焦点事件                                |
+|     **`change`**     |       元素内容改变事件<br>`input` 元素内容改变<br>并且失去焦点后触发       |      **`input`**       |                               元素内容输入事件                                |
+|      **`load`**      | 所有资源加载完毕事件<br>含样式表图片等外部资源<br>通常添加到 `window` 对象 | **`DOMContentLoaded`** | `HTML` 文档的加载完毕事件<br>不含图片等外部资源<br>通常添加到 `document` 对象 |
+|     **`resize`**     |             浏览器窗口大小改变事件<br>通常添加到 `window` 对象             |      **`scroll`**      |      滚动条滚动事件<br>通常添加到 `window` 对象<br>但只要有滚动条就能用       |
+|       `select`       |                                文本选中事件                                |        `submit`        |                                 表单提交事件                                  |
+|       `reset`        |                                表单重置事件                                |     `contextmenu`      |                                 鼠标右键事件                                  |
+|       `error`        |                              资源加载错误事件                              |        `abort`         |                               资源加载终止事件                                |
+|      `pageshow`      |                                页面显示事件                                |       `pagehide`       |                                 页面隐藏事件                                  |
+|       `online`       |                                网络连接事件                                |       `offline`        |                                 网络断开事件                                  |
+|      `message`       |                                消息通信事件                                |       `storage`        |                                 本地存储事件                                  |
+|    `beforeunload`    |                                页面关闭事件                                |      `dragstart`       |                                 拖拽开始事件                                  |
+|        `drag`        |                                  拖拽事件                                  |       `dragend`        |                                 拖拽结束事件                                  |
+|     `dragenter`      |                                拖拽进入事件                                |       `dragover`       |                                 拖拽悬停事件                                  |
+|     `dragleave`      |                                拖拽离开事件                                |         `drop`         |                                 拖拽放置事件                                  |
+|   **`touchstart`**   |                                触摸开始事件                                |    **`touchmove`**     |                                 触摸移动事件                                  |
+|    **`touchend`**    |                                触摸结束事件                                |     `touchcancel`      |                                 触摸取消事件                                  |
+|   `animationstart`   |                                动画开始事件                                |     `animationend`     |                                 动画结束事件                                  |
+| `animationiteration` |                                动画重复事件                                |   `transitionstart`    |                                 过渡开始事件                                  |
+|   `transitionend`    |                                过渡结束事件                                |    `transitionrun`     |                                 过渡运行事件                                  |
+
+#### 事件监听
+|                     元素对象事件监听方法                      |                  描述                  |
+| :-----------------------------------------------------------: | :------------------------------------: |
+|  `element.addEventListener('事件类型', 事件处理函数, 选项)`   |     为元素添加事件监听, 选项非必填     |
+| `element.removeEventListener('事件类型', 事件处理函数, 选项)` | 为元素移除事件监听, **对匿名函数无效** |
+| `element.onclick = function() {}`<br>`element.onclick = null` |  为元素添加或移除点击事件监听  |
+
+| 选项对象的属性 |                                   描述                                    |
+| :------------: | :-----------------------------------------------------------------------: |
+|   `capture`    | 布尔值, 表示在[**捕获阶段**](#事件流)调用事件处理函数, **默认为 `false`** |
+|     `once`     |          布尔值, 表示是否只调用一次事件处理函数, 默认为 `false`           |
+|   `passive`    |        布尔值, 表示是否不会调用 `preventDefault()`, 默认为 `false`        |
+|     `true`     |            只需要设置 `capture` 时, 等同于 `{ capture: true }`            |
+
+- 用 `element.onclick` 等 `on` 属性时, 元素的一个事件只能添加一个事件监听, 后面的会覆盖前面的
+- 而 `addEventListener`, 一种事件可以添加多个事件监听
+- 如果事件函数为某个对象原型的方法, 建议也放在匿名函数里; 否则要用 `bind` 方法绑定 `this`, 详见[不同内容的弹出对话框](#原型链)这个例子
+
+```javascript
+// <button id="btn">按钮</button>
+
+// 获取元素
+const btn = document.querySelector('#btn')
+
+// 添加事件监听
+btn.addEventListener('click', function() {
+  console.log('你好')
+})
+
+// 点击按钮, 控制台输出 '你好'
+```
+
+{% folding red::事件监听实现随机点名 %}
+```html
+<!DOCTYPE html>
+<html>
+<body>
+  <span>名字是: </span>
+  <span id="name"></span>
+  <br>
+  <button id="btnStart">开始</button>
+  <button id="btnStop" disabled>停止</button>
+
+  <script>
+    // 获取元素
+    const name = document.querySelector('#name')
+    const btnStart = document.querySelector('#btnStart')
+    const btnStop = document.querySelector('#btnStop')
+    // 声明变量
+    const names = ['小叶子', '张三', '李四', '王五', '赵六', '田七']
+    let history = -1
+    // 声明定时器
+    let timer = null
+    // 添加开始键事件监听
+    btnStart.addEventListener('click', function() {
+      clearInterval(timer) // 清除定时器
+      timer = setInterval(function() { // 设置定时器
+        let index = parseInt(Math.random() * names.length) // 随机获取数组下标
+        while (index === history) { // 防止重复
+          index = parseInt(Math.random() * names.length)
+        }
+        name.innerHTML = names[index] // 设置元素内容
+        history = index // 记录历史
+      }, 100)
+      btnStart.disabled = true // 禁用开始按钮
+      btnStop.disabled = false // 启用停止按钮
+    })
+    // 添加停止键事件监听
+    btnStop.addEventListener('click', function() {
+      clearInterval(timer) // 清除定时器
+      btnStop.disabled = true // 禁用停止按钮
+      btnStart.disabled = false // 启用开始按钮
+    })
+  </script>
+</body>
+</html>
+```
+{% endfolding %}
+
+{% folding red::事件监听实现 <code>tab</code> 切换 %}
+```html
+<!DOCTYPE html>
+<html>
+<body>
+  <style>
+    .content {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+  </style>
+
+  <div id="tab">
+    <button>按钮1</button>
+    <button>按钮2</button>
+    <button>按钮3</button>
+  </div>
+  <br>
+  <div id="content">
+    <div class="content active">内容1</div>
+    <div class="content">内容2</div>
+    <div class="content">内容3</div>
+  </div>
+
+  <script>
+    // 获取元素
+    const buttons = document.querySelectorAll('#tab button')
+    const divs = document.querySelectorAll('#content div')
+    // 定义事件处理函数    
+    function toggle(index) {
+      // 若没有传入正确参数, 则不执行
+      if (index < 0 || index > divs.length - 1) return
+      // 删除已有的 active 类名
+      document.querySelector('#content .active').classList.remove('active')
+      // 添加 active 类名
+      divs[index].classList.add('active')
+    }
+    // 添加事件监听
+    for (let i = 0; i < divs.length; i++) {
+      buttons[i].addEventListener('click', function() {
+        toggle(i)
+      })
+    }   
+  </script>
+</body>
+</html>
+```
+{% endfolding %}
+
+{% folding red::事件监听实现返回顶部按钮 %}
+```html
+<!DOCTYPE html>
+<html>
+<body>
+  <button id="btn" style="position:fixed;display:none;">返回顶部</button>
+  <script>
+    // 获取元素
+    const content = document.querySelector('#content')
+    const btn = document.querySelector('#btn')
+    // 添加滚动事件监听
+    window.addEventListener('scroll', function() {
+      // 获取滚动条滚动的距离
+      const scrollTop = document.documentElement.scrollTop
+      // 判断滚动条滚动的距离是否大于 100
+      if (scrollTop > 100) {
+        btn.style.display = 'block'
+      } else {
+        btn.style.display = 'none'
+      }
+    }) 
+    // 添加点击事件监听
+    btn.addEventListener('click', function() {
+      // 设置滚动条滚动的距离为 0
+      document.documentElement.scrollTop = 0
+    })
+  </script>
+</body>
+</html>
+```
+{% endfolding %}
+
+##### 阻止默认行为
+在创建事件监听后, 我们有时会希望阻止浏览器默认的行为, 如点击链接时不跳转, 这时可以在事件处理函数中使用事件对象的 `event.preventDefault()` 方法
+
+```javascript
+// <form>
+//   <input type="password">
+//   <button type="submit">提交</button>
+// </form>
+
+// 获取元素
+const form = document.querySelector('form')
+const input = document.querySelector('input')
+
+// 添加事件监听
+form.addEventListener('submit', function(event) {
+  // 判断密码长度
+  if (input.value.length < 6) {
+    // 阻止表单提交
+    event.preventDefault()
+    // 提示错误
+    alert('密码长度不能小于 6 位')
+    // 清空密码
+    form.reset()
+  }
+})
+```
+
+#### 事件对象
+任意事件类型被触发时与事件相关的信息会被以对象的形式记录下来, 这个对象称为事件对象, 可用于判断 `keydown` 事件的按键、`click` 事件的鼠标位置等
+
+**事件回调函数的第一个参数就是事件对象**
+
+```javascript
+// <input id="input" type="text">
+
+// 获取元素
+const input = document.querySelector('#input')
+
+// 添加事件监听
+input.addEventListener('keydown', function(event) {
+  // 通常用 e / ev / event 作为事件对象的形参
+  console.log(event)
+  // 也可以不设置形参, 用以下方式获取事件对象
+  console.log(window.event)
+  /*
+    KeyboardEvent {key: "a", ctrlKey: false, ...}
+    例如按下 a 键, 对象元素有: 
+    code: "KeyA"
+    key: "a"
+    keyCode: 65
+    srcElement: input#input
+    target: input#input
+    ...
+  */
+  console.log(event.key) // a
+  console.log(event.keyCode) // 65
+  console.log(event.code) // KeyA
+})
+```
+
+|    事件对象的属性     |                        描述                        |
+| :-------------------: | :------------------------------------------------: |
+|     `event.type`      |                      事件类型                      |
+|  **`event.target`**   |             事件目标对象 `较新, 推荐`              |
+|  `event.srcElement`   |                事件目标对象 `较老`                 |
+| `event.currentTarget` |                    事件当前对象                    |
+|  `event.clientX / Y`  |   鼠标相对于浏览器窗口可视区域的水平 / 垂直坐标    |
+|   `event.pageX / Y`   |          鼠标相对于文档的水平 / 垂直坐标           |
+|  `event.offsetX / Y`  |      鼠标相对于事件目标对象的水平 / 垂直坐标       |
+|    `event.altKey`     |                 是否按下 `Alt` 键                  |
+|    `event.ctrlKey`    |                 是否按下 `Ctrl` 键                 |
+|   `event.shiftKey`    |                是否按下 `Shift` 键                 |
+|    `event.button`     |     鼠标按键, `0`: 左键, `1`: 中键, `2`: 右键      |
+|    `event.keyCode`    | 键盘按键的键码, 如 `65`, 已弃用, 请用 `event.code` |
+|    **`event.key`**    |               键盘按键的键名, 如 `a`               |
+|   **`event.code`**    |             键盘按键的键码, 如 `KeyA`              |
+
+> 详见 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/KeyboardEvent)
+
+{% folding red::按下回车键时提交表单 %}
+```javascript
+// <form id="form">
+//   <textarea name="" cols="30" rows="10"></textarea>
+//   <button type="submit">提交</button>
+// </form>
+
+// 获取元素
+const form = document.querySelector('#form')
+const textarea = document.querySelector('#form textarea')
+
+// 添加事件监听
+textarea.addEventListener('keyup', function(event) {
+  if (event.code === 'Enter') {
+    // 同时按下 Ctrl + Enter 时, 换行
+    if (event.ctrlKey) {
+      return
+    } else {
+    // 否则提交表单并清空内容
+      form.submit()
+      form.reset()
+    }
+  }
+})
+```
+{% endfolding %}
+
+#### 事件流
+事件完整执行过程中的流动路径, 分为**事件捕获**和**事件冒泡**阶段; 添加事件监听时, 如果不做修改, 默认在事件冒泡阶段执行事件处理函数
+
+![](/images/note/event.png)
+
+> 古老的 `onclick` 事件监听只能在事件冒泡阶段执行事件处理函数
+
+##### 事件捕获
+从 `DOM` 根元素开始去执行对应事件, 即点击内层元素时, 必须先依此执行外层元素的点击事件; 在下例中, 点击 `div里的div` 时, 会依此显示 `document`、`div`、`div里的div`
+
+```html
+<div id="div1">
+  <div id="div2">
+  </div>
+</div>
+
+<script>
+  // 获取元素
+  const div1 = document.querySelector('#div1')
+  const div2 = document.querySelector('#div2')
+
+  // 添加事件监听
+  document.addEventListener('click', function() {
+    console.log('document')
+  }, true) // true 表示在捕获阶段执行事件处理函数
+  div1.addEventListener('click', function() {
+    console.log('div')
+  }, true) // 实际开发中很少使用
+  div2.addEventListener('click', function() {
+    console.log('div里的div')
+  }, true)
+</script>
+```
+
+##### 事件冒泡
+从事件目标元素开始向上执行对应事件, 即点击内层元素时, 会在执行后依此执行外层元素的点击事件; 在下例中, 点击 `div里的div` 时, 会依此显示 `div里的div`、`div`、`document`
+
+```html
+<div id="div1">
+  <div id="div2">
+  </div>
+</div>
+
+<script>
+  // 获取元素
+  const div1 = document.querySelector('#div1')
+  const div2 = document.querySelector('#div2')
+
+  // 添加事件监听
+  document.addEventListener('click', function() {
+    console.log('document')
+  }) // 默认在冒泡阶段执行事件处理函数
+  div1.addEventListener('click', function() {
+    console.log('div')
+  })
+  div2.addEventListener('click', function() {
+    console.log('div里的div')
+  })
+</script>
+```
+
+**`event.stopPropagation` 阻止事件传播**
+
+```html
+<div id="div1">
+  <div id="div2">
+  </div>
+</div>
+
+<script>
+  // 获取元素
+  const div1 = document.querySelector('#div1')
+  const div2 = document.querySelector('#div2')
+
+  // 添加事件监听
+  document.addEventListener('click', function() {
+    console.log('document')
+  })
+  div1.addEventListener('click', function( event ) {
+    console.log('div')
+    event.stopPropagation() // 阻止事件传播
+    // 既可以阻断冒泡, 也可以阻断捕获
+  })
+  div2.addEventListener('click', function() {
+    console.log('div里的div')
+  })
+</script>
+```
+
+此时, 点击 `div里的div` 时, 只会显示 `div里的div`、`div`, 不会显示 `document`; 而点击 `div` 时, 只会显示 `div`
+
+#### 事件委托
+将事件添加到父元素上, 目标元素的事件通过冒泡传递给父元素, 然后根据事件对象 `event.target` 对象（即实际点击的那个元素对象）, 来执行对应的目标元素的事件处理函数, 这样可以减少事件监听的数量, 提高性能
+
+|     判断目标元素的方法     |                                             描述                                              |
+| :------------------------: | :-------------------------------------------------------------------------------------------: |
+|  `event.target.nodeName`   |        事件对象的 `target` 属性的 `nodeName` 属性, 即实际点击的那个**节点**的标签名名         |
+|   `event.target.tagName`   |        事件对象的 `target` 属性的 `tagName` 属性, 即实际点击的那个**元素节点**的标签名        |
+| `event.target.dataset.xxx` | 事件对象的自定义属性, **最直观, 推荐此方法**; 注意: 它是字符串型数据, 必要可用 `+` 转换成数字 |
+
+> 前两个的区别在于 `nodeName` 适用范围更广, 见[本章开头](#x2B50-Web-API-DOM)
+
+```html
+<ul id="list">
+  <li>1</li>
+  <li>2</li>
+  <li>3</li>
+  <p>4</p>
+</ul>
+
+<script>
+  // 获取元素
+  const list = document.querySelector('#list')
+
+  // 添加事件监听
+  list.addEventListener('click', function(event) {
+    if (event.target.nodeName === 'LI') { 
+      event.target.style.color = 'red' // 点击 li 时变红
+    } else if (event.target.tagName === 'P') {
+      event.target.style.color = 'green' // 点击 p 时变绿
+    }
+  })
+</script>
+```
+
+{% folding red::事件委托实现 <code>tab</code> 切换 %}
+```html
+<!DOCTYPE html>
+<html>
+<body>
+  <style>
+    .content {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+  </style>
+
+  <div id="tab">
+    <button>按钮1</button>
+    <button>按钮2</button>
+    <button>按钮3</button>
+  </div>
+  <br>
+  <div id="content">
+    <div class="content active">内容1</div>
+    <div class="content">内容2</div>
+    <div class="content">内容3</div>
+  </div>
+
+  <script>
+    // 获取元素
+    const button = document.querySelector('#tab') // 改为父元素
+    const divs = document.querySelectorAll('#content div')
+    // 定义事件处理函数    
+    function toggle(index) {
+      // 若没有传入正确参数, 则不执行
+      if (index < 0 || index > divs.length - 1) return
+      // 删除已有的 active 类名
+      document.querySelector('#content .active').classList.remove('active')
+      // 添加 active 类名
+      divs[index].classList.add('active')
+    }
+    // 改为只添加父元素事件监听
+    button.addEventListener('click', function(event) {
+      // 判断点击的是否为 button
+      if (event.target.nodeName === 'BUTTON') {
+        // 获取点击的 button 的索引
+        const index = Array.from(button.children).indexOf(event.target)
+        // 调用事件处理函数
+        toggle(index)
+      }
+    })
+  </script>
+</body>
+</html>
+```
+
+> `Array.from()` 方法从一个类似数组或可迭代对象创建一个新的, 浅拷贝的数组实例, 详见 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/from)
+{% endfolding %}
+
+### 节点操作
+#### 查找节点
+与 `document.querySelector()` 不同, 这里会介绍一些通过元素节点间的关系, 从一个元素节点查找另一个元素节点的方法; 下面的方法**可以嵌套使用**
+
+|       查找节点方法        |           查找元素节点方法           |                                                     描述                                                     |
+| :-----------------------: | :----------------------------------: | :----------------------------------------------------------------------------------------------------------: |
+| **`element.parentNode`**  |       `element.parentElement`        |                                               返回元素的父节点                                               |
+|   `element.childNodes`    |        **`element.children`**        | 返回元素的所有子节点<br>前者返回 [`NodeList 对象`](#获取元素)<br>后者返回 [`HTMLCollection 对象`](#获取元素) |
+|   `element.firstChild`    |     `element.firstElementChild`      |                                            返回元素的第一个子节点                                            |
+|    `element.lastChild`    |      `element.lastElementChild`      |                                           返回元素的最后一个子节点                                           |
+| `element.previousSibling` | **`element.previousElementSibling`** |                                           返回元素的前一个兄弟节点                                           |
+|   `element.nextSibling`   |   **`element.nextElementSibling`**   |                                           返回元素的后一个兄弟节点                                           |
+
+> 第二行只能返回**元素**节点, 第一行可以返回任意节点; `HTML` 文档中不出现单独的文字时, 两者区别不大, 参见[本章开头](#x2B50-Web-API-DOM); 但要注意, `element.parentElement` 无法返回 `document` 对象, 而是返回 `null`
+
+```javascript
+// <div>
+//   <span>小叶子</span>
+// </div>
+
+// 获取元素
+const div = document.querySelector('div')
+// 修改自身内容
+div.parentNode.children[0].innerHTML = '啦啦啦'
+// 等同于 div.innerHTML = '啦啦啦'
+```
+
+#### 操作节点
+|                     方法                     |                                   描述                                    |
+| :------------------------------------------: | :-----------------------------------------------------------------------: |
+|      `document.createElement('标签名')`      |                     创建元素节点, 不写入 `HTML` 文档                      |
+|       `element.append(元素对象, ...)`        |  向元素的子元素列表末尾添加一个或多个子元素                    |
+|  `element.prepend(元素对象, ...)` | 向元素的子元素列表开头添加一个或多个子元素 |
+|  `element.insertBefore(元素对象, 参考元素)`  |          在元素的子元素列表中, 将一个子元素插入到参考元素的前面           |
+|       `element.removeChild(元素对象)`        |                   从元素的子元素列表中, 移除一个子元素                    |
+| `element.replaceChild(元素对象, 旧元素对象)` |                 在元素的子元素列表中, 用新元素替换旧元素                  |
+|          `element.cloneNode(true)`           | 复制元素, 参数为 `true` 时复制元素及其子元素, 参数为 `false` 时只复制元素 |
+|         `element.remove()`         |                    移除元素                   |
+
+```javascript
+// <div>
+//   <span>小叶子</span>
+// </div>
+
+// 创建元素
+const img = document.createElement('img')
+// 设置属性
+img.src = '/images/00001.png'
+// 获取父元素
+const div = document.querySelector('div')
+// 添加到最后
+div.appendChild(img)
+// 添加到最前
+div.insertBefore(img, div.firstElementChild)
+```
+
+## BOM
+**Browser Object Model, BOM**, 浏览器对象模型, 是 `JavaScript` 操作浏览器的接口, 它将浏览器的各个组成部分封装为对象, 提供各种操作浏览器功能的方法和接口
+
+**`window` 对象**是 `BOM` 的核心对象, 它表示浏览器的一个实例, 即一个 `window` 对象就是一个浏览器窗口, `console`、<b>`document`</b>、`location`、`history`、`alert` 等都是 `window` 对象的属性
+
+{% notel green 本段内容 %}
+{% btn `location` 对象::#location-对象 %} {% btn `navigator` 对象::#navigator-对象 %} {% btn `history` 对象::#history-对象 %} {% btn `screen` 对象::#screen-对象 %} {% btn `localStorage` 对象::#localStorage-对象 %} {% btn `sessionStorage` 对象::#sessionStorage-对象 %}
+{% endnotel %}
+
+#### location 对象
+表示当前页面的 `URL` 信息, 可以用它来获取或设置当前页面的 `URL`, 也可以用它来操作浏览器的历史记录
+
+|       属性或方法        |                              描述                              |
+| :---------------------: | :------------------------------------------------------------: |
+|   **`location.href`**   |                   返回或设置当前页面的 `URL`                   |
+|   `location.protocol`   |         返回或设置当前页面的协议, 如 `http:`、`https:`         |
+|     `location.host`     |   返回或设置当前页面的主机名和端口号, 如 `www.baidu.com:80`    |
+|   `location.hostname`   |         返回或设置当前页面的主机名, 如 `www.baidu.com`         |
+|     `location.port`     |              返回或设置当前页面的端口号, 如 `80`               |
+|   `location.pathname`   |          返回或设置当前页面的路径名, 如 `/index.html`          |
+|   **`location.hash`**   |           返回或设置当前页面的哈希值, 如 `#/profile`           |
+| `location.assign(URL)`  |                   加载新的页面, 参数为 `URL`                   |
+| `location.replace(URL)` |                   替换当前页面, 参数为 `URL`                   |
+|   `location.reload()`   |                   重新加载当前页面; 同 `F5`                    |
+| `location.reload(true)` | 重新加载当前页面, 强制从服务器加载, 不使用缓存; 同 `Ctrl + F5` |
+|  `location.toString()`  |                      返回当前页面的 `URL`                      |
+|  `location.valueOf()`   |                      返回当前页面的 `URL`                      |
+
+**查询字符串**
+
+|                 属性或方法                 |                           描述                           |
+| :----------------------------------------: | :------------------------------------------------------: |
+|             `location.search`              | 返回或设置当前页面的查询字符串, 如 `?id=1&name=xiaoyezi` |
+|          `location.searchParams`           |               返回当前页面的查询字符串对象               |
+|    `location.searchParams.get(参数名)`     |       返回当前页面的查询字符串中指定参数名的参数值       |
+|  `location.searchParams.set(参数名, 值)`   |       设置当前页面的查询字符串中指定参数名的参数值       |
+|    `location.searchParams.has(参数名)`     |    判断当前页面的查询字符串中是否含有指定参数名的参数    |
+|   `location.searchParams.delete(参数名)`   |        删除当前页面的查询字符串中指定参数名的参数        |
+| `location.searchParams.append(参数名, 值)` |       向当前页面的查询字符串中添加指定参数名的参数       |
+|     `location.searchParams.entries()`      |        返回当前页面的查询字符串中所有参数的键值对        |
+|       `location.searchParams.keys()`       |          返回当前页面的查询字符串中所有参数的键          |
+|      `location.searchParams.values()`      |          返回当前页面的查询字符串中所有参数的值          |
+|       `location.searchParams.length`       |          返回当前页面的查询字符串中的参数的个数          |
+
+#### navigator 对象
+表示浏览器的信息, 如浏览器的名称、版本、语言、操作系统等
+
+|        属性或方法         |                描述                |
+| :-----------------------: | :--------------------------------: |
+|   `navigator.userAgent`   | 返回浏览器的 `User-Agent` 头部信息 |
+|    `navigator.appName`    |          返回浏览器的名称          |
+|  `navigator.appVersion`   |          返回浏览器的版本          |
+|   `navigator.language`    |          返回浏览器的语言          |
+|   `navigator.platform`    |        返回浏览器的操作系统        |
+|    `navigator.onLine`     |         返回浏览器是否在线         |
+| `navigator.cookieEnabled` |   返回浏览器是否启用了 `cookie`    |
+|  `navigator.wakeLock`     | `wakeLock` API |
+
+##### 保持屏幕常量
+```ts
+// 当当前标签页不再可见时, 浏览器会自动释放锁定行为
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    navigator.wakeLock.request('screen')
+  } // else { // 浏览器将自动执行此逻辑
+  //  navigator.wakeLock.release('screen')
+  // }
+})
+
+// 上面的写法会导致重复锁定, 可以使用以下写法
+let isWakeLock: boolean = false
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && !isWakeLock) {
+    navigator.wakeLock.request('screen').then((lock) => { // lock 的类型为 WakeLockSentinel
+      isWakeLock = true
+      lock.addEventListener('release', () => {
+        isWakeLock = false
+      })
+    })
+  }
+})
+```
+
+#### history 对象
+表示浏览器的历史记录, 可以用它来进行前进、后退、跳转等
+
+|     属性或方法      |               描述               |
+| :-----------------: | :------------------------------: |
+|  `history.back()`   |            返回上一页            |
+| `history.forward()` |           前进到下一页           |
+| `history.go(步数)`  | 前进或后退指定步数, 如 `1`、`-1` |
+
+#### screen 对象
+表示屏幕的信息, 如屏幕的宽度、高度、颜色深度等
+
+|      属性或方法      |        描述        |
+| :------------------: | :----------------: |
+|    `screen.width`    |   返回屏幕的宽度   |
+|   `screen.height`    |   返回屏幕的高度   |
+| `screen.availWidth`  | 返回屏幕的可用宽度 |
+| `screen.availHeight` | 返回屏幕的可用高度 |
+| `screen.colorDepth`  | 返回屏幕的颜色深度 |
+| `screen.pixelDepth`  | 返回屏幕的像素深度 |
+| `screen.orientation` |   返回屏幕的方向   |
+
+#### localStorage 对象
+`HTML5` 提供的本地存储方案, 可以用它来存储数据, 数据不会随着页面的刷新或关闭而丢失, 除非手动删除; 数据以键值对的形式存储, 键和值都是**字符串**型数据, 容量约为 `5MB`; 同一个域名下的不同页面可以共享数据
+
+|              方法              |      描述      |
+| :----------------------------: | :------------: |
+| `localStorage.setItem(键, 值)` | 存储或修改数据 |
+|   `localStorage.getItem(键)`   |    获取数据    |
+| `localStorage.removeItem(键)`  |    删除数据    |
+|     `localStorage.clear()`     |  清空所有数据  |
+
+> 非字符串内容必须以 `json` 字符串的形式存储
+
+```javascript
+// 定义对象
+const obj = {
+  name: 'xiaoyezi',
+  age: 18
+}
+
+// 存储对象
+localStorage.setItem('obj', JSON.stringify(obj))
+
+// 获取对象
+const obj = JSON.parse(localStorage.getItem('obj')) || {}
+
+// 删除对象
+localStorage.removeItem('obj')
+```
+
+#### sessionStorage 对象
+跟 `localStorage` 类似, 但数据会随着页面关闭而丢失
+
+|               方法               |      描述      |
+| :------------------------------: | :------------: |
+| `sessionStorage.setItem(键, 值)` | 存储或修改数据 |
+|   `sessionStorage.getItem(键)`   |    获取数据    |
+| `sessionStorage.removeItem(键)`  |    删除数据    |
+|     `sessionStorage.clear()`     |  清空所有数据  |
+
+## 正则表达式
+**Regular Expression**, 简称 `RegExp`, 是一种多种语言使用的用来匹配字符串的规则, 常用于表单验证、爬虫、文本编辑器等; 正则表达式属于对象
+
+|            属性或方法             |                         描述                          |
+| :-------------------------------: | :---------------------------------------------------: |
+|        `reg.test(字符串)`         |       返回布尔值, 判断字符串是否匹配正则表达式        |
+|        `reg.exec(字符串)`         |   返回数组, 值依次为匹配到的字符串、索引、原字符串    |
+|        `字符串.match(reg)`        |   返回数组, 值依次为匹配到的字符串、索引、原字符串    |
+| `字符串.replace(reg, 替换字符串)` |     返回字符串, 将匹配到的字符串替换为指定字符串      |
+|       `字符串.search(reg)`        | 返回第一个匹配到的字符串的索引, 没有匹配到则返回 `-1` |
+|        `字符串.split(reg)`        |     返回数组, 将字符串按匹配到的字符串分割成数组      |
+
+```javascript
+// 创建正则对象
+const reg = /xiaoyezi/
+const reg = new RegExp('xiaoyezi')
+// 调用方法
+console.log(reg.test('xiaoyezi')) // true
+console.log(reg.test('xiaoyezixxx')) // true
+console.log(reg.test('yezi')) // false
+```
+
+#### 语法规则
+- **普通字符**: 匹配自身, 如 `xiaoyezi`、`b`、`c`、`1`、`2`、`3` 等
+- **元字符**: 具有特殊含义的字符, 如 `.`、`*`、`+`、`?`、`$`、`^`、`|`、`[`、`]`、`(`、`)`、`{`、`}`、`\` 等
+- **空白字符**: 空格、制表符、换行符等, 如 `\n`、`\t`、`\r`、`\f`、`\v`、`\s`
+- **非空白字符**: 除空白字符以外的任意字符
+
+|         元字符          |                描述                |   元字符    |                              描述                              |
+| :---------------------: | :--------------------------------: | :---------: | :------------------------------------------------------------: |
+|           `.`           |     匹配除换行符以外的任意字符     |     `*`     |                  匹配前面的字符 `0` 次或多次                   |
+|         `^xxx`          |          匹配字符串的开始          |     `+`     |                  匹配前面的字符 `1` 次或多次                   |
+|         `xxx$`          |          匹配字符串的结尾          |     `?`     |                 匹配前面的字符 `0` 次或 `1` 次                 |
+|         `^xxx$`         |              精确匹配              |    `{n}`    |                     匹配前面的字符 `n` 次                      |
+|         `[abc]`         |   匹配方括号中的任意**一个**字符   |   `{n,}`    |                  匹配前面的字符 `n` 次或多次                   |
+|        `[^abc]`         |    匹配除方括号中的任意一个字符    |   `{n,m}`   |                 匹配前面的字符 `n` 次到 `m` 次                 |
+|         `[a-z]`         |          匹配任意小写字母          |   `x\|y`    |                        匹配 `x` 或 `y`                         |
+|         `[A-Z]`         |          匹配任意大写字母          |    `\b`     |                 匹配单词的结尾, 单词按空格分隔                 |
+|     `[0-9]` 或 `\d`     |            匹配任意数字            |    `\B`     |                        匹配非单词的结尾                        |
+|    `[^0-9]` 或 `\D`     |      匹配除数字以外的任意字符      |    `\s`     |                        匹配任意空白字符                        |
+| `[a-zA-Z0-9_]` 或 `\w`  |       匹配任意字母数字下划线       |    `\S`     |                       匹配任意非空白字符                       |
+| `[^a-zA-Z0-9_]` 或 `\W` | 匹配除字母数字下划线以外的任意字符 | `\特殊字符` |                    通过转义字符匹配特殊字符                    |
+|          `\n`           |             匹配换行符             |    `\t`     |                           匹配制表符                           |
+|          `\r`           |             匹配回车符             |    `\f`     |                           匹配换页符                           |
+|          `\v`           |           匹配垂直制表符           | `(pattern)` | 详见[这里](https://www.runoob.com/regexp/regexp-metachar.html) |
+
+> 可以在[这里](https://www.jyshare.com/front-end/854/)测试正则表达式, 在[这里](https://any-rule.vercel.app/)查看正则表达式的常用规则
+
+- **优先级**: `\` > `[] / ()` > `* + ? {}` > `^ $ \x` > `|`
+- **贪婪匹配**: 默认情况下, 正则表达式会尽可能多的匹配字符, 如 `/\d+/` 会匹配 `123`, 而不是 `1`
+- **非贪婪匹配**: 在贪婪匹配的基础上, 加上 `?`, 则会尽可能少的匹配字符, 如 `/\d+?/` 会匹配 `1`, 而不是 `123`
+- `[]` 等**限定符**只匹配一个字符, 应配合 `{}` 等**数量符**使用; 如应该用 `^\w+$` 检验一个字符串是否为纯字母数字下划线, 而非用 `^\w$`
+- 在书写和阅读时, 可以把限定符和数量符的组合看作一个小块, 然后拼接成放在 `^` 和 `$` 之间的完整块
+
+#### 修饰符
+在正则表达式的末尾添加修饰符, 可以改变正则表达式的匹配方式, 如 `/abc/im` 中, `i` 和 `m` 就是修饰符
+
+| 修饰符 |                                   描述                                    |
+| :----: | :-----------------------------------------------------------------------: |
+|  `i`   |                                忽略大小写                                 |
+|  `m`   |        多行匹配; 即 `^` 和 `$` 匹配每一行 `以\n分界` 的开头和结尾         |
+|  `s`   |                  使 `.` 匹配**包括换行符**在内的所有字符                  |
+|  `g`   | 全局匹配; 即匹配所有符合条件的结果, 而不是第一个; 常用于 `replace()` 方法 |
+
+## 代码执行机制
+{% notel green 本段内容 %}
+{% btn <code>V8</code>&nbsp;引擎::#V8-引擎 %} {% btn 事件循环::#事件循环 %} {% btn 作用域::#作用域 %} {% btn 垃圾回收机制::#垃圾回收机制 %} {% btn 闭包::#闭包 %} {% btn 提升::#提升 %} {% btn `this`指向::#this-指向 %} {% btn 拷贝::#拷贝 %} {% btn 宏任务和微任务::#宏任务和微任务 %}
+{% endnotel %}
+
+- **宿主环境**: `JavaScript` 运行的环境, 如浏览器、`Node.js`、`Deno`、`Bun` 等
+- **浏览器内核**: 浏览器的核心, 也叫排版引擎、浏览器引擎、页面渲染引擎, 负责解析 `HTML`、`CSS`、`JavaScript`, 并渲染页面; 如 `Chrome` 的 `Blink` 内核、`Safari` 的 `WebKit` 内核
+- **`JavaScript` 解释器**: 浏览器内核中的一部分, 也叫 `JavaScript` 引擎, 负责解释 `JavaScript` 代码并将其转换为机器码执行; 如 `Chrome` 的 `V8` 引擎、`Safari` 的 `JavaScriptCore` 引擎
+- 每个宿主环境都有 `JavaScript` 解释器, `Chrome浏览器`、`Edge浏览器`、`Node.js`、`Deno` 为 `V8` 引擎, `Safari浏览器`、`Bun` 为 `JavaScriptCore` 引擎
+- **[宏任务和微任务](#宏任务和微任务)**
+- **[事件循环](#事件循环)**
+
+{% note green %}
+严格意义上讲, 如今的 `JavaScript` 基础的知识绝大部分属于 `ECMAScript, ES` 的知识体系, 而 `Web API` 是浏览器对 `ES` 的扩展, 包括 `DOM`、`BOM` 等
+
+但现在一般不对 `ECMAScript` 和 `JavaScript` 进行严格区分, 包括 `浏览器`、`Node.js`、`Deno`、`Bun` 等运行环境都可以说是使用了 `JavaScript` 语言
+
+![](/images/note/webapi.png)
+
+> 关于 `JavaScript`、`ECMAScript` 的关系和历史, 详见[这篇文章](https://wangdoc.com/javascript/basic/history)
+{% endnote %}
+
+#### `V8` 引擎
+`Chrome` 浏览器的 `JavaScript` 引擎, 由 `Google` 公司使用 `C++` 语言编写, 可以解释 `JavaScript` 和 `WebAssembly` 代码, 也被用于 `Node.js`、`Deno` 等环境; 可以在 [`GitHub`](https://github.com/v8/v8) 上查看 `V8` 的源代码（超过 `100` 万行）; 以下是其主要运行机制, 可以参见[这篇文章](https://www.freecodecamp.org/chinese/news/javascript-under-the-hood-v8/)
+
+1. **`Parser` 解析器**: 将 `JavaScript` 代码解析为抽象语法树 `AST`<br>**词法分析**: 将代码分解为词法单元, 如 `let`、`function`、`varName`、`varValue`、`+`、`;` 等<br>**语法分析**: 将词法单元转换为 `AST`<br>可以在[这个网站](https://astexplorer.net/)查看指定代码的 `AST`; `Vue` 等代码也会被解析为 `AST`<br>在解析过程中, 全局对象 `window` 会被创建, `var` 声明的变量会被挂载到 `window` 上
+2. **`Ignition` 解释器**: 将 `AST` 转换为字节码, 执行字节码<br>`Bytecode`: 一种中间代码, 类似于汇编语言<br>由于需要跨平台, 所以 `V8` 不会直接将 `AST` 转换为机器码, 而是转换为 `Bytecode`（类似于 `Java` 的 `JVM`）<br>但是字节码的效率比机器码低, 所以引入了下面的 `TurboFan` 编译器
+3. **`TurboFan` 编译器**: 将热点代码（`HotSpot`）的字节码编译为机器码, 执行机器码<br>为什么不直接全部转为机器码: 编译过程耗时且占用内存, 而且有些代码只执行一次, 不值得编译为机器码<br>有些时候 `TurboFan` 会将机器码再转为 `Bytecode`, 如 `函数传参的类型发生变化` 等情况<br>所以 `TypeScript` 虽然仍会被解析为 `JavaScript`, 但性能可能会稍好一些
+
+![](/images/note/ast.jpg)
+
+> **`PreParser` 预解析器**: `V8` 引擎会先对代码进行预解析, 找出所有**函数和变量**（但不一定解析其全部的逻辑）, 然后再进行正式解析（针对运行的需要对函数和变量进行选择性解析）; 这样可以提高解析速度, 但会占用更多内存
+
+#### 事件循环
+`JavaScript` 是一门单线程语言, 即一次只能执行一条语句, 后面的语句必须等前面的语句执行完毕后才能执行, 这种执行机制称为**同步执行**; 但有时我们需要执行一些耗时的操作, 如 `AJAX` 请求、定时器等, 这时就需要**异步执行**, 即不用等待前面的语句执行完毕就可以执行后面的语句
+
+- **异步任务**: 调用后会消耗一定时间, 如 `setTimeout`、`setInterval`、`fetch` 请求, 但不会阻塞后续代码的执行, 并在将来任务完成后执行回调函数
+- 同步任务都在执行引擎的主线程上执行, 形成一个**执行栈** `Execution Context Stack`
+- 异步代码会被放入**宿主环境**（浏览器、`Node.js` 等）中进行计时或等待
+- 异步任务完成后, 宿主环境会将回调函数放入**任务队列**中
+- 执行引擎会**先执行**执行栈中的**同步任务**
+- 同步任务执行完毕后会去任务队列中查看是否有**异步任务**, 如果有则将其**放入执行栈**中执行
+- 以上过程称为**事件循环 `Event Loop`**
+- 网页的多任务处理（计时器计时等）是由浏览器（宿主环境）完成的, 它负责向任务队列里添加任务
+
+#### 作用域
+某个关键字、变量名、函数名的能够被访问到的范围; 一些变量只能在特定的范围内使用, 避免了命名冲突和逻辑混乱
+
+- **全局作用域**: 作用于一个 `.js` 文件或一个 `<script>` 标签最外层的代码环境
+- **局部作用域**: 分为函数作用域和块级作用域
+- **函数作用域**: 函数内部的代码环境, 内部**声明**的变量只能在函数内部使用, 包括 `let`、`const`、`var`
+- **块级作用域**: 作用于 `{}` 内部的代码环境, 如 `if`、`for`, 内部声明的 <b>`let` 和 `const`</b> 变量无法在外部使用; <b>`var` 没有块级作用域</b>
+- 处于全局作用域的变量叫全局变量, 处于局部作用域的变量叫局部变量
+- **作用域链**: 程序会优先使用最近的局部变量, 若不存在则逐级向上查找, 直到全局作用域
+- 如果一个变量没有声明, 直接赋值, 会自动变成全局变量, 包括函数内部
+- 为了更好的性能和避免命名冲突, 应该尽量避免使用全局变量
+
+```javascript
+(function func() {
+  var a = 1
+  let b = 2
+})();
+for (let c = 3; c < 5; c++) { console.log(c) }
+for (var d = 4; d < 6; d++) { console.log(d) }
+(function global() { 
+  e = 5
+})();
+// 注意下方结果
+console.log(a) // 报错
+console.log(b) // 报错
+console.log(c) // 报错
+console.log(d) // 能够访问
+console.log(e) // 能够访问
+```
+
+#### 垃圾回收机制
+**Garbage Collection**, 简称 `GC`, 是 `JavaScript` 中的自动管理内存的机制; 当内存不再使用时, 就需要将其释放, 否则会造成内存泄漏
+
+- **生命周期**: 分配内存 → 使用内存 → 释放内存
+- **分配内存**: 当声明变量、函数、对象时, 系统会自动分配内存
+- **使用内存**: 读写变量、调用函数、访问对象属性等
+- **释放内存**: 当变量、函数、对象不再使用时, 垃圾回收器会自动释放内存
+- 全局变量的生命周期是永久的, 直到页面关闭
+- 局部变量的生命周期是临时的, 使用完毕后, 局部变量就会被释放
+- **内存泄漏**: 分配的内存未释放或无法释放, 可能导致程序占用的内存越来越多
+
+##### 垃圾回收算法
+
+- **引用计数**: 当变量被引用时, 引用计数器加 `1`, 当变量不再被引用时, 引用计数器减 `1`, 当引用计数器为 `0` 时, 垃圾回收器会回收该变量; 但是这种算法无法解决循环引用的问题, 已经被淘汰
+- **标记清除**: 定期扫描, 将无法从全局对象或其下级对象访问到的变量标记为 `待回收`, 并稍后回收它们; 现代浏览器都使用这种算法
+- **栈内存**: 存储基本数据类型的值和引用类型的地址, 由系统自动分配和释放
+- **堆内存**: 存储引用类型的值, 由程序员分配, 由程序员或垃圾回收器释放
+
+```javascript
+// 引用计数
+let arr = [1, 2, 3]
+// 此时堆内存中的 [1, 2, 3] 的引用计数为 1
+// 因为栈内存中 arr 对应的地址指向了它
+let num = arr[0]
+// 此时堆内存中的 [1, 2, 3] 的引用计数为 2
+arr = null
+num = 0
+// 此时堆内存中的 [1, 2, 3] 的引用计数为 0
+// 被垃圾回收器回收
+(function func() {
+  let o1 = {}
+  let o2 = {}
+  o1.name = o2
+  o2.name = o1
+  // 此时即使函数运行完毕, o1 和 o2 也不会被回收
+})();
+
+// 标记清除
+let arr = [1, 2, 3]
+// 此时堆内存中的 [1, 2, 3] 可以被全局对象下的 arr 访问到
+let num = { number: arr[0] }
+arr = null
+// 此时堆内存中的 [1, 2, 3] 仍然可以被全局对象下的 num 访问到
+num = null
+// 此时堆内存中的 [1, 2, 3] 无法被全局对象下的任何变量访问到
+// 被垃圾回收器回收
+(function func() {
+  let o1 = {}
+  let o2 = {}
+  o1.name = o2
+  o2.name = o1
+})();
+// 运行结束后, o1 和 o2 无法被全局对象访问到
+// 被垃圾回收器回收
+```
+
+#### 闭包
+**Closure**, 是指有权访问另一个函数作用域 `即其外层函数` 中的变量的函数, 这个函数和与其相关的变量构成**闭包**
+
+- **作用**: 封闭数据, 实现数据为某个函数私有, 同时又可以让外部访问, 且不会被自动释放
+- **原理**: 函数执行完毕后, 由于其内部的函数被外部函数表达式引用, 从而不会被垃圾回收器回收
+- **问题**: 闭包可能会导致内存泄漏, 应适时手动释放闭包
+
+```javascript
+function func() {
+  // --------闭包--------
+  let num = 1
+  function inner() {
+    num++
+    return num
+  }
+  // --------------------
+  return inner
+}
+const numInFunc = func() // 通过变量（函数表达式）调用 inner 函数
+console.log(numInFunc()) // 2
+console.log(numInFunc()) // 3
+console.log(num) // 报错, num 为 func 函数的局部变量, 应通过闭包访问
+// num 此时无法在外部被赋值修改, 实现了数据的私有化
+```
+
+#### 提升
+##### 变量提升
+**Hoisting**, 是指在代码执行前, 会先将 `var` 变量的声明提升到作用域的最前面, 但不会提升变量的赋值
+
+```javascript
+console.log(a) // undefined
+var a = 1
+console.log(a) // 1
+```
+
+**以上代码等价于**
+
+```javascript
+var a
+console.log(a) // undefined
+a = 1
+console.log(a) // 1
+```
+
+> `let` 和 `const` 声明的变量不会发生变量提升, 会直接报错
+
+##### 函数提升
+在代码执行前, 会先将函数的声明提升到作用域的最前面, 但不会提升函数的调用
+
+```javascript
+func() // 1
+function func() {
+  console.log(1)
+}
+exp() // 报错
+var exp = function() {
+  console.log(2)
+}
+```
+
+**以上代码等价于**
+
+```javascript
+function func() {
+  console.log(1)
+}
+var exp
+func() // 1
+exp() // 报错
+exp = function() {
+  console.log(2)
+}
+```
+
+> **函数表达式不会发生函数提升**, 包括 `var` 声明的函数表达式, 如上述示例
+
+#### this 指向
+`this` 是一个关键字, 用于指向当前执行上下文的对象; 不同的场合, `this` 可能有意想不到的指向
+
+##### 默认指向
+|  场合  | `this` 指向 |
+| :----: | :---------: |
+|  在全局作用域声明的普通函数 |  `window`, 严格模式下为 `undefined`  |
+|  对象中用普通函数声明的方法  |  对象本身  |
+| `window` 下的各种方法, 如定时器 |  `window`  |
+|  普通函数声明的事件处理函数  |  触发事件的元素  |
+|  对象方法内的**箭头函数**  |  同对象方法内的 `this`, 即对象本身  |
+|  **箭头函数**声明的事件处理函数  |  `window`  |
+|  **箭头函数**声明的 `prototype` 方法  |  `window`  |
+
+- 普通函数的 `this` 可以理解为谁调用就指向谁
+- 箭头函数的 `this` 指向定义时的上下文, 不会改变, 不受调用者影响
+- 事实上箭头函数中并不存在 `this`, 其访问的 `this` 是其所在作用域的 `this` 变量
+- **箭头函数不能用作对象的方法和构造函数**
+- **内层函数（一般是箭头函数）不存在 `this` 时, 会向上级作用域查找, 直到找到为止**
+
+##### 指定指向
+|  方法  |  作用  |
+| :----: | :----: |
+|  `func.call(thisTarget, arg1, arg2, ...)`  |  **调用函数**, 指定 `this` 指向 `thisTarget`, 并传入参数  |
+|  `func.apply(thisTarget, arr)`  |  **调用函数**, 指定 `this` 指向 `thisTarget`, 并传入数组 `[arg1, arg2, ...]`  |
+|  `func.bind(thisTarget)`  |  **创建新函数**, 指定新函数的 `this` 指向 `thisTarget`  |
+
+> **注意: 上述方法仅适用于普通函数, 箭头函数的 `this` 无法改变**
+
+```javascript
+// 声明函数
+const arrowSayHi = () => `Hello, I'm ${this.myName}. I'm ${this.age} years old.`
+const normalSayHi = function() { return `Hello, I'm ${this.myName}. I'm ${this.age} years old.` }
+
+// 声明对象
+const me = { myName: 'xiaoyezi', age: 18 }
+const cat = { myName: '小猫', age: 2 }
+const dog = { myName: '小狗', age: 3 }
+window.myName = 'leaf'
+window.age = 12
+
+// 调用函数
+console.log(arrowSayHi())           // Hello, I'm leaf. I'm 12 years old.
+console.log(arrowSayHi.call(me))    // Hello, I'm leaf. I'm 12 years old.
+console.log(arrowSayHi.apply(cat))  // Hello, I'm leaf. I'm 12 years old.
+console.log(arrowSayHi.bind(dog)()) // Hello, I'm leaf. I'm 12 years old.
+
+console.log(normalSayHi())           // Hello, I'm leaf. I'm 12 years old.
+console.log(normalSayHi.call(me))    // Hello, I'm xiaoyezi. I'm 18 years old.
+console.log(normalSayHi.apply(cat))  // Hello, I'm 小猫. I'm 2 years old.
+console.log(normalSayHi.bind(dog)()) // Hello, I'm 小狗. I'm 3 years old.
+```
+
+{% folding red::事件监听中的定时器使用 <code>bind()</code>示例 %}
+```javascript
+// <button id="btn">五秒内只可点击一次</button>
+
+// 获取元素
+const btn = document.querySelector('#btn')
+
+// 添加事件监听
+btn.addEventListener('click', function() {
+  // 禁用按钮
+  this.disabled = true // this 指向调用者 btn
+  // 五秒后解禁
+  setTimeout(function() { 
+    this.disabled = false // 回调函数内的 this 原本指向调用者 window
+  }.bind(this), 5000) // bind() 中的 this 指向事件监听的调用者 btn
+  // 通过 bind() 方法将回调函数内的 this 指向事件监听的调用者 btn
+
+  // 也可以用箭头函数, 箭头函数的 this 指向定义时的上下文, 不会改变
+  setTimeout(() => this.disabled = false, 6000)
+})
+```
+{% endfolding %}
+
+#### 拷贝
+- 深拷贝和浅拷贝是针对引用类型的数据, 因为简单类型的数据赋值时, 直接将数据的值赋给了新的变量
+- **直接赋值**: 只将对象的地址赋值给了新的变量, 两者指向同一块内存地址, 修改其中一个会影响另一个
+- **浅拷贝**: 拷贝了对象的第一层属性, 但如果属性值是引用类型, 拷贝的是地址, 修改其中一个会影响另一个
+- **深拷贝**: 拷贝了对象的所有属性, 包括引用类型, 两者完全互不影响
+
+```javascript
+// 声明数组和对象
+const arr = [1, 2, [3, 4, [5, 6]]]
+const obj = {name: 'xiaoyezi', age: 18, habits: {eat: 'strawberry', sleep: 'bed'}}
+
+// 浅拷贝
+const newArr = arr.slice()
+const newArr = arr.concat()
+const newArr = [...arr]
+const newObj = Object.assign({}, obj)
+const newObj = {...obj}
+
+// 利用 JSON 深拷贝
+const newArr = JSON.parse(JSON.stringify(arr))
+
+// 利用 lodash 库深拷贝
+// <script src="
+// https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
+// "></script>
+const newArr = _.cloneDeep(arr)
+const newObj = _.cloneDeep(obj)
+
+// 利用递归深拷贝
+function deepClone(obj) {
+  // 如果不是引用类型, 直接返回
+  if (typeof obj !== 'object' || obj === null) return obj
+  // 判断是数组还是对象, 创建对应的空数组或对象
+  let result = Array.isArray(obj) ? [] : {}
+  // 遍历对象
+  for (let key in obj) {
+    // 递归调用
+    result[key] = deepClone(obj[key]) 
+    // 若属性值不是引用类型, 直接赋值
+    // 若属性值是引用类型, 递归调用, 直到属性值不是引用类型
+  }
+  return result
+}
+const newArr = deepClone(arr)
+const newObj = deepClone(obj)
+```
+
+{% folding red::利用递归和 <code>setTimeout</code> 模拟 <code>setInterval</code> %}
+```javascript
+function mySetInterval(fn, time) {
+  // 声明一个闭包变量
+  let timer = null
+  // 声明执行函数
+  function interval() {
+    fn()
+    // 递归调用自身
+    timer = setTimeout(interval, time)
+  }
+  // 执行执行函数
+  interval()
+  // 返回一个对象, 用于清除定时器
+  return {
+    clear: function() {
+      clearTimeout(timer)
+    }
+  }
+}
+```
+{% endfolding %}
+
+> **递归函数**: 函数内部调用自身的函数, 称为递归函数, 递归函数必须有一个结束条件, 否则会陷入死循环
+
+#### 宏任务和微任务
+`ES6` 中新增了 `Promise` 对象, 使得 `JavaScript` 也具有了发起和管理异步操作的能力; 从而引入了**宏任务**和**微任务**的概念
+
+- **宏任务**: 由浏览器环境执行的**异步任务**, 如 `setTimeout`、`setInterval`、`I/O`、`UI` 渲染等
+- **微任务**: 由 `JavaScript` 引擎执行的**异步任务**, 如 `Promise`、`process.nextTick`、`MutationObserver` 等
+- **宏任务队列**: 存放宏任务的队列
+- **微任务队列**: 存放微任务的队列, **优先级高于宏任务队列**
+
+|任务|类别|
+|:---:|:---:|
+|`setTimeout` / `setInterval`|宏任务|
+|`<script>` 脚本执行事件|宏任务|
+|`AJAX` 请求|宏任务|
+|`用户交互事件`|宏任务|
+|`promise.then()` / `promise.catch()`|微任务|
+
+- `Promise` 对象本身为同步任务
+- `async` 和 `await` 本质上是 `Promise` 的语法糖, 它们的执行顺序和 `Promise` 是一样的
+
+## 解构赋值
+{% notel green 本段内容 %}
+{% btn 数组解构::#数组解构 %} {% btn 对象解构::#对象解构 %} {% btn 多维解构::#多维解构 %}
+{% endnotel %}
+
+一种快速为变量赋值的简洁语法, 本质上仍然是为变量赋值; 分为**数组解构**和**对象解构**
+
+#### 数组解构
+```javascript
+// 声明数组
+const arr = [1, 2, 3]
+// 解构赋值
+const [a, b, c, d] = arr
+console.log(a, b, c, d) // 1 2 3 undefined
+// 相当于
+const a = arr[0] // 1 
+const b = arr[1] // 2
+const c = arr[2] // 3
+const d = arr[3] // undefined
+```
+
+- 变量的数量大于单元值数量时, 多余的变量将被赋值为 `undefined`
+- 变量的数量小于单元值数量时, 可以通过 `...` 获取剩余单元值, 但只能置于最末位
+- 允许初始化变量的默认值, 且只有单元值为 `undefined` 时默认值才会生效
+- 不需要的单元值可以用 `, ,` 省略
+
+```javascript
+// 声明数组
+const arr = [1, 2, 3, 4]
+// 获取剩余单元值
+const [a, b, ...c] = arr
+console.log(a, b, c) // 1 2 [3, 4]
+// 初始化默认值
+const [a, b, c = 6, d = 7, e = 8] = arr
+console.log(a, b, c, d, e) // 1 2 3 4 8
+// 省略单元值
+const [a, , , d] = arr
+// 交换变量值
+;[a, b] = [b, a] // 注意要加分号
+```
+
+> 直接使用 `[a, b, ...]` 数组值进行赋值或调用数组方法时, 应在前面加分号, 避免错误解析
+
+#### 对象解构
+```javascript
+// 声明对象
+const obj = {
+  name: 'xiaoyezi',
+  age: 18
+}
+// 解构赋值
+const {name: myName, age, gender} = obj
+console.log(myName, age, gender) // xiaoyezi 18 undefined
+// 相当于
+const myName = obj.name // xiaoyezi
+const age = obj.age // 18
+const gender = obj.gender // undefined
+```
+
+- 对象中找不到与变量名一致的属性时, 变量值为 `undefined`
+- 允许初始化变量的默认值, 属性不存在或单元值为 `undefined` 时默认值才会生效
+
+```javascript
+// 声明对象
+const obj = {
+  name: 'xiaoyezi',
+  age: 18
+}
+// 初始化默认值
+const {name = 'leaf', age = 12, gender = 'male'} = obj
+console.log(name, age, gender) // xiaoyezi 18 male
+```
+
+**将对象解构作为形参**
+
+```javascript
+// 声明对象
+const msg = {
+  code: 200,
+  data: {
+    name: 'xiaoyezi',
+    age: 18
+  }
+}
+// 将对象解构作为形参
+function func({data: content}) {
+  // 相当于 const content = msg.data
+  // 也相当于 const {data: content} = msg
+  console.log(content) // { name: 'xiaoyezi', age: 18 }
+}
+```
+
+#### 多维解构
+```javascript
+// 声明数组
+const arr = [1, 2, [3, 4]]
+// 解构赋值
+const [a, b, [c, d]] = arr
+const [a, b, e] = arr
+// 不可以 const [a, b, e[c, d]] = arr
+
+// 声明对象
+const obj = {
+  name: 'xiaoyezi',
+  age: 18,
+  habits: {
+    eat: 'strawberry',
+    sleep: 'bed'
+  }
+}
+// 解构赋值
+const {name, age, habits: {eat, sleep}} = obj
+const {name, age, habits} = obj
+// 只有下面这种写法可以将 habits 对象的值赋给变量 habits
+
+// 嵌套使用
+const mix = [
+  1,
+  2,
+  3,
+  {
+    name: 'xiaoyezi',
+    age: 18,
+    habits: {
+      eat: 'strawberry',
+      sleep: 'bed'
+    }
+  }
+]
+// 解构赋值
+const [a, b, c, {name, age, habits: {eat, sleep}}] = mix
+```
+
+## 类基础
+{% notel green 本段内容 %}
+{% btn 构造函数::#构造函数 %} {% btn 静态成员::#静态成员 %} {% btn 各种数据类型的构造函数::#各种数据类型的构造函数 %} {% btn 原型对象::#原型对象 %} {% btn 原型继承::#原型继承 %} {% btn 实例对象::#实例对象 %} {% btn `instanceof` 运算符::#instanceof-运算符 %} {% btn `getter` 和 `setter`::#getter-setter %}
+{% endnotel %}
+
+{% note green %}
+本节内容了解即可, 实际开发中会用 `class` 关键字定义类, 后面会详细讲解
+{% endnote %}
+
+#### 构造函数
+构造函数是一种特殊的函数, **用于创建对象和功能封装**, 构造函数的名称**一般以大写字母开头**, 以便区分, 如 `Object`、`Array`、`Date`; 如果一个函数**使用 `new` 关键字调用**, 那么这个函数就是构造函数
+
+- 使用 `new` 关键字调用函数的行为被称为**实例化**
+- `new` 关键字会创建一个新对象, 并将构造函数的 `this` 指向该对象, 最后返回该对象
+- **实例对象**: 通过构造函数创建的对象, 即 `new` 关键字创建的对象
+- **实例成员**: 实例对象的属性和方法, 即声明构造函数时, 函数体中用 `this` 添加的属性和方法
+- 不同的实例对象互不影响
+- 不使用 `new` 调用时, 构造函数的行为和普通函数一样
+- 实例化构造函数时没有参数时可以省略 `()`
+- **构造函数内部的 `return` 无效, 返回值为新创建的对象**
+
+```javascript
+// 声明构造函数
+function Person(name, age) {
+  // 构造函数内部的 this 指向新创建的对象
+  this.myName = name
+  this.age = age
+  this.author = 'xiaoyezi'
+  this.sayHello = function() {
+    console.log(`Hello, I'm ${this.myName}`)
+  }
+  this.setNewName = function(newName) {
+    this.myName = newName
+  }
+  return 1 // 对构造函数无效
+}
+// 使用 new 关键字调用构造函数
+let xiaoyezi = new Person('小叶子', 18)
+let cat = new Person('小猫', 2)
+let dog = new Person('小狗', 3)
+// 不用 new 关键字直接调用, 视作普通函数
+let res = Person('小叶子', 18)
+console.log(res) // 1
+```
+
+#### 静态成员
+在 `JavaScript` 中, 底层函数本质上也是对象类型, 因此允许直接为函数动态添加属性或方法; 构造函数本身的属性和方法被称为静态成员
+
+- 静态成员方法中的 `this` 指向构造函数本身
+- 实例对象无法访问静态成员
+- 构造函数对象无法访问实例成员
+
+```javascript
+function Person(name, age) {
+  // 实例属性
+  this.myName = name
+  this.age = age
+  this.author = 'xiaoyezi'
+  // 实例方法
+  this.sayHello = function() {
+    console.log(`Hello, I'm ${this.myName}`)
+  }
+  this.setNewName = function(newName) {
+    this.myName = newName
+  }
+}
+
+// 静态属性
+Person.leg = 2
+// 静态方法
+Person.walk = function () {
+  // this 指向 Person
+  console.log(this.legs) // 2
+  console.log(this.author) // undefined
+}
+
+// 实例化
+let xiaoyezi = new Person('小叶子', 18)
+console.log(xiaoyezi.author) // xiaoyezi
+console.log(xiaoyezi.legs) // undefined
+```
+
+#### 各种数据类型的构造函数
+用字面量声明各种数据类型时, 实际上是调用了构造函数, 如下
+
+```javascript
+// 对象
+let obj = new Object({
+  name: 'xiaoyezi',
+  age: 18
+})
+// 数组
+let arr = new Array('xiaoyezi', 18)
+// 正则
+let reg = new RegExp('\\d+')
+// 字符串
+let str = new String('xiaoyezi')
+// 数字
+let num = new Number(18)
+// 布尔
+let bool = new Boolean(true)
+```
+
+#### 原型对象
+**Prototype**, 是 `JavaScript` 中的一个重要概念, 每个（构造）函数都有一个 `prototype` 属性, 指向一个对象, 这个对象就是**原型对象**
+
+- 实例对象不能访问构造函数的静态成员, 但可以直接访问构造函数的原型对象的属性和方法
+- **实例成员用 `ins.xx` 访问原型对象时, 原型对象中的 `this` 都指向实例对象**
+- 实例对象的 `__proto__` 属性, 指向它的构造函数的原型对象, 即 `ins.__proto__ === Func.prototype`
+- 实例成员用 `ins.__proto__.xx` 访问原型对象时, 原型对象中的 `this` 都指向原型对象本身
+- **实例成员和原型对象成员重名时, 实例成员优先级高**
+- 对象实例化不会多次创建原型上函数, 从而能节约内存
+- 构造函数对象访问原型对象时, 要使用 `prototype` 属性, 且原型对象的 `this` 指向原型对象本身
+- 基于以上性质, 将实例方法写在原型对象上, 即不改变使用方式, 又能节约内存, 还能让构造函数对象访问
+
+```javascript
+// 声明构造函数
+function Person(name, age) {
+  this.myName = name
+  this.age = age
+}
+
+// 为原型对象添加属性和方法
+Person.prototype.sayHello = function() {console.log(`Hello, ${this.myName}`)}
+Person.prototype.myName = 'xiaoyezi'
+
+// 实例化
+let xiaoyezi = new Person('小叶子', 18)
+
+// 实例对象访问原型对象的方法, this 指向实例对象
+// 添加同名实例方法, 其优先级高于原型对象的方法
+xiaoyezi.sayHello() // Hello, 小叶子
+xiaoyezi.sayHello = function() {console.log(`Hi, ${this.myName}`)}
+xiaoyezi.sayHello() // Hi, 小叶子
+
+Person.myName = 'leaf' // 静态属性
+xiaoyezi.myName = 'leaf' // 实例属性
+// 直接访问原型对象的方法, this 指向原型对象本身
+Person.prototype.sayHello() // Hello, xiaoyezi
+xiaoyezi.__proto__.sayHello() // Hello, xiaoyezi
+```
+
+##### 概念区分
+|          类型           |         添加方法          |                       访问方法                        |               `this` 指向                |
+| :---------------------: | :-----------------------: | :---------------------------------------------------: | :--------------------------------------: |
+| 构造函数 → **静态成员** |      `Func.xx = xx`       |                       `Func.xx`                       |               构造函数本身               |
+| 实例对象 → **实例成员** | 构造函数中 `this.xx = xx` |                       `ins.xx`                        |                 实例对象                 |
+| 构造函数 → **原型对象** | `Func.prototype.xx = xx`  | `ins.xx`<br>`Func.prototype.xx`<br>`ins.__proto__.xx` | 实例对象<br>原型对象本身<br>原型对象本身 |
+
+- 实例对象和原型对象都无法访问静态成员
+- 上述的 `this` 可以简单概括为 `this` 指向调用者
+- 再次注意, 不要用箭头函数作为构造函数及其方法
+
+##### constructor 属性
+每个原型对象都有一个 `constructor` 属性, 指向它的构造函数, 即 `Func.prototype.constructor === Func`
+
+```javascript
+// 声明构造函数
+function Person(name, age) {
+  this.myName = name
+  this.age = age
+}
+Person.myName = 'leaf'
+
+// 实例化
+let xiaoyezi = new Person('小叶子', 18)
+
+// 访问 constructor 属性
+console.log(xiaoyezi.constructor === Person) // true
+
+// 访问静态属性
+console.log(xiaoyezi.constructor.myName) // leaf
+console.log(xiaoyezi.myName) // 小叶子
+
+// 对原型对象重新赋值时, 要记得重新赋值 constructor 属性
+Person.prototype = {
+  constructor: Person,
+  cat: function() {console.log('I am a cat')}
+}
+```
+
+#### 原型继承
+**Prototype Inheritance, 是指一个对象继承另一个对象的属性和方法, `JavaScript` 中的继承是通过原型链实现的**
+
+##### 原型链
+每个对象都有一个 `__proto__` 属性, 称为**对象原型**, 指向它的构造函数的原型对象, 构造函数的原型对象也有一个 `__proto__` 属性, 指向它的构造函数的原型对象, 以此类推, 形成了一个**原型链**
+
+- `[[Prototype]]` 与 `__proto__` 相同, 但前者无法直接用 `.` 访问, 后者不是标准属性
+- 访问属性和方法时, 会先在实例对象中查找, 再逐级向上查找, 直到找到为止
+- 之前提到的大部分数组、字符串、数字等的方法, 都是通过原型链实现的, 如 `Array.prototype.map()`
+
+```javascript
+// 声明构造函数
+function Person(name, age) {
+  this.myName = name
+  this.age = age
+}
+
+// 实例化
+let xiaoyezi = new Person('小叶子', 18)
+
+// 原型对象
+console.log(xiaoyezi.__proto__ === Person.prototype) // true
+// console.log(Person.prototype.__proto__ === Object.prototype) // true
+console.log(xiaoyezi.__proto__.__proto__ === Object.prototype) // true
+// console.log(Object.prototype.__proto__ === null) // true
+console.log(xiaoyezi.__proto__.__proto__.__proto__ === null) // true
+```
+
+{% folding red::给所有数组添加新方法 %}
+```javascript
+// 给数组的构造函数的原型对象添加方法
+Array.prototype.sum = function() {
+  return this.reduce((pre, cur) => pre + cur, 0)
+}
+
+// 声明数组
+let arr = [1, 2, 3, 4, 5]
+// 实质是 let arr = new Array(1, 2, 3, 4, 5)
+
+// 调用方法
+console.log(arr.sum()) // 15
+
+// 给 Object 构造函数添加方法
+Object.prototype.print = function() {
+  console.log(this)
+}
+
+// 也可以调用
+arr.print() // [1, 2, 3, 4, 5]
+```
+{% endfolding %}
+
+{% folding red::用原型对象赋予公共方法 %}
+```javascript
+// 公共方法
+function Animal(src) {
+  this.miao = function() {
+    console.log('miao~')
+  }
+  this.woof = function() {
+    console.log('woof~')
+  }
+  this.constructor = src
+}
+
+// 声明构造函数
+function Cat(name, age) {
+  this.myName = name
+  this.age = age
+}
+function Dog(name, age) {
+  this.myName = name
+  this.age = age
+}
+
+// 赋予公共方法
+Cat.prototype = new Animal(Cat)
+Dog.prototype = new Animal(Dog)
+
+// 调用
+Cat.miao() // miao~
+Dog.miao() // miao~
+```
+
+> 即 `child.prototype = new Parent()`, `child` 继承了 `Parent` 的属性和方法; 记得重新赋值 `constructor` 属性
+{% endfolding %}
+
+{% folding red::不同内容的弹出对话框 %}
+```html
+<button id="btn1">问好</button>
+<button id="btn2">提示</button>
+<button id="btn3">睡觉</button>
+```
+
+```javascript
+// 声明构造函数
+function Box(title, content) {
+  this.title = title || '标题' // 对话框标题
+  this.content = content || '内容' // 对话框内容
+}
+Box.prototype.open = function() { // 再再再次提醒, 方法不要用箭头函数
+  // 判断是否已经存在对话框, 存在则删除
+  const current = document.querySelector('[data-id="notice"]')
+  current && current.remove()
+  // 创建对话框
+  let notice = document.createElement('div')
+  notice.dataset.id = 'notice'
+  // 添加内容
+  notice.innerHTML = `
+    <h2>${this.title}</h2>
+    <p>${this.content}</p>
+    <button>关闭</button>
+  `
+  // 添加样式
+  notice.style = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 120px;
+    padding: 20px;
+    border: 1px solid #000;
+    background-color: #fff;
+  `
+  // 添加到页面
+  document.body.appendChild(notice)
+  // 添加关闭对话框事件
+  notice.querySelector('button').onclick = () => document.body.removeChild(notice)
+}
+
+
+// 实例化后立即调用
+document.querySelector('#btn1').onclick = () => new Box('问好', '你好').open()
+document.querySelector('#btn2').onclick = function() { new Box('提示', '这是一个提示').open() }
+
+// 先实例化再调用
+const box = new Box('睡觉', '晚安')
+// 不用匿名函数包裹的话, this 不指向 box, 需要用 bind
+// 如果不用 bind, 标题和内容都会是 undefined
+document.querySelector('#btn3').onclick = box.open.bind(box)
+```
+
+> `Function` 实例的 `bind(thisTarget, arg1, arg2, ...)` 方法创建一个新函数, 当调用该新函数时, 它会调用原始函数并将其 `this` 关键字设置为给定的值, 其第二个参数开始为新函数的实参
+{% endfolding %}
+
+#### instanceof 运算符
+`instanceof` 运算符用于检测"实例对象的原型链上"是否含有"某个构造函数的原型对象"; 语法为 `ins instanceof Func`, 返回布尔值
+
+```javascript
+// 声明构造函数
+function Person(name, age) {
+  this.myName = name
+  this.age = age
+}
+
+// 实例化
+let xiaoyezi = new Person('小叶子', 18)
+
+// 检测原型链
+console.log(xiaoyezi instanceof Person) // true
+console.log(xiaoyezi instanceof Object) // true
+console.log(Person.prototype instanceof Object) // true
+```
+
+#### getter / setter
+`getter` 和 `setter` 是对象的一种**属性**（用属性的方式获取, 用函数的方式定义）, 用于**获取**和**设置**对象的属性值
+
+- `getter` 用于获取对象的属性值, 可以在获取属性值时执行一些逻辑, 使用 `get` 关键字定义
+- `setter` 用于设置对象的属性值, 可以在设置属性值时执行一些逻辑, 使用 `set` 关键字定义
+- `getter` 和 `setter` 不能与属性名相同, 但**它们两者可以同名**
+- 在定义时, `getter` 没有形参, `setter` 有一个形参, 即用户赋值操作赋的值
+
+```javascript
+// 定义
+const obj = {
+  logs: ['log1', 'log2', 'log3'],
+  get latestLog() {
+    return this.logs[this.logs.length - 1]
+  },
+  set latestLog(log) {
+    this.logs.push(log)
+  }
+}
+// 调用
+console.log(obj.latestLog) // log3
+obj.latestLog = 'log4'
+console.log(obj.latestLog) // log4
+```
+
+##### 删除和添加
+`getter` 和 `setter` 可以通过 `delete` 关键字删除、通过 `Object.defineProperty` 方法添加
+
+```javascript
+// 删除
+delete obj.latestLog
+console.log(obj.latestLog) // undefined
+// 添加
+Object.defineProperty(obj, 'latestLog', {
+  get() {
+    return this.logs[this.logs.length - 1]
+  },
+  set(log) {
+    this.logs.push(log)
+  }
+})
+console.log(obj.latestLog) // log4
+```
+
+## 异常处理
+{% notel green 本段内容 %}
+{% btn try catch finally::#try-catch-finally %} {% btn throw::#throw %} {% btn Error 对象::#Error-对象 %}
+{% endnotel %}
+
+#### throw
+- `throw` 语句用于抛出一个用户自定义的异常, 后面可以跟任何值
+- 配合 `Error` 构造函数使用, 可以创建一个新的错误对象, 展示更详细的错误信息
+- `throw` 语句会立即终止函数的执行, 后面的代码不会执行
+
+```javascript
+// 声明函数
+function divide(a, b) {
+  if (b === 0) {
+    throw '除数不能为 0'
+  } else if (typeof a !== 'number' || typeof b !== 'number') {
+    throw new Error('参数类型错误')
+  }
+  return a / b
+}
+
+// 调用函数
+divide(1, 0) // Uncaught 除数不能为 0
+```
+
+#### try catch finally
+- `try`、`catch`、`finally` 语句用于处理异常
+- `try` 语句用于测试代码块, 如果有异常则跳转到 `catch` 语句
+- `catch` 语句用于处理异常, 可以获取异常信息
+- `finally` 语句用于无论是否有异常都会执行的代码
+
+```javascript
+// 声明函数
+function func(x) {
+  try {
+    // ...
+  } 
+  catch (e) { // 如果有异常, 执行 catch 语句, 其中形参是异常对象
+    console.log(e.message)
+    return '出现异常' // 不写 return 的话, 程序会继续执行
+  } 
+  finally { // 可以省略
+    console.log('测试完成') // 无论是否有异常, 都会执行
+  }
+  return xxx // 如果无异常, 或 catch 和 finally 中无 return 语句, 执行该语句
+}
+```
+
+#### debugger
+- `debugger` 语句用于在代码中设置断点, 调试代码
+- 在调试器打开的情况下, 代码执行到 `debugger` 语句时会自动暂停, 可以查看变量的值、执行栈等信息
+- 在调试器未打开的情况下, `debugger` 语句不会产生任何效果
+
+```javascript
+// 声明函数
+function func() {
+  for (let i = 0; i < x; i++) {
+    if (i === 3) {
+      debugger // 设置断点
+    }
+  }
+}
+
+// 调用函数
+func() // 如果调试器打开, 会在 i === 3 时暂停
+```
+
+#### Error 对象
+`Error` 对象是 `JavaScript` 中的一个内置对象, 表示某些特定的错误信息; 创建一个 `Error` 对象时, 可以省略 `new` 关键字
+
+|构造函数|描述|
+|:----:|:----:|
+|`Error([message[, options]])`|创建一个新的 `Error` 对象|
+|`RangeError([message[, options]])`|表示数值或参数超出其有效范围|
+|`ReferenceError([message[, options]])`|表示非法或不能识别的引用值|
+|`SyntaxError([message[, options]])`|表示解析代码时发生的语法错误|
+|`TypeError([message[, options]])`|表示变量或参数不是有效类型|
+|`URIError([message[, options]])`|表示 `encodeURI()` 或 `decodeURI()` 函数的参数无效|
+
+|实例属性|描述|
+|:----:|:----:|
+|`error.message`|错误消息, 即参数中的 `message`|
+|`error.name`|错误名称, 即构造函数的名称|
+|`error.cause`|错误原因, 通常是另一个错误<br>对于用户创建的错误, 该属性为 `options.cause`|
+
+- `options.cause` 一般用于将捕获到的错误重新包装, 并附上一些信息
+- 如果不传入 `options` 参数, 则 `Error` 对象没有 `cause` 属性
+- 如果第二个参数不是对象, 也不会被添加到 `cause` 属性中 (用于对一些非标准的写法进行容错处理)
+
+## 防抖和节流
+#### 防抖 / Debounce
+单位时间内, 如果频繁触发同一事件, 只执行最后一次; 即触发后等待一段时间再执行, 如果在这段时间内再次触发, 则重新计时
+
+- 搜索框输入时, 只有停止打字后才会触发搜索
+- 用户输入密码时, 只有停止输入后才会验证密码
+- 窗口大小改变时, 只有停止改变后才会触发重新计算布局
+
+```javascript
+// 鼠标在盒子上移动时, 使盒子内的数字加一
+// 通过防抖, 实现只有停止移动 500ms 后才会触发
+// <div id="box"></div>
+
+// 获取元素
+const box = document.querySelector('#box')
+
+// 事件处理函数
+function addOne() {
+  let i = 0
+  box.innerHTML = i++
+}
+
+// 通过 lodash 库实现
+box.addEventListener('mousemove', _.debounce(addOne, 500))
+
+// 手动实现
+function debounce(fn, delay) {
+  // 声明一个闭包变量
+  let timer
+  // 由于 debounce() 是作为事件处理函数, 所以应返回一个函数
+  return function() {
+    // 由于形成了闭包, 所以只有这个返回的函数能访问到 timer
+    // 清除定时器
+    timer && clearTimeout(timer)
+    // 重新设置定时器
+    timer = setTimeout(fn, delay)
+  }
+}
+box.addEventListener('mousemove', debounce(addOne, 500))
+```
+
+#### 节流 / Throttle
+单位时间内, 只触发一次事件; 即触发后立即执行, 然后在规定时间内不再触发
+
+- 多次点赞时, 每隔一段时间才真正发送请求
+- 上述防抖的案例, 改为节流则是每隔一段时间才会触发
+- 针对高频事件, 如 `mousemove`、`scroll`、`resize` 等
+
+```javascript
+// 将上方的例子改为触发一次后, 等待 500ms 才能再次触发
+
+// 通过 lodash 库实现
+box.addEventListener('mousemove', _.throttle(addOne, 500))
+
+// 手动实现
+function throttle(fn, delay) {
+  // 声明一个闭包变量
+  let timer
+  // 返回事件处理函数
+  return function() {
+    // 如果定时器不存在, 立即执行
+    if (!timer) {
+      fn()
+      // 下方不用 clearTimeout() 是因为无法在定时器内部清除定时器
+      timer = setTimeout(() => timer = 0, delay)
+    }
+  }
+}
+```
+
+{% folding red::通过节流实现视频从上次播放位置开始 %}
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video</title>
+  <style>
+    video {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+</head>
+<body>
+  <video src="https://www.runoob.com/try/demo_source/movie.mp4" controls></video>
+  <script>
+    // 获取元素
+    const video = document.querySelector('video')
+    // 事件处理函数
+    function saveTime() {
+      localStorage.setItem('videoTime', video.currentTime)
+    }
+    // 通过节流, 正在播放时每隔 1s 保存一次播放位置
+    video.addEventListener('timeupdate', _.throttle(saveTime, 1000))
+    // 获取上次播放位置, 并设置
+    video.currentTime = localStorage.getItem('videoTime') || 0
+  </script>
+</body>
+</html>
+```
+{% endfolding %}
+
+## 模块化
+通过 `export` 和 `import` 关键字, 可以将代码分割成多个模块, 使代码更加清晰、易于维护
+
+#### export
+- `export ...` 关键字用于在一个独立的 `.js` 文件中, 导出变量、函数、类等供外部使用
+- `export default ...` 关键字用于声明导出模块的默认成员, 一个模块只能有一个默认成员
+- `as` 关键字用于重命名导出的成员
+
+```javascript
+// 导出变量
+export default const name = 'xiaoyezi'
+export const age = 18
+
+// 导出函数
+export function sayHi() {
+  console.log(`Hello, I'm ${name}. I'm ${age} years old.`)
+}
+
+// 也可以前面不写 export, 在后面批量导出
+// 此时还可以用 as 关键字重命名
+export default name // 或 export { name as default }
+export { age as myAge, sayHi }
+```
+
+#### import
+- <b>必须在 `<script>` 标签中声明 `type="module"` 才能使用 `import`</b>
+- 需要引入的模块无需在 `HTML` 文件中引入, 只需在 `JavaScript` 文件中使用 `import` 关键字即可
+- `import ... from ...` 关键字用于导入模块的变量、函数、类等
+- `import` 关键字后面的花括号 `{}` 用于导入模块的指定成员, 不加时导入模块的默认成员
+- `as` 关键字用于重命名导入的成员
+- `* as xxx` 用于导入模块的所有成员, `xxx` 是一个对象, 包含了模块的所有成员
+
+```html
+<script type="module" src="module.js"></script>
+```
+
+```javascript
+// 导入模块的默认成员
+import xxx from './module.js'
+// 不加花括号, 则直接导入模块的默认成员
+// 导入的名称可以自定义
+// 如果还要导入其他成员: 
+import xxx, { age, sayHi } from './module.js'
+
+// 导入模块的指定成员
+import { name as myName, age as myAge, sayHi} from './module.js'
+
+// 导入模块的所有成员
+import * as module from './module.js'
+// module.age、module.sayHi
+// 默认成员只能用 module.default
+```
+
+#### 注意事项
+```ts
+// lib.ts
+export let myLetVar: number = 1
+export const myConstVar: number = 2
+export const myObj: object = {name: 'xiaoyezi'}
+```
+
+```ts
+// main.ts
+import { myLetVar, myConstVar, myObj } from './lib'
+myLetVar = 3 // 报错, 不能修改
+myConstVar = 4 // 报错, 不能修改
+console.log(myObj.name) // xiaoyezi
+myObj.name = 'leaf' // 可以修改
+console.log(myObj.name) // leaf
+```
+
+#### 动态导入
+`import()` 函数用于动态导入模块, 返回一个 `Promise` 对象, 可以在 `async` 函数中使用 `await` 关键字
+
+```ts
+import * as mod from 'xxx'
+// 相当于
+const mod = await import('xxx')
+```
+
+# &#x2B50;网络
+`JavaScript` 中可以通过 `Fetch` 和 `XMLHttpRequest` 发送网络请求的, `Fetch` 是 `XMLHttpRequest` 的替代品, 使用更加简单
+
+## HTTP
+`HTTP` 是 `HyperText Transfer Protocol` 的缩写, 即**超文本传输协议**, 是当前互联网上应用最为广泛的一种网络传输协议, 最新版本为 `HTTP/3`
+
+|版本|年份|特点|
+|:---:|:---:|:---:|
+|**HTTP/0.9**|1991|只有一个命令 `GET`, 并且只能请求 `HTML` 格式的文档|
+|**HTTP/1.0**|1996|增加了很多命令, 如 `POST`、`HEAD`、`PUT`、`DELETE` 等|
+|**HTTP/1.1**|1999|增加持久连接、管道机制、增加缓存处理、增加 `Host` 等|
+|**HTTP/2**|2015|所有数据以二进制传输, 多路复用, 头部压缩, 服务器推送等|
+|**HTTP/3**|2018|基于 `QUIC` 协议, 解决 `TCP` 的队头阻塞问题|
+
+> 由于 `HTTP/3` 的 `QUIC` 协议是基于 `UDP` 的, 所以在国内不太受待见（虽然速度快, 但成本高且较难审查）, 经常被限速甚至封锁（点名批评北师大校园网）
+
+### URL
+`URL` 是 `Uniform Resource Locator` 的缩写, 指的是**统一资源定位符**, 用于定位互联网上的资源, 包括文件、目录、程序等; 即我们通常所说的网址
+
+{% notel green 本段内容 %}
+{% btn 接口::#接口 %} {% btn Token::#Token %} {% btn IP 地址::#IP-地址 %} {% btn URL 端口::#端口 %}
+{% endnotel %}
+
+以 `http://www.example.com:8080/path/to/file?query=string#hash` 为例, `URL` 由以下几部分组成
+
+|内容|说明|示例|
+|:---:|:---:|:---:|
+|**协议**|资源的访问协议|`http://`、`https://`、`ftp://`|
+|**主机名**|资源所在的**域名**或<b>`IP`</b>|`www.example.com`、`127.0.0.1`|
+|**端口**|资源所在的端口号, 不写时使用默认端口<br>默认 `http` 端口为 `80`, `https` 端口为 `443`|`8080`、`443`|
+|**路径**|资源所在的路径|`/path/to/file`、`/`|
+|**查询字符串**|资源的**查询参数**, 用 `?` 开头, 多个参数用 `&` 连接|`query=string&name=leaf`|
+|**哈希值**|资源的**锚点**, 用 `#` 开头|`#hash`|
+
+#### 接口
+`API` 是 `Application Programming Interface` 的缩写, 指的是**应用程序接口**, 用于不同软件系统之间的通信; 在网页开发中, 通常指的是**接口文档**, 用于说明如何与服务器进行通信; 可以在[这里](https://apifox.cn/apidoc/project-1937884/doc-1695440)获取一些练习用的接口文档及示例代码
+
+![](/images/note/qingyunke.png)
+
+- `encodeURI()` 用于将中文等特殊字符转换为 `URL` 编码, 如 `小叶子` 转换后为 `%E5%B0%8F%E5%8F%B6%E5%AD%90`
+- `decodeURI()` 用于将 `URL` 编码转换为中文等特殊字符, 如 `%E5%B0%8F%E5%8F%B6%E5%AD%90` 转换后为 `小叶子`
+- `URLSearchParams` 对象会自动处理 `URL` 查询参数, 因此通过 `URLSearchParams` 或 `URL` 对象访问查询参数时, 不需要手动处理编码和解码
+- 但在使用 `fetch` **发送**请求时, 需要手动处理编码
+
+#### Token
+`Token` 是一种身份验证的方式, 常用于登录和权限验证; `Token` 通常是一个**长字符串**, 由服务器生成并返回给客户端, 包含了用户的一些信息, 如用户名、权限等; `Token` 认证失败时, 服务器会返回 `401` 状态码
+
+#### IP 地址
+`IP` 是 `Internet Protocol` 的缩写, 指的是**互联网协议**, 用于唯一标识互联网上的设备; `IP` 地址分为 `IPv4` 和 `IPv6` 两种, 前者是 `32` 位的二进制数, 后者是 `128` 位的二进制数
+
+- `IPv4` 地址由 `4` 个 `8` 位的二进制数组成, 每个数组用 `0-255` 的十进制数表示, 如 `192.168.0.1`
+- `IPv6` 地址由 `8` 个 `16` 位的二进制数组成, 每个数组用 `0-ffff` 的十六进制数表示, 如 `2001:0db8:85a3:0000:0000:8a2e:0370:7334`
+- `IPv4` 已经用尽, 现在一般是一个 `IPv4` 地址对应对应多个实际使用的用户（`NAT` 技术）
+- `NAT` 技术就是让多个私有地址共用一个公网地址, 通过端口号区分不同的用户
+- `192.168.x.x`、`172.16.0.0-172.31.255.255`、`10.0.0.0-10.255.255.255` 是私有地址, 只能在局域网内使用（家庭宽带一般是第一个、校园网一般是第二个）
+- `127.0.0.1-127.255.255.254` 是本地回环地址, 用于访问本机; 而 `localhost` 就是指向 `127.0.0.1` 的域名
+- 每一个域名都对应一个 `IP` 地址, 而 `DNS` 服务器就是用来记录这个对应关系的
+
+#### 端口
+一个主机往往不只有一个服务, 因此为了区分不同的服务, 为它们分配了不同的端口号, 范围是 `0-65535`
+
+- `0-1023` 是**系统保留端口**, 一般用于系统服务
+- `1024-49151` 是**注册端口**, 一般用于用户进程
+- `49152-65535` 是**动态和/或私有端口**, 一般用于客户端程序
+- `80` 是 `HTTP` 协议的默认端口
+- `443` 是 `HTTPS` 协议的默认端口
+- `21` 是 `FTP` 协议的默认端口
+- `22` 是 `SSH` 协议的默认端口
+
+### 请求
+#### 请求方法
+访问 `URL` 时, 我们的**请求方法**决定了服务器对资源的操作; 直接输入网址访问某个网站时, 浏览器默认使用的是 `GET` 方法
+
+|请求方法|说明|
+|:---:|:---:|
+|**GET**|请求指定的页面信息, 并返回实体主体, **数据一般附在 `URL` 后面**|
+|**POST**|向指定资源提交数据进行处理请求, **数据一般包含在请求体中**|
+|**PUT**|从客户端向服务器传送数据, 用其取代指定文档的内容, 数据包含在请求体中|
+|**DELETE**|请求服务器删除指定的页面|
+|**HEAD**|类似于 `GET` 请求, 只不过返回的响应中没有具体的内容, 用于获取报头|
+|**PATCH**|对资源进行部分修改|
+
+- 实际开发中, `GET` 和 `POST` 常常也被用来删除和修改资源
+- `GET` 请求大小有限制, 一般不超过 `2KB`, `POST` 请求大小没有限制
+
+#### 请求报文
+发送请求时, 我们需要按照 `HTTP` 或 `HTTPS` 协议的规范, 向服务器发送一个请求报文, 包括请求行、请求头和请求体
+
+```http
+GET /path/to/file?query=string#hash HTTP/1.1     ----- 请求行
+Host: www.example.com                            ----- 请求头
+Connection: keep-alive
+Accept: text/html
+User-Agent: Mozilla/5.0
+Content-Type: application/json                   ----- 这句表明请求体的数据类型
+Content-Length: 13
+Origin: http://127.0.0.1:5500
+Referer: http://127.0.0.1:5500/
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9                  ----- 请求头结束
+                                                 ----- 空行
+{"name": "xiaoyezi","age": 18}                   ----- 请求体
+```
+
+> 调试时, 可以在浏览器的开发者工具中的 `Network` 选项卡中查看请求报文和响应报文
+
+### 响应
+#### 响应报文
+服务器接收到请求报文后, 会返回一个响应报文, 包括状态行、响应头和响应体
+
+```http
+HTTP/1.1 400 Bad Request                        ----- 状态行
+Server: nginx                                   ----- 响应头
+Date: Fri, 01 Jan 2021 00:00:00 GMT
+Content-Type: application/json                  ----- 这句表明响应体的数据类型
+Content-Length: 13
+Connection: keep-alive
+Vary: Origin
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+x-frame-options: SAMEORIGIN
+x-xss-protection: 1; mode=block
+x-content-type-options: nosniff
+x-download-options: noopen
+x-readtime: 16                                  ----- 响应头结束
+                                                ----- 空行
+{"error": "Bad Request"}                        ----- 响应体
+```
+
+#### HTTP 状态码
+`HTTP` 协议的响应报文中, 状态行的第二个字段是**状态码**, 用于表示服务器对请求的处理结果
+
+|状态码|说明|状态码|说明|
+|:---:|:---:|:---:|:---:|
+|**1xx**|信息性状态码|**2xx**|成功状态码|
+|**3xx**|重定向状态码|**4xx**|客户端错误状态码|
+|**5xx**|服务器错误状态码|**100**|继续|
+|**200**|成功|**301**|永久重定向|
+|**302**|临时重定向|**304**|未修改|
+|**400**|错误请求|**401**|未授权|
+|**403**|禁止|**404**|未找到|
+|**500**|服务器错误|**503**|服务不可用|
+
+## XMLHttpRequest
+`XMLHttpRequest` 对象, 简称 `XHR`, 用于在后台与服务器交换数据, 可以在不重新加载页面的情况下更新页面
+
+{% note green %}
+由于 `Fetch` 没有上传时的进度事件, 所以在上传载时, 如果需要跟踪进度, 可以使用 `XMLHttpRequest` 对象
+
+```typescript
+// 通过 put 请求上传文件
+const xhr = new XMLHttpRequest()
+xhr.open('PUT', signedUrl)
+xhr.upload.onprogress = event => {
+  flushSync(() => setProgress(+(10 + 89 * event.loaded / event.total)))
+}
+xhr.send(blob)
+await new Promise((resolve, reject) => {
+  xhr.onload = () => resolve(null)
+  xhr.onerror = error => reject(error)
+})
+```
+{% endnote %}
+
+{% notel green 本段内容 %}
+{% btn XHR事件::#XHR-事件 %} {% btn AJAX和axios::#AJAX-和-axios %} {% btn FormData::#FormData %} 
+{% endnotel %}
+
+```javascript
+// 创建 XMLHttpRequest 对象
+const xhr = new XMLHttpRequest()
+
+// 设置请求方法和请求地址
+xhr.open('GET', 'https://xxx.xxx/xxx')
+
+// 监听响应结果
+xhr.addEventListener('loadend', () => { // 加载完成事件
+  // 如果请求成功
+  if (xhr.status === 200) {
+    // 获取响应结果
+    console.log(xhr.response)
+  } else {
+    // 如果请求失败
+    console.log('请求失败')
+  }
+})
+
+// 发送请求
+xhr.send()
+```
+
+|属性或方法|说明|
+|:---:|:---:|
+|**readyState**|请求的状态, 0 未初始化, 1 已打开, 2 已发送, 3 已接收, 4 完成|
+|**status**|响应的状态码, 如 200 成功, 404 未找到, 500 服务器错误|
+|**response**|响应的数据|
+|**open(method, url, async, user, password)**|初始化请求, 后三个参数可省略|
+|**send(body)**|发送请求, `body` 为请求体, 仅在 `POST` 和 `PUT` 中使用|
+|**setRequestHeader(name, value)**|设置请求头|
+|**getResponseHeader(name)**|获取响应头|
+|**getAllResponseHeaders()**|获取所有响应头|
+|**abort()**|取消请求|
+|**addEventListener(event, callback)**|添加事件监听|
+
+#### XHR 事件
+|事件|说明|
+|:---:|:---:|
+|**loadstart**|请求开始|
+|**progress**|请求过程中|
+|**abort**|请求被取消|
+|**error**|请求失败|
+|**load**|请求成功|
+|**loadend**|请求完成|
+|**timeout**|请求超时|
+|**readystatechange**|请求状态改变|
+
+{% folding red::发送 <code>GET</code> 请求获取省份列表 %}
+```javascript
+// 创建 XMLHttpRequest 对象
+const xhr = new XMLHttpRequest()
+
+// 设置请求方法和请求地址
+xhr.open('GET', 'http://hmajax.itheima.net/api/province')
+
+// 监听响应结果
+xhr.addEventListener('load', () => console.log(JSON.parse(xhr.response)))
+
+// 发送请求
+xhr.send()
+```
+{% endfolding %}
+
+{% folding red::发送 <code>POST</code> 请求登陆账号 %}
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    input {
+      display: block;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <input type="text" id="username" placeholder="用户名">
+  <input type="password" id="password" placeholder="密码">
+  <button id="login">登陆</button>
+  <script>
+    // 获取元素
+    const username = document.querySelector('#username')
+    const password = document.querySelector('#password')
+    const login = document.querySelector('#login')
+
+    // 添加事件监听
+    login.onclick = function() {
+      // 创建 XMLHttpRequest 对象
+      const xhr = new XMLHttpRequest()
+      // 设置请求方法和请求地址
+      xhr.open('POST', 'http://hmajax.itheima.net/api/login')
+      // 设置请求头
+      xhr.setRequestHeader('Content-Type', 'application/json')
+      // 监听响应结果
+      xhr.addEventListener('loadend', () => {
+        // 如果请求成功
+        if (xhr.status === 200) {
+          // 提示登陆成功
+          alert(JSON.parse(xhr.response).message)
+          // 禁用输入框和按钮
+          username.disabled = true
+          password.disabled = true
+          login.disabled = true
+        } else {
+          // 如果请求失败
+          alert(JSON.parse(xhr.response).message)
+          // 清空输入框
+          username.value = ''
+          password.value = ''
+        }
+      })
+      // 发送请求
+      xhr.send(JSON.stringify({
+        username: username.value,
+        password: password.value
+      }))
+    }
+  </script>
+</body>
+</html>
+```
+{% endfolding %}
+
+#### AJAX 和 axios
+`AJAX` 是 `Asynchronous JavaScript and XML` 的缩写, 指的是通过 `JavaScript` 发送异步请求, 获取数据并更新页面, 而不用刷新整个页面; 本质上还是通过 `XMLHttpRequest` 对象发送请求
+
+`axios` 是一个基于 `Promise` 的 `HTTP` 客户端, 可以实现 `AJAX` 请求, 可用于浏览器和 `Node.js`, 支持 `Promise` API, 可以拦截请求和响应, 转换请求和响应数据, 取消请求, 自动转换 `JSON` 数据, 客户端支持防止 `CSRF` 等
+
+> <b>`promise` 对象</b>: 用于表示一个异步操作的最终完成或失败, 以及其结果值; 最显著特点是具有 `then()` 方法
+
+```javascript
+// 引入 axios 库
+// <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+// 发送请求
+axios({
+  method: 'get', // 请求方法, 如 get、post, 不写默认为 get
+  url: 'https://xxx.xxx/xxx', // 请求地址
+  params: { // 查询参数, 仅在 get 中使用
+    name: 'xiaoyezi',
+    age: 18
+  },
+  data: { // 请求体, 仅在 post 中使用
+    name: 'xiaoyezi',
+    age: 18
+  }
+}).then(res => {
+  // 请求成功后, 结果会被传入 then() 方法
+  console.log(res)
+  // 其中的 data 属性是请求得到的数据
+  console.log(res.data)
+}).catch(err => {
+  // 请求失败后, 错误会被传入 catch() 方法
+  console.log(err)
+  // 其中的 response.data 是请求得到的错误信息
+  console.log(err.response.data)
+})
+```
+
+{% folding red::发送 <code>GET</code> 请求获取省份列表 %}
+```javascript
+// 发送请求
+axios({
+  method: 'get',
+  url: 'http://hmajax.itheima.net/api/province'
+}).then(res => {
+  res.data.list.forEach(item => console.log(item.name))
+}).catch(err => {
+  console.log(err)
+})
+```
+{% endfolding %}
+
+{% folding red::发送 <code>GET</code> 请求获取城市列表 %}
+```javascript
+// 发送请求
+axios({
+  method: 'get',
+  url: 'http://hmajax.itheima.net/api/city',
+  params: {
+    pname: '广东省'
+  }
+}).then(res => {
+  res.data.list.forEach(item => console.log(item.name))
+}).catch(err => {
+  console.log(err)
+})
+```
+{% endfolding %}
+
+{% folding red::发送 <code>POST</code> 请求登陆账号 %}
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    input {
+      display: block;
+      margin: 10px 0;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <input type="text" id="username" placeholder="用户名">
+  <input type="password" id="password" placeholder="密码">
+  <button id="login">登陆</button>
+  <script>
+    // 获取元素
+    const username = document.querySelector('#username')
+    const password = document.querySelector('#password')
+    const login = document.querySelector('#login')
+
+    // 添加事件监听
+    login.onclick = function() {
+      // 判断输入是否合法
+      if (!username.value || !password.value) {
+        alert('用户名和密码不能为空')
+        return
+      } else if (username.value.length < 6) {
+        alert('用户名长度不能小于 6 位')
+        return
+      } else if (password.value.length < 6) {
+        alert('密码长度不能小于 6 位')
+        return
+      } else {
+        // 发送请求
+        axios({
+          method: 'post',
+          url: 'http://hmajax.itheima.net/api/login',
+          data: {
+            username: username.value,
+            password: password.value
+          }
+        }).then(res => {
+          // 如果成功, 提示登陆成功
+          alert(res.data.message)
+          // 禁用输入框和按钮
+          username.disabled = true
+          password.disabled = true
+          login.disabled = true
+        }).catch(err => {
+          // 如果失败, 根据错误类型提示错误信息
+          if (err.response.status === 0) { // 网络错误
+            alert('网络错误')
+          } else {
+            alert(err.response.data.message) // 其他错误
+          }
+          // 清空输入框
+          username.value = ''
+          password.value = ''
+        })
+      }
+    }
+  </script>
+</body>
+</html>
+```
+{% endfolding %}
+
+{% folding red::发送 <code>PUT</code> 请求修改图书 %}
+```javascript
+// 获取表单数据
+const form = document.querySelector('form')
+const data = serialize(form, {hash: true, empty: true})
+
+// 发送请求
+axios({
+  method: 'put',
+  url: `http://hmajax.itheima.net/api/book/${data.id}`,
+  data: {
+    name: data.name,
+    author: data.author,
+    publisher: data.publisher
+  }
+}).then(res => {
+  // 修改成功后, 重新渲染
+  render()
+}).catch(err => {
+  // 修改失败后, 提示错误信息
+  alert(err.response.data.message)
+})
+```
+{% endfolding %}
+
+{% folding red::发送 <code>DELETE</code> 请求删除图书 %}
+```javascript
+document.querySelector('.list').onclick = e => {
+  // 判断是否点击了删除按钮
+  if (e.target.tagName === 'BUTTON' && e.target.classList.contains('delete')) {
+    // 获取图书的 id
+    const id = e.target.dataset.id
+    // 发送请求
+    axios({
+      method: 'delete',
+      url: `http://hmajax.itheima.net/api/book/${id}`
+    }).then(res => {
+      // 删除成功后, 重新渲染
+      render()
+    }).catch(err => {
+      // 删除失败后, 提示错误信息
+      alert(err.response.data.message)
+    })
+  }
+}
+```
+{% endfolding %}
+
+#### FormData
+`FormData` 对象用于将表单数据发送到服务器, 可以用于**上传文件**, 也可以用于发送 `XMLHttpRequest` 对象; 使用时, 请求头中的 `Content-Type` 应为 `multipart/form-data`（`axios` 会自动设置）
+
+```javascript
+// 获取表单
+const input = document.querySelector('input[type="file"]')
+
+// 添加事件监听
+input.addEventListener('change', e => {
+  // 创建 FormData 对象
+  const formData = new FormData()
+  // 添加文件
+  formData.append('img', e.target.files[0]) // files 属性包含了所有的文件, 是一个类数组对象
+  // 发送请求
+  axios({
+    method: 'post',
+    url: 'http://hmajax.itheima.net/api/uploadimg',
+    data: formData
+  }).then(res => {
+    // 上传成功后, 打开图片
+    window.open(res.data.url)
+  }).catch(err => {
+    // 上传失败后, 提示错误信息
+    alert(err.response.data.message)
+  })
+})
+```
+
+## URL 对象
+`URL` 对象用于处理 `URL` 地址; 实例化时可以传入一个 `URL` 地址, 也可以传入一个基地址和一个相对地址, 如 <code>new URL(`https://${req.headers.origin}${req.url}`)</code> (`Node.js` 中)
+
+|属性或方法|说明|
+|:---:|:---:|
+|`new URL()`|实例化 `URL` 对象|
+|`url.hash`|`URL` 的哈希值, 如 `#hash`|
+|`url.host`|`URL` 的主机名和端口号 (如果有), 如 `www.example.com:8080`|
+|`url.hostname`|`URL` 的主机名, 如 `www.example.com`|
+|`url.href`<br>`url.toString()`<br>`url.toJSON()`|`URL` 的完整地址 |
+|`url.origin`|只读, `URL` 的协议、主机名和端口号, 如 `http://www.example.com:8080`|
+|`url.pathname`|`URL` 的路径, 如 `/path/to/file`|
+|`url.port`|`URL` 的端口号, 如 `8080` (字符串)|
+|`url.protocol`|`URL` 的协议, 如 `https:`|
+|`url.search`|`URL` 的查询参数, 如 `?query=string`|
+|`url.searchParams`|只读, `URLSearchParams` 对象|
+|<b>`URL.createObjectURL(blob)`</b>|创建一个 `Blob` 对象的 `URL` (用于图片、音频等文件)|
+|<b>`URL.revokeObjectURL(url)`</b>|释放一个 `Blob` 对象的 `URL`|
+
+> `URL(xxx).searchParams` 和 `URLSearchParams(xxx)` 等效, 但传入的参数不同
+
+#### URLSearchParams 对象
+`URLSearchParams` 对象用于处理 `URL` 查询参数, 可以用于设置查询参数; 实例化时, 可以传入一个对象, 也可以**传入一个查询字符串**（<mark>不是传入完整 `URL`</mark>）
+
+|属性或方法|说明|
+|:---:|:---:|
+|**get('xxx')**|获取指定名称的查询参数|
+|**set('xxx', 'xxx')**|设置指定名称的查询参数|
+|**append('xxx', 'xxx')**|添加指定名称的查询参数|
+|**delete('xxx')**|删除指定名称的查询参数|
+|**toString()**|返回查询参数的字符串形式, 如 `name=xiaoyezi&age=18`|
+|**forEach()**|遍历查询参数|
+
+```javascript
+// 获取查询参数
+const getParams = new URLSearchParams(location.search)
+console.log(getParams.get('name')) // xiaoyezi
+getParams.delete('name')
+
+// 设置查询参数
+const setParams = new URLSearchParams({
+  name: 'xiaoyezi',
+  age: 18
+})
+setParams.append('gender', 'male')
+// 发送请求
+const xhr = new XMLHttpRequest()
+xhr.open('GET', `https://xxx.xxx/xxx?${setParams.toString()}`)
+xhr.send()
+```
+
+## Promise
+`Promise` 对象用于表示一个异步操作的最终完成或失败, 以及其结果值
+
+{% notel green 本段内容 %}
+{% btn 链式调用::#链式调用 %} {% btn 静态方法::#静态方法 %} {% btn `async` 和 `await`::#async-and-await %} {% btn 错误捕获::#错误捕获 %}
+{% endnotel %}
+
+```javascript
+// 创建 Promise 对象
+const promise = new Promise((resolve, reject) => {
+  // 异步操作
+  // 两个参数分别是成功时的回调和失败时的回调
+  // 实例化后, 内部的代码会立即开始执行
+  if (/* 异步操作成功 */) {
+    resolve(xxx) // 调用 resolve() 方法, 结束异步操作
+    // resolve() 方法的参数会传入 then() 方法
+  } else {
+    reject(xxx) // 调用 reject() 方法, 结束异步操作
+    // reject() 方法的参数会传入 catch() 方法
+    // 通常传入一个 Error 对象
+  }
+}).then(res => {
+  // 如果成功
+  console.log(res)
+}).catch(err => {
+  // 如果失败
+  console.log(err)
+})
+```
+
+- 一个 `Promise` 必然出于以下三种状态之一
+  - 待定 `Pending`: 既不是成功也不是失败状态, 表示异步操作尚未完成, 是 `Promise` 对象的初始状态
+  - 已兑现 `Fulfilled`: 表示异步操作成功完成, 通过 `resolve()` 方法将状态从 `Pending` 改为 `Fulfilled`
+  - 已拒绝 `Rejected`: 表示异步操作失败, 通过 `reject()` 方法将状态从 `Pending` 改为 `Rejected`
+- 兑现或拒绝后, 状态就不会再改变, 即已敲定 `Settled`
+- `then()` 方法接收两个参数, 第一个是成功时的回调, 第二个是失败时的回调 (通常不写, 而是使用 `catch()` 方法)
+- `then()` 方法返回一个新的 `Promise` 对象, 可以进行链式调用
+- `catch()` 方法用于捕获错误, 与 `then()` 方法的第二个参数等效
+- `finally()` 方法用于无论成功或失败都会执行的回调, 通常用于清理工作, 放在链式调用的最后
+
+{% folding red::通过 <code>Promise</code> 对象获取省份列表 %}
+```javascript
+// 创建 Promise 对象
+const promise = new Promise((resolve, reject) => {
+  // 创建 XMLHttpRequest 对象
+  const xhr = new XMLHttpRequest()
+  // 设置请求方法和请求地址
+  xhr.open('GET', 'http://hmajax.itheima.net/api/province')
+  // 监听响应结果
+  xhr.addEventListener('load', () => {
+    // 如果请求成功
+    if (xhr.status === 200) {
+      // 获取响应结果
+      resolve(JSON.parse(xhr.response))
+    } else {
+      // 如果请求失败
+      reject(new Error(xhr.response))
+    }
+  })
+  // 发送请求
+  xhr.send()
+})
+
+// 定义成功和失败的回调
+promise.then(res => {
+  res.list.forEach(item => console.log(item))
+}).catch(err => {
+  alert(err.message)
+})
+```
+{% endfolding %}
+
+{% folding red::封装一个简易的 <code>axios</code> 函数 %}
+```javascript
+// 只支持 get 和 post 请求
+// 只支持 json 数据格式
+function axios(config = {
+  method: 'get',
+  url: '',
+  params: {},
+  data: {}
+}) {
+  // 返回一个 Promise 对象
+  return new Promise((resolve, reject) => {
+    // 创建 XMLHttpRequest 对象
+    const xhr = new XMLHttpRequest()
+    // 判断请求方法, 处理 URL
+    config.method.toLowerCase() === 'get' && /?/.test(config.url) ? config.url += '?' + new URLSearchParams(config.params) : null
+    // 设置请求方法和请求地址
+    xhr.open(config.method, config.url)
+    // 设置请求头
+    xhr.setRequestHeader('Content-Type', 'application/json')
+    // 监听响应结果
+    xhr.addEventListener('loadend', () => {
+      // 如果请求成功
+      if (xhr.status >= 200 && xhr.status < 300) {
+        // 获取响应结果
+        resolve(JSON.parse(xhr.response))
+      } else {
+        // 如果请求失败
+        reject(new Error(xhr.response))
+      }
+    })
+    // 判断请求方法, 发送请求
+    config.method.toLowerCase() === 'get' ? xhr.send() : xhr.send(JSON.stringify(config.data))
+  })
+}
+
+// 发送请求
+axios({
+  method: 'get',
+  url: 'http://hmajax.itheima.net/api/province'
+}).then(res => {
+  res.list.forEach(item => console.log(item))
+}).catch(err => {
+  alert(err.message)
+})
+```
+{% endfolding %}
+
+> 调试时, 可以在浏览器的开发者工具中的 `Network` → `Online` 选项卡中模拟低网速和断网, 观察代码的执行情况
+
+#### 链式调用
+{% folding red::回调函数地狱 %}
+#### 回调函数地狱
+**回调地狱**指的是多个回调函数嵌套调用, 导致代码难以阅读和维护
+
+```javascript
+// 获取第一个省份, 并获取省份下的第一个城市, 再获取城市下的第一个区县
+axios({ url: 'http://hmajax.itheima.net/api/province' }).then(res => {
+  document.querySelector('.province').innerHTML = res.list[0].name
+  axios({ url: `http://hmajax.itheima.net/api/city?pname=${res.list[0].name}` }).then(res => {
+    document.querySelector('.city').innerHTML = res.list[0].name
+    axios({ url: `http://hmajax.itheima.net/api/area?cname=${res.list[0].name}` }).then(res => {
+      document.querySelector('.area').innerHTML = res.list[0].name
+    }).catch(err => {
+      alert(err.message)
+    })
+  }).catch(err => {
+    alert(err.message)
+  })
+}).catch(err => {
+  alert(err.message)
+})
+```
+{% endfolding %}
+
+通过 `Promise` 对象的链式调用, 可以解决回调地狱的问题, 使代码更加清晰和易读
+
+```javascript
+// 使用 Promise 对象的链式调用
+axios({ url: 'http://hmajax.itheima.net/api/province' }).then(res => {
+  document.querySelector('.province').innerHTML = res.list[0].name
+  return axios({ url: `http://hmajax.itheima.net/api/city?pname=${res.list[0].name}` })
+}).then(res => {
+  document.querySelector('.city').innerHTML = res.list[0].name
+  return axios({ url: `http://hmajax.itheima.net/api/area?cname=${res.list[0].name}` })
+}).then(res => {
+  document.querySelector('.area').innerHTML = res.list[0].name
+}).catch(err => {
+  alert(err.message) // 只需一个 catch() 方法, 捕获所有错误
+})
+```
+
+> 如需共享某个数据, 可以在 `axios` 外声明一个变量, 或利用闭包
+
+#### 静态方法
+- `Promise.all()` 方法接收一个 `Promise` 对象数组, 返回一个新的 `Promise` 对象, 只有当所有 `Promise` 对象都成功时, 才会成功, 返回结果为一个数组, 顺序与传入的数组一致
+- `Promise.allSettled()` 类似于 `Promise.all()`, 当所有 `Promise` 对象都敲定时, 返回结果为一个数组, 包含每个 `Promise` 对象的结果
+- `Promise.any()` 方法接收一个 `Promise` 对象数组, 返回一个新的 `Promise` 对象, 只要有一个 `Promise` 对象成功, 就会成功, 并返回第一个成功的结果; 如果所有 `Promise` 对象都失败, 则返回错误数组
+- `Promise.race()` 类似于 `Promise.all()`, 但只要有一个 `Promise` 对象**敲定**就会返回结果, 无论成功或失败
+- `Promise.withResolvers()` 见下面的示例 (`Node.js` 暂不支持, `Deno 1.38` 后支持)
+
+```javascript
+// 比较差的写法
+async function getPrice() {
+  const choice = await promptForDishChoice()
+  const prices = await fetchPrices()
+  return prices[choice]
+}
+
+// 更好的写法
+async function getPrice() {
+  const [choice, prices] = await Promise.all([
+    // 两个任务并行执行
+    promptForDishChoice(),
+    fetchPrices(),
+  ])
+  return prices[choice]
+}
+
+// 不用 Promise.withResolvers()
+let res, rej
+const promise = new Promise((resolve, reject) => {
+  res = resolve
+  rej = reject
+})
+// 使用 Promise.withResolvers()
+const { promise, resolve, reject } = Promise.withResolvers()
+```
+
+#### async await
+`async` 和 `await` 是 `ES2017` 中新增的关键字, 用于简化 `Promise` 对象的使用和链式调用
+
+|关键字|说明|
+|:---:|:---:|
+|**async**|声明一个函数为**异步函数**, 返回一个 `Promise` 对象|
+|**await**|等待 `Promise` 对象的状态改变; 若成功, 返回 `Promise` 对象的结果, 函数继续执行<br>若失败, 抛出错误, 函数终止执行; 只能在 `async` 函数中使用|
+
+> `ECMAScript 2022` 中引入了 `顶层 await`, 用于在模块的顶层使用 `await` 关键字; <b>但不支持 `CommonJS` 规范的 `Node.js`</b>; 如果要使用顶层 `await`, 需要在 `package.json`（`<script>`） 中设置 `type` 字段为 `module`, 并用 `import` 模块化规范
+
+```javascript
+// 使用 async 和 await
+async function getData() {
+  try {
+    // 等待返回结果
+    const res = await axios({ url: 'http://hmajax.itheima.net/api/province' })
+    document.querySelector('.province').innerHTML = res.list[0].name
+    // 也可以写在一行
+    document.querySelector('.city').innerHTML = (await axios({ url: `http://hmajax.itheima.net/api/city?pname=${res1.list[0].name}` })).list[0].name
+    // 也可以写 then 和 catch
+    document.querySelector('.area').innerHTML = await axios({ url: `http://hmajax.itheima.net/api/area?cname=${res2.list[0].name}` }).then(res => res.list[0].name).catch(err => err.message)
+  } catch (err) {
+    alert(err.message)
+  }
+}
+// 调用函数
+getData()
+  .then(() => console.log('执行完成'))
+  .catch(() => console.log('执行失败'))
+```
+
+> 记得把 `await` 和异步操作用 `()` 包裹起来, 否则会报错
+
+#### 错误捕获
+一个系统或用户用 `throw` 语句抛出的错误, 只会被最近的 `catch` 语句捕获; 如果没有 `catch` 语句, 错误会一直向上冒泡, 直到被浏览器捕获
+
+```javascript
+// 链式调用
+(async () => {
+  try {
+    await fetch('url')
+      .catch(() => fetch('url'))
+      .catch(() => fetch('url'))
+      .then(res => console.log(res))
+  } catch (err) {
+    console.log('三次请求全部失败')
+  }
+})()
+```
+
+## fetch
+`fetch` 是 `JavaScript` 中的一个全局函数, 用于发送网络请求, 替代了 `XMLHttpRequest` 对象和 `AJAX` 技术, 返回一个 `Promise` 对象
+
+```javascript
+fetch('url'[, req]).then(res => {}).catch(err => {})
+```
+
+|相关对象|说明|
+|:---:|:---:|
+|`Response`|`fetch` 成功后返回的响应对象, 用于获取响应结果|
+|`Request`|用于设置请求的相关信息|
+|`Headers`|用于设置请求头和获取响应头|
+
+```javascript
+fetch('url', {
+  method: 'get', // 请求方法, 默认为 get
+  headers: { // Headers 对象
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ // 请求体
+    name: 'xiaoyezi',
+    age: 18
+  })
+}).then(res => {
+  return res.json() // 返回一个 Promise 对象
+}).then(data => {
+  console.log(data) // 打印响应结果
+}).catch(err => {
+  console.log(err) // 打印错误信息
+})
+```
+
+{% folding red::发送 <code>GET</code> 请求获取省份列表 %}
+```javascript
+// 发送 GET 请求
+fetch('http://hmajax.itheima.net/api/province').then(res => {
+  // 通过 Response 对象的 json() 方法获取响应结果, 返回一个 Promise 对象
+  return res.json()
+}).then(data => {
+  // 获取响应结果
+  data.list.forEach(item => console.log(item))
+}).catch(err => {
+  // 请求失败后, 返回一个错误对象
+  alert(err.message)
+})
+```
+{% endfolding %}
+
+{% folding red::发送 <code>POST</code> 请求登陆账号 %}
+```html
+<input type="text" id="username" placeholder="用户名">
+<input type="password" id="password" placeholder="密码">
+<button id="login">登陆</button>
+<script>
+  // 获取元素
+  const username = document.querySelector('#username')
+  const password = document.querySelector('#password')
+  const login = document.querySelector('#login')
+
+  // 添加事件监听
+  login.onclick = function() {
+    // 发送 POST 请求
+    fetch('http://hmajax.itheima.net/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value
+      })
+    }).then(res => {
+      return res.json()
+    }).then(data => {
+      // 如果成功, 提示登陆成功
+      alert(data.message)
+      // 禁用输入框和按钮
+      username.disabled = true
+      password.disabled = true
+      login.disabled = true
+    }).catch(err => {
+      // 如果失败, 根据错误类型提示错误信息
+      if (err.status === 0) { // 网络错误
+        alert('网络错误')
+      } else {
+        alert(err.message) // 其他错误
+      }
+      // 清空输入框
+      username.value = ''
+      password.value = ''
+    })
+  }
+</script>
+```
+{% endfolding %}
+
+{% folding red::用 <code>async</code> 和 <code>await</code> 实现上述功能 %}
+**获取省份列表**
+
+```javascript
+async function getProvince() {
+  try {
+    // 发送 GET 请求, 并将 Response 对象赋值给 res
+    const res = await fetch('http://hmajax.itheima.net/api/province')
+    // 通过 Response 对象的 json() 方法获取响应结果, 并赋值给 data
+    const data = await res.json()
+    // 打印响应结果
+    data.list.forEach(item => console.log(item))
+  } catch (err) {
+    alert(err.message)
+  }
+}
+getProvince()
+```
+
+**登陆账号**
+
+```html
+<input type="text" id="username" placeholder="用户名">
+<input type="password" id="password" placeholder="密码">
+<button id="login">登陆</button>
+<script>
+  // 获取元素
+  const username = document.querySelector('#username')
+  const password = document.querySelector('#password')
+  const login = document.querySelector('#login')
+
+  // 添加事件监听
+  login.onclick = async function() {
+    try {
+      // 发送 POST 请求, 并将 Response 对象赋值给 res
+      const res = await fetch('http://hmajax.itheima.net/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: username.value,
+          password: password.value
+        })
+      })
+      // 通过 Response 对象的 json() 方法获取响应结果, 并赋值给 data
+      const data = await res.json()
+      // 如果成功, 提示登陆成功
+      alert(data.message)
+      // 禁用输入框和按钮
+      username.disabled = true
+      password.disabled = true
+      login.disabled = true
+    } catch (err) {
+      // 如果失败, 根据错误类型提示错误信息
+      if (err.status === 0) { // 网络错误
+        alert('网络错误')
+      } else {
+        alert(err.message) // 其他错误
+      }
+      // 清空输入框
+      username.value = ''
+      password.value = ''
+    }
+  }
+</script>
+```
+{% endfolding %}
+
+### Response 对象
+|属性或方法|说明|
+|:---:|:---:|
+|`new Response([body, options])`|创建一个新的 `Response` 对象<br>`body` 为 `Blob`、`FormData`、`string`、`ReadableStream` 等<br>`options` 含 `status`、`statusText`、`headers` 对象等属性|
+|`res.headers`|响应的头部信息, `Headers` 对象|
+|`res.ok`|响应是否成功, 布尔值|
+|`res.status`|响应的状态码, 如 `200`、`404`|
+|`res.statusText`|响应的状态文本, 如 `OK`、`Not Found`|
+|`res.type`|响应的类型, 如 `basic`、`cors`|
+|`res.url`|响应的 `URL`|
+|`res.body`|响应体 `getter`（可读流对象）|
+|`res.clone()`|克隆响应对象（用于多次处理响应体）|
+|`res.arrayBuffer()`|`promise`, 返回响应体的 `ArrayBuffer` 对象|
+|`res.blob()`|`promise`, 返回响应体的 `Blob` 对象|
+|`res.formData()`|`promise`, 返回响应体的 `FormData` 对象|
+|`res.json()`|`promise`, 返回响应体的 `JSON` 对象|
+|`res.text()`|`promise`, 返回响应体的文本|
+
+> 属性都是只读的, 且响应体只能被读取一次, 再次读取会报 `TypeError: body stream is locked` 错误
+
+### Request 对象
+|属性或方法|说明|
+|:---:|:---:|
+|`new Request('url')`|创建一个新的 `Request` 对象, 一般不直接使用|
+|`req.body`|请求体（可读流对象）|
+|`req.headers`|请求头部信息, `Headers` 对象|
+|`req.method`|请求方法, 如 `GET`、`POST`|
+|`req.mode`|请求模式, 如 `cors`、`no-cors`、`same-origin`|
+|`req.referrer`|请求 `referrer` (没有时, 为 `''`)|
+|`req.url`|请求的 `URL` (`node` 中可能不是完整 `url`, 详见相关内容)|
+|`req.arrayBuffer()`|`promise`, 返回请求体的 `ArrayBuffer` 对象|
+|`req.blob()`|`promise`, 返回请求体的 `Blob` 对象|
+|`req.formData()`|`promise`, 返回请求体的 `FormData` 对象|
+|`req.json()`|`promise`, 返回请求体的 `JSON` 对象|
+|`req.text()`|`promise`, 返回请求体的文本|
+|`req.clone()`|克隆请求对象（用于多次处理请求体）|
+
+> 属性都是只读的, 请求体只能被读取一次, 再次读取会报 `TypeError: body stream is locked` 错误
+
+### Headers 对象
+|属性或方法|说明|
+|:---:|:---:|
+|`headers.append(key, value)`|添加一个头部信息（如果已存在, 则添加到末尾）|
+|`headers.delete(key)`|删除一个头部信息|
+|`headers.entries()`|返回一个迭代器, 包含所有头部信息的键值对|
+|`headers.get(key)`|获取一个头部信息|
+|`headers.has(key)`|判断是否存在某个头部信息|
+|`headers.keys()`|返回一个迭代器, 包含所有头部信息的键|
+|`headers.set(key, value)`|设置（更新或添加）一个头部信息|
+|`headers.values()`|返回一个迭代器, 包含所有头部信息的值|
+
+### Stream API
+`fetch` 函数返回的 `Response` 对象的 `body` 属性是一个可读流对象, 用于读取响应体的数据, 而无需等待整个响应体下载完毕
+
+可读/可写流对象不能被直接读取, 需要通过 `reader` 对象读取, 通过 `writer` 对象写入
+
+#### 可读流对象
+| 对象 | 说明 |
+|:---:|:---:|
+|`new ReadableStream([underlyingSource, [strategy]])`|创建一个可读流对象|
+|`rs.locked`|只读, 表示流是否被锁定 (即正被使用)|
+|`rs.cancel(reason)`|取消流, 返回一个 `promise` 对象|
+|`rs.tee()`|返回一个包含两个流的数组, 两个流都是原流的副本|
+|`rs.getReader()`|返回一个 `ReadableStreamDefaultReader` 对象, 并锁定流|
+
+#### ReadableStreamDefaultReader
+| 对象 | 说明 |
+| :---: | :---: |
+|`reader.closed`|只读, `Promise` 对象, 流关闭时兑现, 错误时拒绝|
+|`reader.cancel([reason])`|取消流, 返回 `Promise` 对象, 流取消时兑现|
+|`reader.read()`|返回一个 `Promise` 对象, 读取流中的数据, 兑现值为 `{done, value}`|
+
+#### 可写流对象
+| 对象 | 说明 |
+|:---:|:---:|
+|`new WritableStream([underlyingSink, [strategy]])`|创建一个可写流对象|
+|`ws.locked`|只读, 表示流是否被锁定 (即正被使用)|
+|`ws.abort(reason)`|中止流, 返回一个 `promise` 对象|
+|`ws.close()`|关闭流, 返回一个 `promise` 对象|
+|`ws.getWriter()`|返回一个 `WritableStreamDefaultWriter` 对象, 并锁定流|
+
+#### WritableStreamDefaultWriter
+| 对象 | 说明 |
+| :---: | :---: |
+|`writer.closed`|只读, `Promise` 对象, 流关闭时兑现, 错误时拒绝|
+|`writer.abort([reason])`|中止流, 返回 `Promise` 对象, 流中止时兑现|
+|`writer.close()`|关闭流, 返回 `Promise` 对象, 流关闭时兑现|
+|`writer.write(chunk)`|写入数据, 返回 `Promise` 对象, 写入成功时兑现|
+
+# &#x2B50;高级
+## 类
+`ES6` 中引入了 `class` 关键字, 用于定义类, 可以便捷地替代原本的[构造函数](#构造函数)、[原型对象](#原型对象)、[原型继承](#原型继承)等
+
+{% notel green 本段内容 %}
+{% btn 继承::#继承 %} {% btn 私有字段::#私有字段 %} {% btn `in` 操作符::#in-操作符 %}
+{% endnotel %}
+
+```javascript
+// 定义类
+class Person {
+  // 构造函数
+  constructor(name, age) {
+    this.name = name
+    this.age = age
+  }
+  // 实例方法
+  say() {
+    console.log(this.name, this.age)
+    // 实例方法中 this 指向实例
+  }
+  // 静态方法
+  static makePerson(name, age) {
+    return new Person(name, age)
+    // 静态方法中 this 指向类本身
+  }
+  // 实例属性
+  message = 'hello' // 可以在构造函数外定义并赋初值
+  // 静态属性
+  static message = 'world'
+}
+// 调用
+const personA = new Person('xiaoyezi', 18)
+const personB = Person.makePerson('leaf', 18)
+personA.say() // xiaoyezi 18
+personB.say() // leaf 18
+```
+
+{% folding red::如果用老方法实现上面的代码 %}
+```javascript
+// 构造函数
+function Person(name, age) {
+  this.name = name
+  this.age = age
+}
+// 实例方法
+Person.prototype.say = function () {
+  console.log(this.name, this.age)
+}
+// 静态方法
+Person.makePerson = function (name, age) {
+  return new Person(name, age)
+}
+// 调用
+const personA = new Person('xiaoyezi', 18)
+const personB = Person.makePerson('leaf', 18)
+personA.say() // xiaoyezi 18
+personB.say() // leaf 18
+```
+{% endfolding %}
+
+#### 继承
+```javascript
+// 定义父类
+// ...
+// 定义子类
+// extends 关键字表示继承某父类
+class Student extends Person {
+  constructor(name, age, grade) {
+    // super 关键字指向父类
+    // 调用父类的构造函数
+    super(name, age)
+    this.grade = grade
+  }
+  // 重写父类的实例方法
+  say() {
+    // 由于 class 中只用 static 来区分静态方法和实例方法
+    // 所以 super.xxx() 既可以调用父类的静态方法, 也可以调用父类的实例方法
+    super.say()
+    console.log(`And the grade is ${this.grade}`)
+  }
+  // 静态方法
+  static makeStudent(name, age, grade) {
+    const person = super.makePerson(name, age)
+    return new Student(person.name, person.age, grade)
+    // 实际上 return new this(name, age, grade) 即可, 这里是为了演示
+  }
+}
+// 调用
+const studentA = new Student('xiaoyezi', 18, 3)
+const studentB = Student.makeStudent('leaf', 18, 3)
+studentA.say() // xiaoyezi 18 And the grade is 3
+studentB.say() // leaf 18 And the grade is 3
+```
+
+{% folding red::如果用老方法实现上面的代码 %}
+```javascript
+// 定义父类
+// ...
+// 定义子类
+function Student(name, age, grade) {
+  // 调用父类的构造函数
+  Person.call(this, name, age)
+  this.grade = grade
+}
+// 继承父类的原型对象
+Student.prototype = Object.create(Person.prototype)
+// 重写父类的实例方法
+Student.prototype.say = function () {
+  // 调用父类的实例方法
+  Person.prototype.say.call(this)
+  console.log(`And the grade is ${this.grade}`)
+}
+// 静态方法
+Student.makeStudent = function (name, age, grade) {
+  const person = Person.makePerson(name, age)
+  return new Student(person.name, person.age, grade)
+}
+// 调用
+const studentA = new Student('xiaoyezi', 18, 3)
+const studentB = Student.makeStudent('leaf', 18, 3)
+studentA.say() // xiaoyezi 18 And the grade is 3
+studentB.say() // leaf 18 And the grade is 3
+```
+{% endfolding %}
+
+#### 私有字段
+`ECMAScript 2022` 中引入了 `#` 关键字, 用于定义类的私有属性和方法, 只能在类的内部访问
+
+```javascript
+// 定义类
+class Person {
+  // 实例属性 - 私有字段
+  #name
+  // 构造函数
+  constructor(name) {
+    this.#name = name
+  }
+  // 实例方法 - 访问私有字段
+  getName() {
+    return this.#name
+  }
+  setName(name) {
+    this.#name = name
+  }
+}
+// 调用
+const person = new Person('xiaoyezi')
+console.log(person.getName()) // xiaoyezi
+console.log(person.name) // undefined
+console.log(person.#name) // 报错
+person.name = 'leaf' // name 和 #name 是两个不同的属性
+console.log(person.getName()) // xiaoyezi
+person.setName('leaf')
+console.log(person.getName()) // leaf
+```
+
+> 静态属性和静态方法也可以设置为私有字段
+
+#### in 操作符
+`in` 操作符用于检测对象是否具有某个属性 (包括私有字段), 返回布尔值
+
+```javascript
+class Person {
+  constructor(name) {
+    this.#name = name
+  }
+  static check(obj) {
+    return #name in obj
+  }
+}
+
+// 相当于
+class Person {
+  constructor(name) {
+    this.#name = name
+  }
+  static check(obj) {
+    try {
+        obj.#name
+        return true
+    } catch (err) {
+        if (err instanceof TypeError) {
+            return false
+        }
+        throw err
+    }
+  }
+}
+```
+
+## 二进制数据
+![](/images/note/blob.webp)
+
+- <b>`Blob`</b>: `Binary Large Object`, 二进制大对象, 表示一个不可变、原始数据的类文件对象
+- <b>`File`</b>: 继承自 `Blob`, 表示一个文件对象（`<input type="file">`）
+- <b>`FileReader`</b>: 用于读取 `Blob` 或 `File` 对象的内容
+- <b>`ArrayBuffer`</b>: 表示一个通用的、固定长度的二进制数据缓冲区, 不能直接操作
+- <b>`TypedArray`</b>: `ArrayBuffer` 的视图, 用于操作 `ArrayBuffer` 对象; 最常用的是 `Uint8Array`
+- <b>`DataView`</b>: `ArrayBuffer` 的视图, 用于操作 `ArrayBuffer` 对象; 相比于 `TypedArray`, `DataView` 可以自定义字节序
+
+#### 相互转换
+| `From` →<br>`To` ↓ | `ArrayBuffer` | `TypedArray` | `Buffer` | `Blob` |
+|:---:|:---:|:---:|:---:|:---:|
+|`ArrayBuffer`|-|`x.buffer`|`x.buffer`|`await x.arrayBuffer()`|
+|`TypedArray`|`new TypedArray(x)`|-|`new TypedArray(x)`|`new TypedArray(`<br>`await x.arrayBuffer())`|
+|`Buffer`|`Buffer.from(x)`|`Buffer.from(x)`|-|`Buffer.from(`<br>`await x.arrayBuffer())`|
+|`Blob`|`new Blob([x]`<br>`, { type: 'xxx' })`|`new Blob([x.buffer]`<br>`, { type: 'xxx' })`|`new Blob([x]`<br>`, { type: 'xxx' })`|-|
+|`String`|`new TextEncoder()`<br>`.encode(x)`|`new TextEncoder()`<br>`.encode(x)`|`x.toString('utf-8')`|`await x.text()`|
+|`Array`|`Array.from(...)`|`Array.from(...)`|`Array.from(...)`|`Array.from(...)`|
+
+> [详见此处](https://bun.sh/guides/binary)
+
+### Blob
+`Blob` 是 `Binary Large Object` 的缩写, 表示一个不可变、原始数据的类文件对象, 用于存储二进制数据
+
+|属性或方法|作用|
+|:---:|:---:|
+|`new Blob(array[, options])`|创建一个 `Blob` 对象<br>`array`: 可迭代对象, 如数组、字符串、`TypedArray` 等<br>`option.type`: `MIME` 类型|
+|`blob.size`|返回 `Blob` 对象的字节长度, 只读|
+|`blob.type`|返回 `Blob` 对象的 `MIME` 类型, 只读|
+|`blob.arrayBuffer()`|`promise`, 返回 `Blob` 对象的 `ArrayBuffer` 对象|
+|`blob.slice([start[, end[, type]]])`|返回一个新的 `Blob` 对象, 包含原 `Blob` 对象的部分数据<br>不传参相当于复制、不包含 `end`、`type` 为 `MIME` 类型|
+|`blob.stream()`|返回一个 `ReadableStream` 对象|
+|`blob.text()`|`promise`, 返回 `Blob` 对象的文本|
+|`URL.createObjectURL(blob)`|创建一个 `URL`, 用于访问 `Blob` 对象|
+|`URL.revokeObjectURL(url)`|释放一个 `URL`|
+
+> `ObjectURL` 的生命周期是在 `document` 被卸载时结束, 但强烈建议在不需要时手动释放
+
+#### 使用示例
+```javascript
+// 编码为 URL
+const encodedText = encodeURI(text)
+// 发送请求
+const res = await fetch(`${server}/?prompt=${encodedText}`)
+// 响应头为 'content-type': 'image/png'
+const blob = await res.blob()
+// 创建一个 URL 对象
+const imgUrl = URL.createObjectURL(blob)
+// 创建一个图片元素
+const img = document.createElement('img')
+// 设置图片的 src
+img.src = imgUrl
+```
+
+### FileReader
+`FileReader` 对象用于读取 `Blob` 或 `File` 对象的内容
+
+| 方法 | 作用 |
+|:---:|:---:|
+|`new FileReader()`|创建一个 `FileReader` 对象|
+|`reader.readAsArrayBuffer(blob/file)`|`promise`, 返回 `ArrayBuffer` 对象|
+|`reader.readAsBinaryString(blob/file)`|`promise`, 返回二进制字符串|
+|`reader.readAsDataURL(blob/file)`|`promise`, 返回 `data:` 格式的 `URL` (`base64` 编码)|
+
+> 使用前确认所在环境是否支持 `FileReader` 对象
+
+### Uint8Array
+`Uint8Array` 是 `TypedArray` 中的一种, 用于操作 `ArrayBuffer` 对象, 表示一个 `8` 位无符号整数的数组
+
+|属性或方法|作用|
+|:---:|:---:|
+|`new Uint8Array(length)`|创建一个 `Uint8Array` 数组, 长度为 `length`, 用 `0` 填充|
+|`new Uint8Array(typedArray/object/buffer)`|创建一个 `Uint8Array` 数组|
+|`Uint8Array.from(arrayLike)`|从类数组对象或可迭代对象中创建一个 `Uint8Array` 数组<br>包括字符串、数组、`TypedArray` 等|
+|`Uint8Array.of(...items)`|从参数中创建一个 `Uint8Array` 数组|
+|`u8a.buffer`|返回 `Uint8Array` 对象的 `ArrayBuffer` 对象, 只读|
+|`u8a.byteLength`|返回 `Uint8Array` 对象的字节长度, 只读|
+|`u8a.length`|返回 `Uint8Array` 对象的长度, 只读|
+|`u8a.toString()`|返回 `Uint8Array` 对象的字符串表示|
+
+> 由于 `Uint8Array` 是 `TypedArray` 的一种, 所有也可以用 `TypedArray` 的方法
+
+### 🚧 TypedArray
+
+## Set
+`Set` 是 `ES6` 中新增的一种数据结构, 用于存储**唯一**的值, 类似于数组, 但值是唯一的
+
+|方法|作用|
+|:---:|:---:|
+|`new Set([arr])`|创建一个 `Set` 集合, 重复值会被去除|
+|`set.add(value)`|向 `Set` 集合中添加一个值, 重复值会被忽略|
+|`set.delete(value)`|删除 `Set` 集合中的一个值|
+|`set.has(value)`|判断 `Set` 集合中是否有某个值|
+|`set.clear()`|清空 `Set` 集合|
+|`set.size`|返回 `Set` 集合的大小|
+|`set.keys()`<br>`set.values()`|返回一个迭代器, 包含 `Set` 集合的值|
+|`set.entries()`|返回一个迭代器, 包含 `[value, value]`|
+|`set.forEach(callback)`|遍历 `Set` 集合, 回调函数接受三个参数: `value`、`key` (同 `value`)、`set` (当前 `Set` 集合)|
+
+```javascript
+// 创建
+const set = new Set([1, 2, 3, 4, 5, 1, 2, 3])
+console.log(set) // Set(5) { 1, 2, 3, 4, 5 }
+// 添加
+set.add(6)
+// 删除
+set.delete(6)
+// 判断
+console.log(set.has(5)) // true
+// 清空
+set.clear()
+```
+
+> 可以使用 `Array.from` 将迭代器转换为数组, 如 `Array.from(new Set(arr))` 可以去除数组中的重复值, 并返回一个新数组
+
+## Map
+`Map` 是 `ES6` 中新增的一种数据结构, 用于存储**键值对**, 类似于对象, 键是唯一的; 但 `Map` 的**键可以是任意类型**, 而对象的键只能是字符串或 `Symbol` 类型
+
+|方法|作用|
+|:---:|:---:|
+|`new Map()`|创建一个 `Map` 集合|
+|`map.set(key, value)`|向 `Map` 集合中添加一个键值对|
+|`map.get(key)`|获取 `Map` 集合中的一个值|
+|`map.delete(key)`|删除 `Map` 集合中的一个键值对|
+|`map.has(key)`|判断 `Map` 集合中是否有某个键|
+|`map.clear()`|清空 `Map` 集合|
+|`map.size`|返回 `Map` 集合的大小|
+|`map.keys()`|返回一个迭代器, 包含 `Map` 集合的键|
+|`map.values()`|返回一个迭代器, 包含 `Map` 集合的值|
+|`map.entries()`|返回一个迭代器, 包含 `[key, value]`|
+|`map.forEach(callback)`|遍历 `Map` 集合, 回调函数接受三个参数: `value`、`key`、`map` (当前 `Map` 集合)|
+
+```javascript
+// 创建
+const map = new Map([
+  ['name', 'xiaoyezi'],
+  ['age', 18],
+  [
+    { key: 'key' },
+    { value: 'value' }
+  ]
+])
+console.log(map) // Map(3) { 'name' => 'xiaoyezi', 'age' => 18, { key: 'key' } => { value: 'value' } }
+// 添加
+map.set('height', 180)
+// 获取
+console.log(map.get('name')) // xiaoyezi
+// 删除
+map.delete('height')
+// 判断
+console.log(map.has('age')) // true
+// 清空
+map.clear()
+```
+
+## Symbol
+`Symbol` 是 `ES6` 中新增的一种**基本数据类型**, 用于表示独一无二的值, 可以用于对象的属性名
+
+- `Symbol` 函数接受一个**字符串**作为参数, 用于描述 `Symbol` 的名称, 但是 `Symbol` 的名称只是一个描述, 不会影响 `Symbol` 的唯一性
+- `Symbol` 的值是唯一的, 即使描述相同, 值也不同
+- `Symbol` 的值可以作为对象的属性名, 用于解决对象属性名冲突的问题
+- `Symbol` 的值不会被 `for...in`、`Object.keys`、`JSON.stringify` 等遍历方法遍历到, 但可以使用 `Object.getOwnPropertySymbols` 方法获取
+- `Symbol` 的值可以**作为对象的私有属性, 用于隐藏属性**（见下方示例）
+
+```javascript
+// 创建
+const symbolA = Symbol('description')
+const symbolB = Symbol('description')
+console.log(symbolA) // Symbol(description)
+console.log(symbolB) // Symbol(description)
+console.log(symbolA === symbolB) // false
+// 作为属性名
+const obj = {
+  [symbolA]: 'valueOfA',
+  [symbolB]: 'valueOfB'
+}
+// symbol 属性名不能用 . 运算符访问
+console.log(obj[symbolA]) // valueOfA
+console.log(obj[symbolB]) // valueOfB
+// 遍历时不会遍历到 symbol 属性
+for (const key in obj) console.log(key) // 无输出
+console.log(Object.keys(obj)) // []
+console.log(Object.values(obj)) // []
+console.log(JSON.stringify(obj)) // {}
+// 获取 symbol 属性
+console.log(Object.getOwnPropertySymbols(obj)) // [ Symbol(description), Symbol(description) ]
+```
+
+#### 内置 Symbol 值
+`ES6` 中提供了一些内置的 `Symbol` 值, 用于表示对象的内部方法, 如 `.toString`
+
+- 如果直接以字符串定义这些属性, 可能会与其他属性冲突, 也可能会被覆盖
+- `Symbol.iterator`: 用于表示对象的迭代器方法
+- `Symbol.hasInstance`: 用于表示对象的 `instanceof` 方法
+- `Symbol.toPrimitive`: 用于表示对象的转换方法
+- `Symbol.toStringTag`: 用于表示对象的 `toString` 方法
+- `Symbol.isConcatSpreadable`: 用于表示对象的 `concat` 方法
+- `Symbol.species`: 用于表示对象的构造函数
+
+```javascript
+const obj = {}
+console.log(obj.toString()) // [object Object]
+obj[Symbol.toStringTag] = 'xxx'
+console.log(obj.toString()) // [object xxx]
+```
+
+## BigInt
+`BigInt` 是一种内置对象, 它提供了一种方法来表示大于 `2^53 - 1` 的整数, 这原本是 `Javascript` 中可以用 `Number` 表示的最大数字; `BigInt` 可以表示任意大的整数
+
+- `BigInt` 不能用于 `Math` 对象的方法
+- `BigInt` 不能和 `Number` 直接运算, 需要先转换为同一类型（但要小心 `BigInt` 转换为 `Number` 时可能会丢失精度）
+- `BigInt` 不支持单目 `+` 运算符（即正号）
+- 运算结果的小数部分会被舍弃
+- `BigInt('1') == 1` 为 `true`, `BigInt('1') === 1` 为 `false`
+- `BigInt('2') > 1` 为 `true`
+- `Boolean(BigInt('0'))` 为 `false`（和 `Number` 一样）
+
+```javascript
+// 用构造函数创建
+const bigIntA = BigInt('1234567890123456789012345678901234567890')
+// 用字面量创建
+const bigIntB = 1234567890123456789012345678901234567890n
+// 支持其他进制
+const bigIntC = BigInt('0x1fffffffffffffffffffffffffffff')
+// 类型为 bigint
+console.log(typeof bigIntA) // bigint
+```
+
+#### 存入 JSON
+`BigInt` 类型的值不能直接存入 `JSON`（会出现 `TypeError` 错误）, 需要先转换为字符串
+
+```javascript
+// 声明对象
+const obj = { bigInt: 1234567890123456789012345678901234567890n }
+// 存入 JSON
+const json = JSON.stringify(obj) // 报错
+// 转换为字符串
+const json = JSON.stringify({ bigInt: obj.bigInt.toString() })
+
+// 也可以实现 toJSON 方法, 在转换为 JSON 时会自动调用
+BigInt.prototype.toJSON = function() return this.toString()
+```
+
+## 遍历
+|方法|适用对象|示例|
+|:---:|:---:|:---:|
+|`for`|数组|`for (let i = 0; i < arr.length; i++)`|
+|`for...of`|数组、Set、Map、字符串等**可迭代对象**|`for (const value of arr)`<br><b>可以使用 `break` 和 `continue`</b>|
+|`for...in`|对象|`for (const key in obj)`|
+|`forEach`|数组、Set、Map|`arr.forEach(value => null)`|
+
+- 上面的遍历方法无有效的返回值, 而其他遍历数组的方法（如 `map`、`filter`、`reduce` 等）都有有效的返回值, 详见[数组方法](/2024/01/17/JavaScript/#数组方法)
+- `Set` 和 `Map` 集合都可以使用 `for...of` 循环遍历, 也可以使用 `forEach` 方法遍历
+- 通过**解构赋值**可以在遍历 `Map` 集合时获取键和值
+
+```javascript
+// Set
+for (const value of set) {
+  console.log(value)
+}
+set.forEach(value => console.log(value))
+// Map
+for (const [key, value] of map) { // 解构赋值
+  console.log(key, value)
+}
+map.forEach((value, key) => console.log(key, value))
+```
+
+### 可迭代对象
+`for...of` 适用于实现了**迭代器** `[Symbol.iterator]()`（这个常量见下文）方法的对象, 即**可迭代对象**, 包括数组、`Set`、`Map`、字符串等
+
+调用 `[Symbol.iterator]().next()` 方法会返回一个对象, 形如 `{ value: xxx, done: false }`, `value` 为当前值, `done` 为是否遍历结束; 再次调用 `next()` 方法会返回下一个值, 直到 `done` 为 `true`; 这就是 `for...of` 的原理
+
+只要实现了 `[Symbol.iterator]()` 方法, 任何对象都可以使用 `for...of` 遍历
+
+```javascript
+// 为对象添加迭代器
+// 由于一般对象的原型对象中没有 [Symbol.iterator] 方法
+// 所以需要手动实现
+const person = {
+  name: 'xiaoyezi',
+  age: 18,
+  hobby: ['coding', 'painting', 'psychology'],
+  [Symbol.iterator]() {
+    const keys = Object.keys(this)
+    let index = 0
+    return {
+      next: () => {
+        if (index < keys.length) {
+          // 由于箭头函数没有自己的 this, 所以这里的 this 指向 person
+          return { value: this[keys[index++]], done: false }
+        } else {
+          return { done: true }
+        }
+      }
+    }
+  }
+}
+// 遍历
+for (const value of person) {
+  console.log(value) // xiaoyezi 18 [ 'coding', 'painting', 'psychology' ]
+}
+```
+
+> 用生成器函数可以更方便地实现迭代器, 见下文
+
+### 生成器
+`ES6` 中引入了 `function*` 关键字, 用于定义生成器函数, 可以用于生成迭代器
+
+- 生成器函数内部可以使用 `yield` 关键字, 用于**返回一个迭代器**, 并**暂停函数的执行**
+- 返回的迭代器可以调用 `next` 方法, 用于**继续函数的执行**, 并**返回一个迭代器**
+- 生成器函数内部可以使用 `return` 关键字, 用于结束函数的执行
+- 生成器函数内部可以使用 `throw` 关键字, 用于抛出一个错误
+
+```javascript
+// 定义生成器函数
+function* person(name, age) {
+  yield name
+  yield age
+}
+// 调用
+const generator = person('xiaoyezi', 18)
+console.log(generator.next()) // { value: 'xiaoyezi', done: false }
+console.log(generator.next()) // { value: 18, done: false }
+console.log(generator.next()) // { value: undefined, done: true }
+// 这只是一个简单的例子
+// 可以在 yield 后面返回更丰富的值
+// 也可以在 yield 之间添加更多的逻辑
+```
+
+{% folding red::用于发号器 %}
+```javascript
+// 定义生成器函数
+function* idMaker() {
+  let index = 0
+  while (true) {
+    yield index++
+  }
+}
+// 调用
+const generator = idMaker()
+console.log(generator.next().value) // 0
+console.log(generator.next().value) // 1
+console.log(generator.next().value) // 2
+// ...
+```
+{% endfolding %}
+
+{% folding red::用于实现<code>[Symbol.iterator]()</code>方法 %}
+```javascript
+// 定义对象
+const obj = {
+  name: 'xiaoyezi',
+  age: 18,
+  hobby: ['coding', 'painting', 'psychology'],
+  // 实现 [Symbol.iterator]() 方法
+  [Symbol.iterator]: function* () {
+    for (const key in this) yield this[key]
+  }
+}
+// 遍历
+for (const value of obj) console.log(value)
+// xiaoyezi 18 [ 'coding', 'painting', 'psychology' ]
+```
+{% endfolding %}
+
+#### 用于异步
+生成器函数可以用于异步编程, 可以用于实现 `async`、`await` 的功能; 调用 `next` 方法时可以传入参数, 用于传递异步操作的结果
+
+```javascript
+// 定义生成器函数
+function* asyncFunction() {
+  try {
+    const result = yield fetch('https://api.xxx.com')
+    console.log(result) // 下面第二次调用 next 时传入的结果
+  } catch (error) {
+    console.log(error) // 下面第二次调用 throw 时传入的结果
+  }
+}
+// 调用
+const generator = asyncFunction()
+// 将 fetch('https://api.xxx.com') 的结果传入生成器函数
+generator.next().value.then(
+  result => generator.next(result)
+  // 也可以抛出错误
+  // result => generator.throw('error')
+)
+```
+
+## Worker
+`JavaScript` 是单线程语言, 即一次只能执行一个任务, 但 `HTML5` 提供了 `Web Worker` 接口, 可以创建多个线程, 用于执行一些耗时的任务, 如大量计算、文件读取等, 以提高性能
+
+`worker` 被标准化后, 也被 `Node.js`、`Deno` 等环境支持
+
+- `Worker` 不能访问 `DOM`, 也不能访问 `window` 对象, 它的全局对象是 `DedicatedWorkerGlobalScope`, 可以通过 `self` 访问
+- 专用 `Worker` 只能被生成它的脚本所使用, 而共享 `Worker` 可以被多个脚本使用
+- 为了更好的错误处理控制, 推荐在主线程中将 `Worker` 的相关代码放在 `if(window.Worker) {}` 中
+- `Worker` 可以生成 `subWorker`, 但这些 `subWorker` 都是托管在主线程中的, 其 `URL` 相对路径是相对于主线程的
+- `Worker` 不能访问 `HTML` 中引入的外部脚本, 需要使用 `importScripts('url')` 方法引入
+
+```javascript
+// index.js
+// 创建专用 Worker
+const worker = new Worker('worker.js')
+// 发送消息
+inputElement.onchange = () => {
+  worker.postMessage(inputElement.value)
+}
+// 接收消息
+worker.onmessage = function(event) {
+  console.log(event.data)
+}
+// 关闭 Worker
+setTimeout(() => worker.terminate(), 30000)
+
+
+// worker.js
+// 接收消息
+onmessage = event => {
+  console.log(event.data)
+  // 发送消息
+  postMessage('你好')
+}
+// 错误处理
+onerror = event => {
+  event.preventDefault() // 阻止默认行为
+  console.log(event.message) // 错误信息
+  console.log(event.filename) // 错误文件
+  console.log(event.lineno) // 错误行号
+}
+```
+
+#### 注意事项
+- **线程安全**: `Worker` 与主线程之间的通信是通过消息传递的, 且不共享全局对象, 因此不会出现数据竞争、死锁等问题, 相对不容易搞出问题
+- **内容安全策略**: `Worker` 并不受限于主线程的内容安全策略, 有着自己的独立上下文
+- **消息传递**: 主线程与 `Worker` 之间的数据传递是通过拷贝的方式, 而不是共享内存
+
+#### SharedWorker
+`SharedWorker` 可以被多个脚本使用, 但这些脚本必须来自同一个域名
+
+```javascript
+// index.js
+// 创建共享 Worker
+const worker = new SharedWorker('worker.js')
+// 共享 Worker 必须显式地使用 port 对象连接
+// 而在专用 Worker 中, 这个过程是隐式的
+// 发送消息
+inputElement.onchange = () => {
+  worker.port.postMessage(inputElement.value)
+}
+// 接收消息
+worker.port.onmessage = event => {
+  console.log(event.data)
+}
+
+
+// worker.js
+// 接收消息
+onconnect = event => {
+  const port = event.ports[0]
+  port.onmessage = event => {
+    console.log(event.data)
+    // 发送消息
+    port.postMessage('你好')
+  }
+}
+```
+
+## IdexedDB
+`IndexedDB` 是 `HTML5` 中的一种本地数据库, 用于存储大量的结构化数据, 包括 `blob`, `ArrayBuffer` 等; 相比 `localStorage` 等, `IndexedDB` 更适合存储大量数据
+
+由于 `IndexedDB` 的 `API` 比较复杂, 对于简单的应用, 可以使用 `localForage`, `IDB-Keyval` 等库简化操作
+
+#### localForage
+```bash
+# 安装 localForage
+pnpm add localforage
+# 也可以通过 CDN 引入
+```
+
+```typescript
+// 引入 localForage
+import localforage from 'localforage'
+// 获取值
+const value = await localforage.getItem('key')
+// 设置值
+await localforage.setItem('key', value) // value 可以是任意类型
+// 删除值
+await localforage.removeItem('key')
+// 清空所有数据
+await localforage.clear()
+// 获取 key 的数量
+const length: number = await localforage.length()
+// 获取所有 key
+const keys: string[] = await localforage.keys()
+```
+
+#### IDB-Keyval
+```bash
+# 安装 IDB-Keyval
+pnpm add idb-keyval
+```
+
+```javascript
+// 引入 IDB-Keyval
+import { set, get, ... } from 'idb-keyval'
+// 设置值
+// key 支持 string、number、Date 以及它们的数组
+await set('key', value)
+await setMany([
+  ['key1', value],
+  ['key2', value],
+])
+// 获取值
+const value: any = await get('key')
+const [value1, value2] = await getMany(['key1', 'key2'])
+const allKV = await entries() // [['key1', value1], ['key2', value2], ...]
+const allKeys = await keys()
+const allValues = await values()
+// 更新值
+await update('key', value => value.push('new'))
+// 删除值
+await del('key')
+await delMany(['key1', 'key2'])
+// 清空所有数据
+await clear()
+```
+
+## WebSocket
+`WebSocket` 是一种在单个 `TCP` 连接上进行全双工通信的协议, 用于实现客户端和服务器之间的实时通信
+
+|类型|内容|说明|
+|:---:|:---:|:---:|
+|构造函数|`WebSocket(url)`|创建一个 `WebSocket` 对象|
+|属性|`ws.binaryType`|`WebSocket` 连接所传输的二进制数据类型<br>`'blob'` 或 `'arraybuffer'`|
+|属性|`ws.readyState`|只读, `WebSocket` 连接的当前状态<br>`0`: 连接尚未建立<br>`1`: 连接已建立<br>`2`: 连接正在关闭<br>`3`: 连接已关闭|
+|属性|`ws.url`|只读, `WebSocket` 连接的 `URL`|
+|事件|`ws.onclose`|连接关闭时触发|
+|事件|`ws.onerror`|连接出错时触发|
+|事件|`ws.onmessage`|接收到消息时触发<br>回调函数的参数是一个 `MessageEvent`<br>其 `data` 属性是接收到的消息|
+|事件|`ws.onopen`|连接成功时触发|
+|方法|`ws.close()`|关闭连接|
+|方法|`ws.send(data)`|发送消息 (将消息加入发送队列)<br>`data` 可以是字符串、`ArrayBuffer`、`Blob`|
+
+```javascript
+// 创建 WebSocket 连接
+const ws = new WebSocket('ws://localhost:8080')
+// 连接成功
+ws.onopen = () => {
+  console.log('连接成功')
+  // 发送消息
+  ws.send('你好')
+}
+// 接收消息
+ws.onmessage = event => {
+  console.log(event.data)
+}
+// 连接关闭
+ws.onclose = () => {
+  console.log('连接关闭')
+}
+ws.close()
+```
+
+## Proxy
+`Proxy` 对象用于拦截和自定义基本操作的行为（如属性查找、赋值、函数调用等）
+
+|类型|内容|说明|
+|:---:|:---:|:---:|
+|术语|`handler`|处理器事件, 其属性是某个事件的处理函数|
+|构造函数|`new Proxy(target, handler)`|创建一个 `Proxy` 对象|
+|构造函数|`Proxy.revocable(target, handler)`|创建一个可撤销的 `Proxy` 对象<br>`return.proxy`: `Proxy` 对象<br>`return.revoke`: 撤销 `Proxy` 的方法|
+|`handler` 方法|`getPrototypeOf(target)`|拦截 `Object.getPrototypeOf()`<br>必须返回一个对象或 `null`|
+|`handler` 方法|`setPrototypeOf(target, prototype)`|拦截 `Object.setPrototypeOf()`<br>如果成功修改 `prototype`, 返回 `true`|
+|`handler` 方法|`isExtensible(target)`|拦截 `Object.isExtensible()`<br>必须返回一个布尔值|
+|`handler` 方法|`defineProperty(target, prop, descriptor)`|拦截 `Object.defineProperty()`<br>如果成功定义属性, 返回 `true`|
+|`handler` 方法|`has(target, prop)`|拦截 `prop in target`<br>必须返回一个布尔值|
+|`handler` 方法|`get(target, prop, receiver)`|拦截属性读取<br>`receiver` 是原始操作行为所在的对象, 一般是 `Proxy` 对象本身或继承的对象<br>返回值可以是任意类型|
+|`handler` 方法|`set(target, prop, value, receiver)`|拦截属性设置<br>如果成功设置属性, 返回 `true`<br>如果设置失败, 返回 `false` 或抛出错误|
+|`handler` 方法|`deleteProperty(target, prop)`|拦截属性删除 (`delete` 操作符)<br>如果成功删除属性, 返回 `true`<br>如果删除失败, 返回 `false` 或抛出错误|
+|`handler` 方法|`apply(target, thisArg, argumentsList)`|拦截函数调用<br>`thisArg` 是函数调用时的 `this` 值<br>`argumentsList` 是函数调用时的参数列表|
+|`handler` 方法|`construct(target, argumentsList, newTarget)`|拦截 `new` 操作符<br>`argumentsList` 是构造函数的参数列表<br>`newTarget` 是被 `new` 的构造函数|
+
+```javascript
+// 当对象中没有属性时, 不反回默认的 undefined, 而是返回一个默认值
+const proxy = new Proxy({}, {
+  get(target, prop) {
+    return prop in target ? target[prop] : 'default'
+  }
+})
+
+proxy.name = 'xiaoyezi'
+proxy.hobby = undefined
+
+console.log(proxy.name) // xiaoyezi
+console.log(proxy.age) // default
+console.log(proxy.hobby) // undefined
+```
+
+## JSDoc
+{% notel green 本段内容 %}
+{% btn 类型注解::#类型注解 %} {% btn 导入类型::#导入类型 %} {% btn 函数注解::#函数注解 %} {% btn 类注解::#类注解 %} {% btn 类型定义::#类型定义 %} {% btn 泛型::#泛型 %}
+{% endnotel %}
+
+`JSDoc` 是一种用于描述 `JavaScript` 代码的注释规范, 可用于生成文档和类型检查
+
+```bash
+# 如果无需生成文档, 可以直接使用注释
+
+# 安装 JSDoc
+pnpm add -g jsdoc
+# 生成文档
+jsdoc ./index.js
+jsdoc ./src -r -d ./docs
+```
+
+#### 类型注解
+```javascript
+/** @type {number} */
+const num = 1
+
+/** @type {number[]} */
+const arr = [1, 2, 3]
+/** @type {Array<number>} */
+const arr = [1, 2, 3]
+
+/** @type {Promise<number>} */
+const promise = new Promise(resolve => resolve(1))
+
+/** @type {string | number} */
+const strOrNum = 'str'
+
+/** @type {{ name: string, age: number }} */
+const obj = { name: 'xiaoyezi', age: 18 }
+
+/** @type {(name: string, age: number) => void} */
+const func = (name, age) => console.log(name, age)
+```
+
+#### 导入类型
+```javascript
+/** @typedef {import('path').PathLike} PathLike */
+
+/** @type {PathLike} */
+const path = 'path'
+
+/** @type {import('path').PathLike} */
+const path = 'path'
+
+/** @param {import('path').PathLike} path */
+const func = path => console.log(path)
+```
+
+```typescript
+// path.ts
+export type PathLike = string
+```
+
+#### 函数注解
+```javascript
+/**
+ * 打印名字和年龄
+ * @param {string} name - 名字
+ * @param {number} age - 年龄
+ * @returns {void}
+ */
+function func(name, age) {
+  console.log(name, age)
+}
+
+/**
+  * 返回 Promise
+  * @param {string} name - 名字
+  * @param {number} age - 年龄
+  * @returns {Promise<{ name: string, age: number }>}
+  */
+async function func(name, age) {
+  return { name, age }
+}
+
+/**
+ * 参数为对象
+ * @param {Object} person 人
+ * @param {string} person.name 名字
+ * @param {number} person.age 年龄
+ * @param {string} [person.gender] 性别 (可选)
+ * @param {string[]} [person.hobby=[]] 爱好 (可选, 默认值为 [])
+ * @returns {void}
+ */
+function func(person = {
+  hobby: []
+}) {
+  console.log(person.name, person.age)
+}
+```
+
+#### 类注解
+```javascript
+/**
+ * 人类
+ * @extends Animal
+ */
+class Person extends Animal {
+  /**
+   * 创建一个人
+   * @param {string} name - 名字
+   * @param {number} age - 年龄
+   */
+  constructor(name, age) {
+    this.name = name
+    this.age = age
+  }
+  /**
+   * 打印名字和年龄
+   * @returns {void}
+   */
+  print() {
+    console.log(this.name, this.age)
+  }
+}
+```
+
+#### 类型定义
+```javascript
+/**
+ * @typedef {Object} Person 定义一个对象类型
+ * @property {string} name 名字 - Person 类型的必填字符串属性
+ * @property {number} age 年龄 - Person 类型的必填数字属性
+ * @property {string} [gender] 性别 - Person 类型的可选字符串属性
+ * @property {string[]} [hobby=[]] 爱好 - Person 类型的可选字符串数组属性 (默认值为 [])
+ */
+/**@typedef {{ name: string, age: number, gender?: string, hobby?: string[] }} Person 人 */
+
+/** @type {Person} */
+const person = {
+  name: 'xiaoyezi',
+  age: 18,
+}
+
+/** 
+ * 用自定义类型作为函数参数
+ * @param {Person} person 人
+ * @returns {void}
+ */
+function func(person) {
+  console.log(person.name, person.age)
+}
+
+/**
+ * @callback PersonSay 定义一个函数类型
+ * @param {Person} person 人
+ * @returns {void}
+ */
+
+/**
+ * @type {PersonSay} 用自定义类型作为函数类型
+ */
+function func(person) {
+  console.log(person.name, person.age)
+}
+```
+
+> `Object` 可以写成 `object`, 但为了区分基本类型和引用类型, 一般写成 `Object`
+
+#### 泛型
+```javascript
+/**
+ * @template T 泛型类型
+ * @param {T} value 泛型值
+ * @returns {T} 泛型值
+ */
+function identity(value) {
+  return value
+}
+```

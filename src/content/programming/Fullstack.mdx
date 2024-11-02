@@ -1,0 +1,4862 @@
+---
+title: 全栈开发相关学习笔记
+comment: true
+excerpt: false
+date: 2024-02-18 09:10:27
+categories: 笔记
+tags: [Note,JavaScript,Network,Coding]
+cover: "/images/cover/node.png"
+---
+**封面作者:[NOEYEBROW](https://x.com/noeyebrow313)**
+
+**本文需要您对 `JavaScript`、`TypeScript`、`HTML`、`CSS`、`Go` (可选) 等语言有一定了解, 可参考站内相关笔记**
+
+# 运行环境
+
+## Node.js
+`Node.js` 是一个基于 `Chrome V8` 引擎（用 `C++` 编写）的跨平台 `JavaScript` **运行环境**, 用于开发**服务器端**和**桌面端**的应用程序, 例如 `VSCode` 就是基于基于 `Node.js` 的 `Electron` 框架开发的
+
+`Node.js` 提供了一些核心模块, 用于处理网络请求 (`http`、`https`)、文件操作 (`fs`、`fs/promises`)、路径操作 (`path`)、系统信息 (`os`) 等, 也可以通过 `npm` 安装第三方模块
+
+- `document`、`window`、`XMLHttpRequest` 等对象在 `Node.js` 中是不存在的
+- `console`、`setTimeout`、`setInterval` 等对象在 `Node.js` 中是存在的
+- `Node.js` 中的顶级对象是 `global`, 也可以通过 `globalThis` 访问
+- 推荐将 `node` 内置模块写成 `node:xxx` 而不是 `xxx`
+- 推荐在 `package.json` 中设置 `"type": "module"`，并使用 `ESM` 替代 `CommonJS`
+
+#### 安装运行
+在[官网](https://nodejs.org/zh-cn/)下载安装包并安装即可; 也可以使用 [`NVM`](#NVM-工具) 进行安装
+
+|命令|作用|
+|:---:|:---:|
+|`node -v`|查看版本|
+|`node`|进入交互模式|
+|`node xxx.js`|运行文件|
+|`node --watch xxx.js`|运行并监视文件变化<br>`Node.js 22.0.0` 以上版本支持|
+|`node --run xxx`|运行 `package.json` 中的 `xxx` 脚本<br>`Node.js 22.0.0` 以上版本支持|
+
+#### 命令行工具
+在 `Windows` 中, 可以使用 `cmd` 或 `PowerShell` 打开命令行工具
+
+- 命令由命令名称和参数组成, 例如 `node -v` 中 `node` 是命令名称, `-v` 是参数
+- 参数可以没有, 也可以有多个, 相当于函数的参数
+
+> `VSCode` 中有内置的终端, 可以直接使用
+
+**常用命令**
+
+|命令|作用|示例
+|:---:|:---:|:---:|
+|`cd`|切换目录|`cd d:`: 切换到 `D` 盘<br>`cd ..`: 返回上一级目录<br>`cd xxx` 或 `cd ./xxx`: 切换到当前目录下的 `xxx` 目录|
+|`dir`|查看目录|`dir`: 查看当前目录下的文件和文件夹<br>`dir -s`: 会展开所有子目录|
+|`cls`|清屏|清除当前命令行窗口的所有内容|
+|`ctrl + c`|退出当前命令|输入 `dir -s` 后, 按 `ctrl + c` 可以停止输出|
+
+#### NVM
+`NVM` 是 `Node.js` 的版本管理工具, 可以用于安装、切换、卸载 `Node.js` 的不同版本; 可以在[Github](https://github.com/coreybutler/nvm-windows)上下载安装包（左侧是 `Windows` 版本链接）
+
+|命令|作用|
+|:---:|:---:|
+|`nvm list`|查看已安装的 `Node.js` 版本|
+|`nvm install x.x.x`|安装指定版本的 `Node.js`, 版本可以是 `latest`|
+|`nvm use x.x.x`|切换到指定版本的 `Node.js`|
+|`nvm uninstall x.x.x`|卸载指定版本的 `Node.js`|
+|`nvm on`|开启 `NVM`|
+|`nvm off`|关闭 `NVM`|
+
+### Buffer
+`Buffer` 是 `Node.js` 中的一个全局对象, 类似于 `Array`, 但长度固定且不可调整, 用于处理二进制数据, 直接操作内存所以性能较好, 每个元素占用一个字节 `1 byte 或 8 bit`
+
+> 由于 `JavaScript` 语言自身只有字符串数据类型, 没有二进制数据类型, 所以 `Node.js` 提供了 `Buffer` 对象来处理二进制数据
+
+#### 创建
+|方法|作用|
+|:---:|:---:|
+|`Buffer.alloc(size)`|创建一个指定大小的 `Buffer`, 并用 `0` 填充|
+|`Buffer.allocUnsafe(size)`|创建一个指定大小的 `Buffer`, 不会初始化<br>速度更快, 但可能包含旧的内存数据|
+|`Buffer.from(str[, encoding])`|创建一个包含 `str` 字符串的 `Buffer`|
+|`Buffer.from(arr)`|创建一个包含 `arr` 数组的 `Buffer`|
+  
+```javascript
+// 创建
+let buf1 = Buffer.alloc(10) // <Buffer 00 00 00 00 00 00 00 00 00 00>
+let buf2 = Buffer.allocUnsafe(10) // <Buffer 00 00 00 00 00 00 00 00 00 00>
+let buf3 = Buffer.from('hello world') // <Buffer 68 65 6c 6c 6f 20 77 6f 72 6c 64>
+let buf4 = Buffer.from([1, 2, 3]) // <Buffer 01 02 03>
+// 默认 UTF-8 编码, 打印时 16 进制显示
+```
+
+> `JavaScript` 中 `number` 类型用 `0x...` 表示十六进制数, 用 `0b...` 表示二进制数
+
+#### 属性和方法
+|属性或方法|作用|
+|:---:|:---:|
+|`buf.length`|返回 `buf` 的长度（字节数）|
+|`buf[index]`|返回 `buf` 中指定位置的字节, 类似于数组|
+|`buf.write(string`<br>`[, offset[, length]][, encoding])`|将 `string` 写入 `buf`<br>从 `offset` 开始, 最多写入 `length` 个字节<br>如果 `string` 长度大于 `buf` 的长度, 会截断|
+|`buf.toString(`<br>`[encoding[, start[, end]]])`|返回 `buf` 的字符串形式<br>从 `start` 到 `end`|
+|`buf.toJSON()`|返回 `buf` 的 `JSON` 对象|
+|`buf.slice([start[, end]])`|返回 `buf` 的一个片段<br>从 `start` 到 `end`|
+|`buf.copy(target`<br>`[, tStart[, sStart[, sEnd]]])`|将 `buf` 的一部分复制到 `target`<br>从 `sStart` 到 `sEnd`, 从 `tStart` 开始写入|
+
+> `encoding` 默认为 `utf-8`; `[]` 表示可选参数, 后同
+
+```javascript
+// 定义一个 Buffer
+let buf = Buffer.alloc(11)
+
+// 写入
+buf.write('hello world')
+
+// 读取
+console.log(buf.length) // 11
+console.log(buf[0]) // 104
+console.log(buf.slice(0, 5).toString()) // hello
+console.log(buf.toString('base64')) // aGVsbG8gd29ybGQ=
+
+// 复制
+let newBuf = Buffer.alloc(5)
+buf.copy(newBuf, 0, 0, 5)
+console.log(newBuf.toString()) // hello
+```
+
+#### 常见问题
+- 一个字节的 `Buffer` 可以存储 `256` / `11111111` 种不同的值, 即 `0-255`
+- 如果试图存入一个超过 `255` 的值, 则只会保留二进制的后 `8` 位
+- 如 `buf[0] = 256` 会变成 `0`, 因为 `256` 的二进制是 `100000000`
+- `UTF-8` 编码中, 一个<mark>中文字符占 `3` 个字节</mark>, 一个英文字符占 `1` 个字节
+- 而 `ASCII` 编码中, 一个中文字符只占 `2` 个字节
+
+{% folding red::计算机相关基础知识 %}
+#### 计算机组成
+- 计算机主要由 `CPU`、`内存`、`硬盘` 等组成
+- `CPU` 用于计算; 移动端一般叫 `SOC`, 因为还集成了显卡和基带等模块
+- `内存` 用于存储数据, 速度很快, 但断电后数据丢失
+- `硬盘` 用于存储数据, 速度较慢, 断电后数据不丢失
+- `主板` 用于连接各个部件
+- `显卡` 用于处理图形数据, 并输出到显示器, 可以是独立的, 也可以集成在 `CPU` 中
+- `操作系统` 用于管理硬件和软件, 提供用户界面, 调度资源; 例如 `Windows`、`Linux`
+
+#### 进程和线程
+- `进程` 是程序的一次执行, 是资源分配的基本单位
+- `线程` 是进程的一个执行流, 是 `CPU` 调度的基本单位
+- 一个进程可以包含多个线程
+- 例如打开两个 `Chrome` 窗口, 就是两个进程; 一个 `Chrome` 窗口中的多个标签页或 `WebWorker` 就是多个线程
+{% endfolding %}
+
+### process
+`process` 是 `Node.js` 中的一个全局对象, 用于获取 `Node.js` 进程的信息, 提供了一些方法用于控制 `Node.js` 进程
+
+|属性或方法|作用|
+|:---:|:---:|
+|`process.on('exit', callback)`|在进程退出时执行回调函数|
+|`process.on('beforeExit', callback)`|在进程退出前执行回调函数|
+|`process.exit([code])`|退出进程, `code` 默认为 `0`|
+|`process.upTime()`|返回 `Node.js` 进程运行的时间|
+|`process.memoryUsage()`|返回 `Node.js` 进程的内存使用情况|
+|`process.cwd()`|返回 `Node.js` 进程的当前工作目录|
+
+### 模块化
+老版本 `Node.js` 中的模块化是基于 `CommonJS` 规范的, 每个文件就是一个模块, 模块内部的变量和函数默认是私有的, 需要通过 `module.exports` 导出, 通过 `require` 引入
+
+- `CommonJS` 是一个早期模块化规范, 用于 `JavaScript` 语言
+- `export` 和 `import` 是 `ES6` 中的模块化规范, 用于 `JavaScript` 语言; `Node.js` 也支持 `ES6` 的模块化规范, 但需要在 `package.json` 中设置 `type` 字段为 `module`
+
+#### 导出
+- `module.exports` 是 `Node.js` 中的一个全局对象, 用于导出模块
+- `exports` 是 `module.exports` 的一个引用, 可以直接使用 `exports.xxx` 导出
+- 如果直接赋值 `exports` 本身, 而不是添加属性或方法, 会导出空对象, 即 `module.exports` 对象
+
+```javascript
+module.exports = {
+  a: 1,
+  b: function () {
+    console.log(this.a)
+  }
+}
+exports.c = 2
+exports.d = function () {
+  console.log(this.c)
+}
+```
+
+#### 导入
+- `require` 是 `Node.js` 中的一个全局函数, 用于引入模块
+- `require` 会返回被引入模块的 `module.exports` 对象
+- <b>`require` 中的相对路径不会受工作目录影响, 而是相对于当前文件</b>
+
+```javascript
+const obj = require('./xxx.js')
+console.log(obj.a) // 1
+obj.b() // 1
+console.log(obj.c) // 2
+obj.d() // 2
+```
+
+- 引入 `Node.js` 内置模块或 `npm` 安装的包时, 不需要写路径, 直接写模块名即可
+- 引入除 `.js`、`.json`、`.node` 以外的拓展名的文件, 如 `.txt` 时, 会按照 `.js` 的方式解析
+- **通过 `require` 和解构赋值可以方便地引入 `JSON` 文件及其内特定变量**
+- 引入自定义模块的过程: 将路径解析为绝对路径 → 检测缓存中是否有该模块 → \[读取文件内容\] → \[编译执行文件内容\] → \[将文件内容放入缓存\] → 返回 `module.exports` 对象
+
+**对于 `require('./xxx')` 的情况**
+
+```javascript
+// 不写后缀时
+const anotherObj = require('./xxx')
+
+// 如果 xxx 不是文件夹
+// 会先找 xxx.js, 如果没有再找 xxx.json, 如果还没有再找 xxx.node
+// 都没有时, 找 xxx（无拓展名）并按 .js 的方式解析
+
+// 如果 xxx 是文件夹
+// 先检查 xxx/package.json 中的 main 字段（内容是一个文件路径）
+// 如果没有 main 则找 xxx/index.js → xxx/index.json → xxx/index.node
+// 如果还没有, 或者 main 指向的文件不存在, 则报错
+```
+
+### fs
+`fs` 是 `file system` 的缩写, 用于与硬盘交互, 提供了文件的读写、删除、重命名等功能; 要使用 `fs` 等模块, 需要先引入
+
+```javascript
+const fs = require('node:fs')
+```
+
+{% notel green 本段内容 %}
+{% btn 文件路径::#文件路径 %} {% btn 网页路径::#网页路径 %} {% btn 文件写入::#文件写入 %} {% btn 文件读取::#文件读取 %} {% btn 其他文件操作::#其他文件操作 %}
+{% endnotel %}
+
+#### 文件路径
+|路径|类型|说明|
+|:---:|:---:|:---:|
+|`./xxx` 或 `xxx`|相对路径|相对于**命令行的工作目录**|
+|`../xxx`|相对路径|相对于命令行的工作目录的上一级目录|
+|`/xxx`|绝对路径|相对于**文件所在盘符的根目录**|
+|`D:/xxx`|绝对路径|`D` 盘的 `xxx` 目录（部分 `C` 盘目录需要管理员权限）|
+|`__dirname`|绝对路径|表示**当前文件所在目录的绝对路径**|
+|`__filename`|绝对路径|表示**当前文件的绝对路径**|
+
+- 可以把 `__dirname` 和 `__filename` 看作是 `Node.js` 中的全局变量
+- 网站的根目录可以利用 `__dirname` 和 `path` 模块拼接得到, 例如 `path.join(__dirname, '/../public')`
+- 若设置了 `"type": "module"`，则应使用 `import.meta.dirname` 和 `import.meta.filename` 替代 `__dirname` 和 `__filename`
+
+```javascript
+// 直接用 ./ 可能达不到预期效果
+fs.readFile('./me.txt', e => null)
+// 可以使用 __dirname
+fs.readFile(__dirname + '/me.txt', e => null)
+```
+
+#### 网页路径
+本部分不属于 `fs` 模块, 为便于理解路径, 写在此处
+
+|路径|类型|说明|
+|:---:|:---:|:---:|
+|`https://xxx.com/xxx`|绝对路径|`https` 协议的 `xxx.com` 域名的 `xxx` 路径|
+|`//xxx.com/xxx`|绝对路径|当前协议的 `xxx.com` 域名的 `xxx` 路径|
+|`/xxx`|绝对路径|当前协议的当前域名的 `xxx` 路径|
+|`./xxx` 或 `xxx`|相对路径|**相对于当前网页**的路径|
+|`../xxx`|相对路径|相对于当前网页上一级目录的路径|
+
+> 浏览器在发送相对路径的请求时, 会自动在当前域名后拼接路径; 如果 `../` 超出了根目录, 会被忽略; 如 `https://xxx.com/xxx` 下的 `../../` 会被解析为 `https://xxx.com/` 而不是 `https://` 或 `404 Not Found`
+
+#### 文件写入
+|方法|作用|
+|:---:|:---:|
+|`fs.writeFile(path, data[, options], callback)`|异步将 `data` 写入到文件 `path`|
+|`fs.appendFile(path, data[, options], callback)`|异步追加 `data` 到文件 `path`|
+|`fs.writeFileSync(path, data[, options])`|同步写入文件|
+|`fs.appendFileSync(path, data[, options])`|同步追加文件|
+|`fs.createWriteStream(path[, options])`|创建一个流式写入对象<br>频繁写入时不会多次开闭文件|
+
+以 `const ws = fs.createWriteStream(xxx)` 为例
+
+|流式写入对象方法|作用|
+|:---:|:---:|
+|`ws.write(data[, encoding][, callback])`|写入数据|
+|`ws.close([callback])`|关闭流, 可以不写（脚本结束时会自动关闭）|
+
+- `options`: 一个对象, 用于设置编码、模式等
+- `callback`: 回调函数, 用于处理结果; 写入完成后调用, 参数为一个错误对象, 如果没错误则为 `null`
+- 默认情况下, 如果文件不存在, 会创建文件
+- **同步写入没有回调函数, 直接返回结果（值同回调函数形参）**
+- 写入的内容不再能用 `HTML` 的 `<br>` 或 `&nbsp;` 等标签, 而是需要使用 `\n`、`\t` 等转义字符
+- `\n`: 换行符; `\t`: 制表符（`Tab` 键）; `\r`: 回车符; `\b`: 退格符; `\\`: 反斜杠; `\'`: 单引号; `\"`: 双引号
+
+```javascript
+// 引入 fs 模块
+const fs = require('fs')
+
+// 写入文件
+fs.writeFile('me.txt', 'Hi, I\'m xiaoyezi.\n', e => e ? console.log('写入失败: ' + e) : console.log('写入成功')
+
+// 追加文件
+fs.appendFile('me.txt', 'I\'m a psychology student.', e => e ? console.log('追加失败: ' + e) : console.log('追加成功'))
+```
+
+{% folding red::<code>options</code> 参数 %}
+```javascript
+{
+  encoding: 'utf-8', // 编码, 默认 'utf-8'
+  // 'utf-8': 万国码, 支持所有字符
+  // 'ascii': 仅支持 `0-127` 的字符
+  // 'base64': 用于编码二进制数据
+  // 'binary': 二进制数据
+  mode: 0o666, // 权限, 默认 0o666
+  // 0o000: 文件不可读不可写不可执行
+  // 0o111: 文件可执行
+  // 0o222: 文件可写
+  // 0o444: 文件可读
+  // 0o666: 文件可读可写
+  // 0o777: 文件可读可写可执行
+  flag: 'w' // 打开文件的方式, 默认 'w'
+  // 'w': 写入
+  // 'a': 追加
+  // 'r': 读取
+  // 'r+': 读取并写入
+  // 'w+': 写入并读取
+  // 'a+': 追加并读取
+  // 'wx': 类似 'w', 但如果文件存在则失败
+  // 'ax': 类似 'a', 但如果文件存在则失败
+}
+
+// 其实写入和添加本质上是一样的
+fs.writeFile('me.txt', 'xxx', { flag: 'a' }, e => null)
+// 等价于
+fs.appendFile('me.txt', 'xxx', e => null)
+```
+{% endfolding %}
+
+> `Node.js` 中的同步与异步类似于 `JavaScript`, 但其异步代码不是由浏览器开启新线程执行, 而是由 `Node.js` 的 `libuv` 模块负责调度
+
+#### 文件读取
+|方法|作用|
+|:---:|:---:|
+|`fs.readFile(path[, options], callback)`|异步读取文件|
+|`fs.readFileSync(path[, options])`|同步读取文件, **无回调函数, 直接返回数据**|
+|`fs.createReadStream(path[, options])`|创建一个流式读取对象<br>用于分块地读取文件|
+
+以 `const rs = fs.createReadStream(xxx)` 为例
+
+|流式读取对象方法|作用|
+|:---:|:---:|
+|`rs.on('data', callback)`|读取出一块数据后执行, 回调函数的形参是读取的数据|
+|`rs.on('end', callback)`|读取完成后执行, 回调函数没有形参|
+|`rs.on('error', callback)`|读取出错后执行, 回调函数的形参是错误对象|
+|`rs.pipe(ws)`|将读取的数据写入到 `ws` 中|
+
+- `callback`: 回调函数, 用于处理结果; 读取完成后调用, **有两个形参**, 第一个是错误对象, 第二个是读取的数据
+- 读取的数据是 `Buffer` 类型, 需要使用 `toString` / `toJSON` 方法转换为字符串或 `JSON` 对象
+- 流式读取中, `data` 事件会多次触发, 每次读取的数据大小由 `highWaterMark` 设置决定, 默认 `64KB`
+- 对于大文件, 如果一次性读取, 会占用大量内存, 可能导致内存溢出, 所以需要使用流式读取
+
+```javascript
+// 引入 fs 模块
+const fs = require('fs')
+
+// 复制文件
+fs.readFile('me.txt', (e, data) => {
+  if (e) {
+    console.log('复制失败: ' + e)
+  } else {
+    fs.writeFile('me_copy.txt', data, e => e && console.log('复制失败: ' + e))
+  }
+})
+
+// 流式复制文件
+const rs = fs.createReadStream('me.txt')
+const ws = fs.createWriteStream('me_copy.txt')
+rs.on('data', data => ws.write(data, e => e && console.log('复制出错: ' + e)))
+rs.on('end', () => ws.close())
+rs.on('error', e => console.log('复制出错: ' + e))
+// 简便写法
+rs.pipe(ws)
+```
+
+#### 其他文件操作
+|方法|作用|
+|:---:|:---:|
+|`fs.rename(oldPath, newPath, callback)`|异步**重命名文件**|
+|`fs.copyFile(src, dest[, options], callback)`|异步**复制文件**|
+|`fs.rm(path[, options], callback)`|异步**删除文件或目录**|
+|`fs.mkdir(path[, options], callback)`|异步**创建目录**|
+|`fs.stat(path, callback)`|异步**获取文件信息**<br>回调函数第二个形参是文件信息对象|
+|`fs.readdir(path, callback)`|异步**读取目录**<br>回调函数第二个形参是目录下的文件名数组|
+|`fs.unlink(path, callback)`|异步删除文件|
+|`fs.rmdir(path, callback)`|异步删除目录|
+
+- `callback`: 回调函数, 第一个参数都是一个错误对象, 有的还有其他参数
+- 上述方法都有同步版本, 方法名后加上 `Sync` 并不传入回调函数即可, 如 `fs.renameSync`
+- 默认不可以删除空目录或一次创建多级目录, 如果要, 需将 `options` 设置为 `{ recursive: true }`
+
+```javascript
+// 重命名文件
+fs.rename('me.txt', 'me_rename.txt', e => e && console.log('重命名失败: ' + e))
+
+// 删除文件和目录
+// 文件结构: test/test.txt、test/test
+fs.rm('test/test.txt', e => e && console.log('删除失败: ' + e))
+fs.rm('test/test', e => e && console.log('删除失败: ' + e))
+fs.rm('test', { recursive: true }, e => e && console.log('删除失败: ' + e))
+
+// 获取文件信息
+fs.stat('me.txt', (e, stats) => {
+  if (e) {
+    console.log('获取失败: ' + e)
+  } else {
+    console.log('文件大小: ' + stats.size)
+    console.log('是否是文件: ' + stats.isFile())
+    console.log('是否是目录: ' + stats.isDirectory())
+    console.log('创建时间: ' + stats.birthtime)
+    console.log('修改时间: ' + stats.mtime)
+    console.log('最后访问时间: ' + stats.atime)
+  }
+})
+
+// 读取目录
+fs.readdir('.', (e, files) => e ? console.log('读取失败: ' + e) : console.log(files))
+
+// 创建目录
+fs.mkdir('test', e => e && console.log('创建失败: ' + e))
+// 默认不可以递归创建目录
+fs.mkdir('test/test/test', e => e && console.log('创建失败: ' + e)) // 创建失败
+// 需要设置 recursive 为 true
+fs.mkdir('test/test/test', { recursive: true }, e => e && console.log('创建失败: ' + e))
+// 上述代码会依此创建 test、test/test、test/test/test 三个目录
+```
+
+{% folding red::文件批量重命名 %}
+```javascript
+// 引入 fs 模块
+const fs = require('fs')
+
+// 例如存在文件: 1.txt、2.txt、...、15.txt
+// 将其重命名为: 001.txt、002.txt、...、015.txt
+
+// 读取目录
+fs.readdir('.', (e, files) => {
+  // 如果读取失败, 打印错误信息
+  // 否则遍历文件, 执行重命名操作
+  if (e) {
+    console.log('读取失败: ' + e)
+  } else { 
+    // 定义正则表达式
+    const reg1 = /^\d{1}\.txt$/
+    const reg2 = /^\d{2}\.txt$/
+    // 遍历文件
+    files.forEach((file) => {
+      // 如果文件名符合正则表达式
+      if (reg1.test(file)) { // 符合 reg1
+        // 给文件名添加前导 00
+        fs.rename(file, '00' + file, e => e && console.log('重命名失败: ' + e))
+      } else if (reg2.test(file)) { // 符合 reg2
+        // 给文件名添加前导 0
+        fs.rename(file, '0' + file, e => e && console.log('重命名失败: ' + e))
+      }
+    })
+  }
+})
+
+// 又如存在文件: 1.txt、5.txt、...、20.txt
+// 将其按大小重命名为: 001.txt、002.txt、...
+
+// 读取目录
+fs.readdir('.', (e, files) => {
+  // 如果读取失败, 打印错误信息
+  // 否则遍历文件, 执行重命名操作
+  if (e) {
+    console.log('读取失败: ' + e)
+  } else { 
+    // 定义正则表达式
+    const reg = /^\d+/
+    // 遍历文件, 取得文件名数组
+    const num = files.map(file => file.match(reg)[0])
+    // 对文件名数组排序, 得到新的文件名数组
+    const newNum = num.sort((a, b) => a - b)
+    // 遍历文件名数组, 根据索引（代表排位）, 重命名对应文件
+    newNum.forEach((n, i) => {
+      // 获取第 i 名的文件在 files 中的索引
+      const index = num.indexOf(n)
+      // 计算新的文件名
+      let newName = null
+      if (i <= 9) {
+        newName = '00' + (i + 1) + '.txt'
+      } else if (i <= 99) {
+        newName = '0' + (i + 1) + '.txt'
+      } else if (i <= 999) {
+        newName = (i + 1) + '.txt'
+      } else {
+        console.log('文件过多, 无法重命名')
+        return
+      }
+      // 重命名文件
+      fs.rename(files[index], newName, e => e && console.log('重命名失败: ' + e))
+    })
+  }
+})
+```
+{% endfolding %}
+
+### fs/promises
+`fs/promises` 顾名思义是 `fs` 模块的 `Promise` 版本; 方法中的完整参数详见[官方文档](https://nodejs.org/api/fs.html)
+
+```javascript
+import fs from 'node:fs/promises'
+```
+
+| 方法 | 作用 |
+| :---: | :---: |
+| `fs.access(path)` | 验证访问权限 (或文件存在); 成功返回 `null`, 失败返回错误对象 |
+| `fs.appendFile(path, data)` | 追加文件内容; `data: string \| Buffer` |
+| `fs.copyFile(src, dest)` | 复制文件 |
+| `fs.mkdir(path[, options])` | 创建目录; `options.recursive: boolean` 是否递归创建 |
+| `fs.open(path, flag)` | 打开文件, 返回 [`fs.FileHandle` 对象](https://nodejs.org/api/fs.html#class-filehandle); `flag: r/r+/w/w+/a/a+` |
+| `fs.readFile(path)` | 读取文件内容 |
+| `fs.rename(oldPath, newPath)` | 重命名文件 |
+| `fs.rm(path[, options])` | 删除文件或目录<br>`options.recursive: boolean` 是否递归删除<br>`options.force: boolean` 忽略文件不存在带来的错误 |
+| `fs.stat(path)` | 获取文件信息, 返回 [`fs.Stats` 对象](https://nodejs.org/api/fs.html#class-fsstats) |
+| `fs.writeFile(path, data)` | 写入文件内容; `data: string \| Buffer \| ...` |
+
+> `path` 可以是 `string`、`Buffer`、`URL`、`FileHandle` 等类型
+
+### path
+`path` 是 `Node.js` 中的一个核心模块, 提供了一些方法用于处理文件路径
+
+```javascript
+const path = require('path')
+```
+
+|方法|作用|
+|:---:|:---:|
+|`path.join([...paths])`|将所有参数拼接为一个路径|
+|`path.resolve([...paths])`|将所有参数**拼接为一个绝对路径**|
+|`path.sep`|操作系统的路径分隔符|
+|`path.basename(path[, ext])`|返回路径的**最后一部分**<br>如果 `ext` 存在, 则去掉 `ext`|
+|`path.dirname(path)`|返回路径的**目录**部分|
+|`path.extname(path)`|返回路径的**扩展名**部分|
+|`path.parse(path)`|返回**路径对象**|
+|`path.format(pathObject)`|返回**路径字符串**|
+
+> 利用 `path` 模块可以避免因为不同操作系统的路径分隔符不同而导致的问题
+
+```javascript
+// 引入 path 模块
+const path = require('path')
+// 定义一个路径
+const p = 'E:/media/me.png'
+
+// 拼接路径
+console.log(path.join('a', 'b', 'c')) // a\b\c
+console.log(path.join(__dirname, 'a', 'b', 'c')) // D:\xxx\a\b\c
+console.log(path.resolve('a', 'b', 'c')) // D:\...\a\b\c
+console.log(path.resolve(__dirname, 'a', 'b', 'c')) // D:\xxx\a\b\c
+// 注意: 不要在第二个及以后的参数中使用绝对路径
+
+// 获取分隔符
+console.log(path.sep) // \（Windows）
+
+// 获取文件名
+console.log(path.basename(p)) // me.png
+console.log(path.basename(p, '.png')) // me
+// 获取目录名
+console.log(path.dirname(p)) // E:/media
+// 获取扩展名
+console.log(path.extname(p)) // .png
+
+// 解析路径
+const pObj = path.parse(p)
+/*
+{
+  root: 'E:/',
+  dir: 'E:/media',
+  base: 'me.png',
+  ext: '.png',
+  name: 'me'
+}
+*/
+
+// 格式化路径
+console.log(path.format(pObj)) // E:\media\me.png
+```
+
+### http
+`http` 是 `Node.js` 中的一个核心模块, 用于创建 `HTTP` 服务器和客户端; `http` 模块提供了一个 `createServer` 方法, 用于创建一个 `HTTP` 服务器对象
+
+{% notel green 本段内容 %}
+{% btn 请求对象::#请求对象 %} {% btn 响应对象::#响应对象 %} {% btn 资源类型::#资源类型 %} {% btn 跨域请求::#跨域请求 %} 
+{% endnotel %}
+
+```javascript
+const http = require('http')
+```
+
+|服务器对象属性或方法|作用|
+|:---:|:---:|
+|`server.listen(port`<br>`[, hostname][, backlog][, callback])`|监听端口, 启动服务器<br>`hostname`: 主机名, 默认 `localhost`<br>`backlog`: 最大连接数, 默认 `511`<br>`callback`: 服务器启动成功后执行的回调函数|
+|`server.close([callback])`|关闭服务器, 服务器关闭后执行回调函数|
+|`server.on('request', callback)`|监听请求事件<br>创建服务器时传入回调函数与此效果相同|
+|`server.on('close', callback)`|监听关闭事件<br>本地通过 `ctrl + c` 关闭服务器不会触发|
+|`server.on('error', callback)`|监听错误事件|
+
+```javascript
+// 创建服务器
+const server = http.createServer((req, res) => {
+  // req 是请求对象, res 是响应对象
+  // 当接收到 HTTP 请求时, 执行回调函数
+  // 也可以创建时不传入回调函数, 而是另外写 server.on('request', callback)
+  res.setHeader('Content-Type', 'text/html; charset=utf-8') // 设置响应头
+  res.write('<h1>Hi, I\'m xiaoyezi.</h1>') // 写入响应体
+  res.end() // 结束响应
+})
+
+// 监听端口
+server.listen(23333, () => console.log('服务器已启动: http://localhost:3000'))
+// windows 中的资源监视器可以查看端口占用情况
+```
+
+#### 请求对象
+|属性或方法|作用|
+|:---:|:---:|
+|`req.url`|请求的路径和查询参数, 如 `/xxx?prompt=xxx`<br>和 `new` 创建的 `request` 对象不同, 不包含路径前的部分|
+|`req.method`|请求的方法|
+|`req.httpVersion`|`HTTP` 版本|
+|`req.headers`|请求头对象<br>`req.headers['host']`: 主机名和端口<br>`req.headers['accept']`: 接受的数据类型|
+|`req.on('data', callback)`|监听请求体数据<br>每次接收到数据时执行, 回调函数的形参是数据块|
+|`req.on('end', callback)`|监听请求体数据结束|
+|`req.on('error', callback)`|监听请求体数据错误<br>回调函数的形参是错误对象|
+
+> 以上是 `node` 中 `request` 的独特属性, 其他属性和方法见[`JavaScript` 学习笔记](/2024/01/17/JavaScript%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#Response-%E5%AF%B9%E8%B1%A1)
+
+#### 响应对象
+|属性或方法|作用|
+|:---:|:---:|
+|`res.setHeader(name, value)`|设置响应头, `value` 可以是数组, 此时会设置多个 `name` 相同的响应头|
+|`res.write(data)`|写入响应体, 数据可以是字符串或 `Buffer` 对象|
+|`res.end([data])`|结束响应, 可以写入最后一块数据; 只能调用一次（类似于 `return`）|
+|`res.on('finish', callback)`|监听响应结束事件|
+
+> 请求（响应）体实际上是一个可读（可写）流对象, 所以可以使用流的相关方法
+
+{% folding red::简单的注册和登陆 %}
+```javascript
+// 引入 http 模块
+const http = require('http')
+
+// 创建服务器
+const server = http.createServer((req, res) => {
+  // 设置响应头
+  res.setHeader('Content-Type', 'text/html; charset=utf-8')
+  // 创建 URL 对象
+  const url = new URL(req.url, 'http://localhost:23333')
+
+  // 注册
+  if (url.pathname === '/register' && req.method === 'GET') {
+    res.write('<h1>注册页面</h1>')
+    res.end()
+  }
+  // 登陆
+  else if (url.pathname === '/login' && req.method === 'GET') {
+    res.write('<h1>登陆页面</h1>')
+    res.end()
+  }
+  // 404
+  else {
+    res.statusCode = 404
+    res.write('<h1>页面不存在</h1>')
+    res.end()
+  }
+})
+
+// 监听端口
+server.listen(23333, () => console.log('服务器已启动: http://localhost:23333'))
+```
+{% endfolding %}
+
+#### 资源类型
+**Multipurpose Internet Mail Extensions, MIME** 是一种互联网标准, 用于表示文档、文件、图像、音频、视频等的类型
+
+`Content-Type` 是 `HTTP` 协议的一个头部字段, 用于指定响应体的数据类型; 值的格式为 `type/subtype`
+
+|类型|说明|子类型|说明|
+|:---:|:---:|:---:|:---:|
+|`text`|文本|`text/plain`<br>`text/html`<br>`text/css`<br>`text/javascript`|纯文本<br>`HTML` 文档<br>`CSS` 文件<br>`JavaScript` 文件|
+|`image`|图片|`image/jpeg`<br>`image/png`<br>`image/gif`<br>`image/svg+xml`|`JPEG` 图片<br>`PNG` 图片<br>`GIF` 图片<br>`SVG` 图片|
+|`audio`|音频|`audio/mpeg`|`MP3` 音频|
+|`video`|视频|`video/mp4`|`MP4` 视频|
+|`multipart`|多部分|`multipart/form-data`|表单数据|
+|`application`|应用程序|`application/json`<br>`application/xml`<br>`application/pdf`<br>`application/octet-stream`<br>`application/x-www-form-urlencoded`|`JSON` 数据<br>`XML` 数据<br>`PDF` 文件<br>二进制数据, 浏览器会自动下载<br>表单数据|
+
+- `Content-Type` 的值可以包含字符集, 例如 `text/html; charset=utf-8`
+- 上述设置的优先级高于 `HTML` 中的 `<meta charset="xxx">` 标签
+- `CSS` 和 `JavaScript` 文件在执行时会自动以 `HTML` 的编码格式解析
+- 由于浏览器存在资源类型判断机制, 所以有时不设置 `Content-Type` 也可以正常显示资源
+
+##### 静态资源与动态资源
+- **静态资源**: 不需要经过服务器处理, 直接返回给客户端的资源, 如 `HTML`、`CSS`、`JavaScript`、图片、音视频等
+- **动态资源**: 需要经过服务器处理后返回给客户端的资源, 如 `PHP`、`JSP`、`ASP`、`Servlet` 等
+
+{% folding red::简单的静态资源服务器 %}
+```javascript
+// 引入模块
+const http = require('http')
+const fs = require('fs')
+const path = require('path')
+
+// 创建服务器
+const server = http.createServer((req, res) => {
+  // 判断是否为 GET 请求
+  if (req.method !== 'GET') {
+    res.statusCode = 405
+    res.write('<h1>405 Method Not Allowed</h1>')
+    res.end()
+    return
+  }
+  // 创建 URL 对象
+  const url = new URL(`https://${req.headers.host}${req.url}`)
+  // 获取文件路径
+  const filePath = url.pathname === '/' ? path.join(__dirname, '/index.html') : path.join(__dirname, url.pathname)
+  // 定义文件类型
+  const type = {
+    '.html': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'text/javascript; charset=utf-8',
+    '.jpg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.mp3': 'audio/mpeg',
+    '.mp4': 'video/mp4',
+    '.json': 'application/json; charset=utf-8',
+    '.xml': 'application/xml; charset=utf-8',
+    '.pdf': 'application/pdf',
+    '.txt': 'text/plain; charset=utf-8'
+  }
+  // 读取文件
+  fs.readFile(filePath, (e, data) => {
+    if (e) {
+      switch (e.code) {
+        case 'ENOENT':
+          res.statusCode = 404
+          res.write('<h1>404 Not Found</h1>')
+          break
+        case 'EACCES':
+          res.statusCode = 403
+          res.write('<h1>403 Forbidden</h1>')
+          break
+        default:
+          res.statusCode = 500
+          res.write('<h1>500 Internal Server Error</h1>')
+    } else {
+      // 获取文件扩展名
+      const ext = path.extname(filePath).slice(1)
+      // 设置响应头
+      type[ext] ? res.setHeader('Content-Type', type[ext]) : res.setHeader('Content-Type', 'application/octet-stream')
+      // 写入响应体
+      res.write(data)
+      // 结束响应
+      res.end()
+    }
+  })
+})
+
+// 监听端口
+server.listen(23333, () => console.log('服务器已启动: http://localhost:23333'))
+```
+{% endfolding %}
+
+#### 跨域请求
+跨域请求指请求的源和资源的源不同, 如 `https://a.xxx` 通常不能请求 `https://b.xxx` 的资源; 而 `CORS` 是 `Cross-Origin Resource Sharing` 的缩写, 指的是跨域资源共享, 用于解决跨域请求的问题
+
+- 跨域请求分为简单请求和非简单请求
+- **简单请求**<br>请求方法为 `GET`、`POST`、`HEAD` 之一<br>请求头只包含 `Accept`、`Accept-Language`、`Content-Language`、`Content-Type`<br>`Content-Type` 为 `application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain` 之一<br>客户端会直接发送请求, 再根据响应头决定是否接收响应
+- **非简单请求**<br>不符合上述条件的请求<br>客户端会先发送一个 `OPTIONS` 请求, 询问服务器是否允许跨域请求<br>`OPTIONS` 请求由客户端浏览器自动发送, 不需要, 也不能手动发送<br>服务器将返回以下信息, 客户端浏览器会根据这些信息决定是否发送真正的请求
+
+|响应头|说明|
+|:---:|:---:|
+|**Access-Control-Allow-Origin**|允许跨域请求的源, 可以是 `*` 或具体的 `URL`, 多个 `URL` 用逗号隔开|
+|**Access-Control-Allow-Methods**|允许跨域请求的方法, 多个方法用逗号隔开, 简单请求包含的方法不需要设置|
+|**Access-Control-Allow-Headers**|允许跨域请求的请求头, 多个请求头用逗号隔开, 简单请求包含的请求头不需要设置|
+|**Access-Control-Allow-Credentials**|是否允许发送 `Cookie`, 默认为 `false`<br>为 `true` 时, `...Allow-Origin` 不能为 `*`, 且请求头要包含 `credentials: 'include'`（针对 `fetch`）|
+|**Access-Control-Max-Age**|`OPTIONS` 请求的有效期, 单位为秒, `Chrome` 默认为 `5` 秒|
+|**Access-Control-Expose-Headers**|允许获取的响应头, 多个响应头用逗号隔开|
+
+> 通常对于简单应用只需要设置 `Access-Control-Allow-Origin`
+
+### 访问控制
+`HTTP` 协议是无状态的, 即每次请求都是独立的, 服务器无法识别请求是否来自同一个客户端; 为了解决这个问题, 可以使用 `Cookie`、`Session`、`Token` 等技术来实现会话控制
+
+{% notel green 本段内容 %}
+{% btn Cookie::#Cookie %} {% btn Session::#Session %} {% btn Token::#Token %} 
+{% endnotel %}
+
+#### Cookie
+`Cookie` 是 `HTTP` 协议的一个头部字段, 用于在客户端存储数据, 以便下次请求时发送给服务器; `Cookie` 保存在浏览器, 每个域名的 `Cookie` 是独立的（不同域名的 `Cookie` 不能共享）
+
+- `Cookie` 的存储形式是键值对, 如 `name=xxx; age=xxx`
+- 每次请求时, 浏览器会自动将 `Cookie` 发送给服务器, 服务器可以通过 `req.headers.cookie` 获取
+- 如果数据量较大, 建议使用 `localStorage` 和 `sessionStorage` 来代替 `Cookie`, 见[JavaScript学习笔记](/2024/01/17/JavaScript/#localStorage-对象)
+
+|命令|适用对象|作用|
+|:---:|:---:|:---:|
+|`document.cookie`|客户端|读取或设置 `Cookie`|
+|`fetch(url,{credentials:'include'})`|客户端|发送请求时携带 `Cookie`<br>默认为 `same-origin`|
+|`res.cookie('name', 'value'`<br>`[, { options }])`|服务器（`express`）|设置 `Cookie`<br>设置多个 `Cookie`, 多次调用即可|
+|`res.setHeader('Set-Cookie',`<br>`'name=value[; options]')`|服务器（`http` 模块）|设置 `Cookie`|
+|`req.clearCookie('name')`|服务器（`express`）|清除 `Cookie`|
+|`res.setHeader('Set-Cookie',`<br>`'name=; Max-Age=0')`|服务器（`http` 模块）|清除 `Cookie`|
+
+##### `options`
+|`express`|原生|说明|
+|:---:|:---:|:---:|
+|`maxAge`|`Max-Age`|`Cookie` 的有效期, 单位为毫秒, 优先级高于 `expires`|
+|`expires`|`Expires`|`Cookie` 的过期时间|
+|`path`|`Path`|`Cookie` 的路径, 只有在该路径下的请求才会发送 `Cookie`|
+|`domain`|`Domain`|`Cookie` 的域名, 只有在该域名下的请求才会发送 `Cookie`|
+|`secure`|`Secure`|是否只在 `HTTPS` 连接中发送 `Cookie`, 默认为 `false`|
+|`httpOnly`|`HttpOnly`|是否只能通过 `HTTP` 协议访问 `Cookie`<br>避免用户通过 `JavaScript` 访问, 默认为 `false`|
+
+> 如果不设置 `maxAge` 和 `expires`, `Cookie` 默认为会话 `Cookie`, 即关闭浏览器后失效
+
+##### 读取 `Cookie`
+使用 `cookie-parser` 中间件可以方便地读取 `Cookie`, 它会将 `Cookie` 解析为对象并挂载到 `req.cookies` 上
+
+```bash
+# 安装 cookie-parser
+npm i cookie-parser
+```
+
+```javascript
+// 引入模块
+const express = require('express')
+const cookieParser = require('cookie-parser')
+
+// 创建服务器
+const app = express()
+
+// 使用中间件
+app.use(cookieParser())
+
+// 路由
+app.get('/', (req, res) => {
+  // 读取 Cookie
+  console.log(req.cookies)
+  res.send('Hello, World!')
+})
+
+// 监听端口
+app.listen(23333, () => console.log('服务器已启动: http://localhost:23333'))
+```
+
+#### Session
+`Session` 是服务器端的一种会话控制技术, 用于保存用户的会话信息, 如用户的登录状态、购物车、权限等
+
+- `Session` 的原理是在客户端保存一个 `SessionID`, 然后在服务器端保存一个 `Session` 对象
+- `Session ID` 与 `Session` 对象是唯一对应的, 用户在请求时会携带 `Session ID`
+- 在 `express` 中, 可以使用 `express-session` 中间件来实现 `Session` 的功能
+- 设置上述中间件后, 会在 `req` 对象上挂载一个 `session` 对象, 用于读取和设置 `Session`
+- 还可以使用 `connect-mongo` 中间件将 `Session` 保存到 `MongoDB` 数据库中
+- 相比于 `Cookie`, `Session` 相对更安全, 且可以保存更多的数据（对于 `Chrome` 等浏览器, `Cookie` 的大小限制为 `4KB`）
+
+```bash
+# 安装 express-session
+npm i express-session
+# 安装 connect-mongo
+npm i connect-mongo
+```
+
+```javascript
+// 引入模块
+const express = require('express')
+const session = require('express-session')
+const MongoStore = require('connect-mongo')
+
+// 创建服务器
+const app = express()
+
+// 使用中间件
+app.use(session({
+  name: 'sid', // 用于保存 Session ID 的 Cookie 的名称, 默认为 connect.sid
+  secret: 'xiaoyezi', // 用于加密 `Session ID` 的密钥
+  resave: true, // 是否每次请求都重新保存 `Session`（更新 `Session` 的有效期）
+  saveUninitialized: false, // 是否保存未初始化的 `Session`, 默认为 `true`（未登陆用户）
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // `Session` 的有效期, 单位为毫秒（数据库中的 `Session` 也会过期）
+    httpOnly: true, // 是否只能通过 `HTTP` 协议访问 `Cookie`, 避免用户通过 `JavaScript` 访问
+    secure: false // 是否只在 `HTTPS` 连接中发送 `Cookie`
+  },
+  store: MongoStore.create({ // 用于保存 `Session` 的存储器
+    mongoUrl: 'mongodb://localhost:27017/test'
+  })
+}))
+
+// 路由
+app.get('/login', (req, res) => {
+  // 设置 Session
+  req.session.user = {
+    name: 'xiaoyezi',
+    age: 18
+  }
+  res.send('登陆成功')
+})
+app.get('/logout', (req, res) => {
+  // 销毁 Session
+  req.session.destroy(e => e && console.log('销毁失败: ' + e))
+  res.send('退出成功')
+})
+app.get('/info', (req, res) => {
+  // 读取 Session
+  console.log(req.session.user)
+  res.send('获取成功')
+})
+
+// 监听端口
+app.listen(23333, () => console.log('服务器已启动: http://localhost:23333'))
+```
+
+**数据库数据示例**
+
+![](/images/note/session.png)
+
+##### CSRF 攻击
+`CSRF` 是 `Cross-Site Request Forgery` 的缩写, 指的是跨站请求伪造, 是一种网络攻击方式, 攻击者可以利用受害者的身份向服务器发送请求, 执行一些操作, 如转账、发帖等
+
+- `CSRF` 攻击的原理是利用受害者的 `Cookie`, 因此可以通过设置 `SameSite` 属性来防御 `CSRF` 攻击
+- `SameSite` 属性是 `Cookie` 的一个属性, 用于指定 `Cookie` 是否可以跨站发送, 有三个值: `Strict`、`Lax`、`None`
+- `Strict`: 只有在同源请求时才会发送 `Cookie`, 不同源请求时不会发送
+- `Lax`: 在 `GET` 请求和 `POST` 请求时都会发送 `Cookie`, 但是在 `GET` 请求中, 如果是跨站请求, 不会发送 `Cookie`
+- `None`: 无论是 `GET` 请求还是 `POST` 请求, 都会发送 `Cookie`, 即使是跨站请求也会发送
+
+```javascript
+// 在服务端, 可以将上面的 /logout 路由改为 post 来防御 CSRF 攻击
+app.post('/logout', (req, res) => {
+  // 销毁 Session
+  req.session.destroy(e => e && console.log('销毁失败: ' + e))
+  res.send('退出成功')
+})
+```
+
+#### Token
+`Token` 是一种无状态的会话控制技术, 是服务端生成、返回给客户端、内含用户信息的、加密的字符串
+
+- 用户在登陆时, 服务端在验证用户信息后生成一个 `Token`, 并返回给客户端
+- 客户端在请求时携带 `Token`（通常放在请求头中）, 服务端通过解密 `Token` 来验证用户身份
+- `Token` 是加密的, 且加解密过程只会在服务端进行, 客户端无法解密; `Token` 还可以避免 `CSRF` 攻击; 所以 `Token` 更安全
+- `Token` 的存储位置是客户端, 可以是 `localStorage`、`sessionStorage`、`Cookie` 等; 且不同于 `Cookie`, `Token` 不会自动发送给服务器, 需要手动设置
+
+##### JWT
+`JWT` 是 `JSON Web Token` 的缩写, 是一种 `Token` 的标准, 用于在网络中传递声明, 通常用于身份验证
+
+- `JWT` 由三部分组成, 分别是 `Header`、`Payload` 和 `Signature`, 用 `.` 分隔
+- `Header` 是一个 `JSON` 对象, 用于描述 `Token` 的元数据, 如 `alg`（加密算法）和 `typ`（`JWT` 类型）
+- `Payload` 是一个 `JSON` 对象, 用于存放用户信息, 如 `sub`（主题）、`exp`（过期时间）、`iat`（签发时间）
+- `Signature` 是 `Header` 和 `Payload` 的签名, 用于验证 `Token` 的完整性
+
+##### jsonwebtoken
+`jsonwebtoken` 库是 `JWT` 的一个实现, 用于生成和验证 `Token`
+
+|属性或方法|作用|
+|:---:|:---:|
+|`jwt.sign(data, secretOrPrivateKey, options)`|生成 `Token`|
+|`jwt.verify(token, secretOrPublicKey, callback)`|验证 `Token`|
+|`options.expiresIn`|`Token` 的有效期, 单位为秒|
+|`options.notBefore`|`Token` 的生效时间, 单位为秒|
+|`options.audience`|`Token` 的受众, 默认为 `options.issuer`|
+|`options.issuer`|`Token` 的签发者, 默认为 `localhost`|
+|`callback`|回调函数, 形参为 `err` 和 `data`<br>不写回调函数时, 直接返回 `data` 或抛出错误|
+
+```bash
+# 安装 jsonwebtoken
+npm i jsonwebtoken
+```
+
+```javascript
+// 引入模块
+const jwt = require('jsonwebtoken')
+// 密钥
+const PRIVATE_KEY = 'myprivatekey'
+// 生成 Token, 有效期为 5 秒
+const token = jwt.sign({ name: 'xiaoyezi', age: 18 }, PRIVATE_KEY, { expiresIn: 5 })
+console.log(token) // xxx.xxx.xxx_xxx_xxx
+// 每隔 1 秒验证一次 Token
+setInterval(() => {
+  jwt.verify(token, PRIVATE_KEY, (err, data) => {
+    if (err) {
+      console.log('token已过期')
+    } else {
+      console.log(data) // { name: 'xiaoyezi', age: 18 }
+    }
+  })
+}, 1000)
+// 5 秒后输出 token 已过期
+```
+
+### 命令行交互
+`inquirer` 是一个 `Node.js` 模块, 可以用于创建交互式命令行工具, 可以用于创建一个命令行工具
+
+```bash
+# 安装 inquirer
+npm i inquirer
+```
+
+|方法|作用|
+|:---:|:---:|
+|`inquirer.prompt(questionsArray[, answersObj])`|获取用户的输入, 返回 `Promise`|
+|`new inquirer.ui.BottomBar()`|创建一个底部栏, 用于显示进度|
+|`outputStream.pipe(ui.log)`|将输出流导入底部栏|
+|`ui.log.write('msg')`|在底部栏中显示信息|
+|`ui.updateBottomBar('msg')`|更新底部栏的信息|
+
+- `inquirer` 是纯 `es module`, 不支持 `CommonJS`, 需要使用 `import` 导入
+- `inquirer` 的 `prompt` 方法返回一个 `Promise` 对象, 可以使用 `await` 来获取用户的输入、用 `then`、`catch` 来处理用户的输入
+
+#### Questions
+`questionsArray` 是一个数组, 数组中的每个元素都是一个 `question` 对象, 用于定义问题的类型、提示信息、默认值等
+
+|属性|作用|
+|:---:|:---:|
+|`type`|问题的类型, 如 `input`、`confirm`、`password`|
+|`name`|问题的名称, 用于把值存储到 `answersObj.name` 中|
+|`message`|问题的提示信息|
+|`choices`|问题的选项数组|
+|`default`|问题的默认值, 可以是值或函数（的返回值）|
+|`validate`|答案的验证函数, 应返回 `true` 或 `false`|
+|`filter`|答案的过滤函数, 应返回过滤后的值|
+|`transformer`|问题的转换函数, 应返回转换后的值, 用于隐藏密码等|
+
+> 只有前三个是所有 `type` 都必须有的
+
+##### type
+|类型|作用|
+|:---:|:---:|
+|`list`|选择一个选项, 需要设置 `choices`|
+|`rawlist`|选择一个选项（数字序号）, 需要设置 `choices`|
+|`expand`|选择一个选项（指定序号）, 需要设置 `choices`<br>`choice` 需要额外设置 `key` 作为序号|
+|`checkbox`|选择多个选项, 需要设置 `choices`<br>`choice` 可选设置 `checked` 为 `true`|
+|`confirm`|选择 `yes` 或 `no`|
+|`input`|输入一个值|
+|`password`|输入一个密码|
+|`editor`|打开一个文本编辑器, 关闭后返回输入的值|
+
+##### choices
+`choices` 是一个数组, 数组中的元素可以是一个值, 也可以是一个 `choice` 对象, 用于定义选项的值、显示的文本等
+
+```javascript
+const questions = [
+  {
+    type: 'list',
+    name: 'color',
+    message: 'What is your favorite color?',
+    choices: ['Red', 'Green', 'Blue']
+  },
+  {
+    type: 'list',
+    name: 'food',
+    message: 'What is your favorite food?',
+    choices: [
+      { name: 'Pizza', value: 'pizza' },
+      { name: 'Burger', value: 'burger' },
+      { name: 'Hot Dog', value: 'hot dog' }
+    ]
+  },
+  {
+    type: 'expand',
+    name: 'drink',
+    message: 'What is your favorite drink?',
+    choices: [
+      { key: 'c', name: 'Coke', value: 'coke' },
+      { key: 'p', name: 'Pepsi', value: 'pepsi' },
+      { key: 's', name: 'Sprite', value: 'sprite' }
+    ]
+  }
+]
+```
+
+##### 示例
+这是我的[爬虫练习小程序](https://github.com/LeafYeeXYZ/BNU-Timetable-Getter)的一个片段
+
+```javascript
+import inquirer from 'inquirer'
+// ...
+if (!env.USER_NAME || !env.PASSWORD || !env.DISPLAY_NAME) {
+  const answers = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'USER_NAME',
+      message: '请输入学号',
+    },
+    {
+      type: 'password',
+      name: 'PASSWORD',
+      message: '请输入数字京师密码',
+    },
+    {
+      type: 'input',
+      name: 'DISPLAY_NAME',
+      message: '请输入保存的文件名（默认为学号）',
+    },
+  ])
+  env.USER_NAME = answers.USER_NAME
+  env.PASSWORD = answers.PASSWORD
+  env.DISPLAY_NAME = answers.DISPLAY_NAME || answers.USER_NAME
+}
+```
+
+### RESTful API
+接口 `Application Programming Interface, API` 是一种用于连接不同软件、不同模块、网站前后端等的数据交换方式; 一个接口由 `URL`、`请求方法`、`请求参数`、`响应数据` 等组成, 可以在[这里](https://apifox.cn/apidoc/project-1937884/doc-1695440)查看一个接口文档的示例, 也可以在[这里](https://free-api.com)查看一些免费的接口
+
+而 `RESTful` 是一种软件架构风格, 是一种设计 `API` 的方式, 可以用于创建 `Web` 服务; 用任何语言都可以创建 `RESTful API`, 只要遵循 `REST` 的设计风格即可: 
+
+- `URL` 代表资源, 路径中不应包含动词
+- `HTTP` 方法应代表对资源的操作, 如 `GET`、`POST`、`PUT`、`DELETE` 等
+- `HTTP` 状态码应代表操作的结果, 如 `200`、`404`、`500` 等
+- `RESTful API` 一般使用 `JSON` 格式来传输数据
+
+> 前面说的用 `GET / POST` 方法来进行所有操作的设计实际上是不符合 `RESTful` 的设计风格的
+
+#### json-server
+`json-server` 是一个 `Node.js` 模块, 可以用于快速创建 `RESTful API`
+  
+```bash
+# 安装 json-server
+npm i -g json-server
+# 创建一个 json 文件, 如 db.json
+# 启动 json-server
+json-server --watch db.json --port 23333
+# 如果不指定端口, 默认端口为 3000
+```
+
+```json
+// db.json
+// GET localhost:23333/users 返回所有用户
+// GET localhost:23333/users/1 返回 id 为 1 的用户
+// POST localhost:23333/users 创建一个用户
+// PUT localhost:23333/users/1 更新 id 为 1 的用户
+// DELETE localhost:23333/users/1 删除 id 为 1 的用户
+{
+  "users": [
+    { "id": 1, "name": "xiaoyezi", "age": 18 },
+    { "id": 2, "name": "leaf", "age": 18 }
+  ],
+  "posts": [
+    { "id": 1, "title": "Hello World!" }
+  ]
+}
+```
+
+#### 接口测试
+`Postman`、`APIpost`、`APIfox` 等都是一些常用的接口测试工具, 可以用于测试接口; 其中, `Postman` 提供了 `VScode` 插件, 可以直接在 `VScode` 中测试接口, 推荐使用
+
+> `Postman` 似乎会无视 `Access-Control-Allow-Origin`, 始终显示返回的数据
+
+#### 本地域名
+`hosts` 文件是一个没有扩展名的系统文件, 用于将域名映射到 `IP` 地址, 可以用于本地开发和测试
+
+- 访问域名时, 操作系统会先在 `hosts` 文件中查找, 然后再去 `DNS` 服务器查找
+- `hosts` 文件的位置是 `C:\Windows\System32\drivers\etc\hosts`, 可以使用记事本打开
+- `hosts` 文件的格式是 `IP` 地址、域名, 用任意数量的空格分隔, 如 `127.0.0.1 bnu.edu.cn`
+- 可以用 `hosts` 文件来屏蔽广告、防止应用在线更新等, 如 `127.0.0.1 ad.xxx.com`
+
+## Deno
+
+`Deno` 是一个基于 `V8` 引擎的 `JavaScript` 和 `TypeScript` 运行时, 由 `Node.js` 的创始人 `Ryan Dahl` 开发, 目的是解决 `Node.js` 的一些问题
+
+{% folding red::介绍 %}
+- `Deno` 是一个安全的运行时环境, 它默认不允许访问文件系统、网络和环境变量, 除非显式授权
+- `Deno` 内置了 `TypeScript` 编译器, 无需安装额外的工具
+- `Deno` 使用 `ES Modules`, 不再支持 `CommonJS` 模块
+- `Deno` 所有的异步操作都返回 `Promise`, 不再使用传统回调函数
+- `Deno` 通过 `URL` 导入模块, 可以不再使用 `node_modules` 目录
+- `Deno` 可以简单地将 `JS` 或 `TS` 文件编译为可执行文件
+- `Deno` 旨在兼容 `WebAPI`, 如 `fetch`、`prompt` 等
+- `Deno` 的内置 API 都在全局对象 `Deno` 上
+{% endfolding %}
+
+| 命令 | 说明 |
+| :---: | :---: |
+| `deno` | 进入 `Deno` 的交互式命令行 |
+| `deno --version` | 显示 `Deno` 版本 |
+| `deno upgrade [--version x.x.x]` | 更新 `Deno` 版本 |
+| `deno init` | 创建一个 `Deno` 项目 |
+| `deno xxx.ts` | 运行 `.js` 或 `.ts` 文件 |
+| `deno run [--watch] [安全选项] xxx.ts或url或npm:cowsay [args]` | 运行本地、远程、模块脚本 |
+| `deno test [--watch]` | 运行测试文件 |
+| `deno fmt [--check]` | 格式化文件, 取代 `prettier`; `--check` 表示仅检查 |
+| `deno lint` | 检查代码风格, 取代 `eslint` |
+| `deno add jsr/npm:xxx` | 添加 `jsr` 或 `npm` 模块到 `deno.json` |
+
+- 运行选项应放在 `run` 等命令之后, `xxx` 之前
+- `--watch`: 选项可以监视文件变化, 自动重新执行命令
+- `--watch-hmr`: 尝试使用 `HMR`（热模块替换）来更新模块
+- `--watch-exclude=xxx.ts,xxx.ts`: 排除监听指定文件
+- `--no-remote`: 禁止远程导入
+- `--unstable`: 允许不稳定的 `API`
+- **安全选项** `注意: localStorage 等 WebAPI 也属于文件系统`
+  - `--allow-all` / `-A`: 允许所有权限
+  - `--allow-net[=IP/HOSTNAME]`: 允许网络访问
+  - `--allow-read[=PATH]`: 允许读取文件
+  - `--allow-write[=PATH]`: 允许写入文件
+  - `--allow-env[=KEY]`: 允许访问环境变量
+  - `--allow-run[=PROGRAM]`: 允许运行子进程
+- 在 `xxx` 之后的所有选项都会被传递给 `xxx` 内的 `Deno.args` 数组
+
+```typescript
+// 如果要引入 node 模块
+import * as fs from 'node:fs/promises'
+// 如果要引入 npm 模块
+import * as math from 'npm:mathjs'
+// 如果要引入不自带类型的模块的类型
+// @deno-types="npm:@types/lodash-es@latest"
+import * as _ from 'npm:lodash-es'
+// 如果要引入 node 全局对象 (如 Buffer) 的类型
+/// <reference types="npm:@types/node" />
+
+// 使用 Uint8Array 代替 Buffer
+const buf = new Uint8Array([1, 2, 3])
+// 使用 import.meta.filename 代替 __filename
+console.log(import.meta.filename)
+// 使用 import.meta.dirname 代替 __dirname
+console.log(import.meta.dirname)
+// 使用 globalThis 代替 process
+globalThis.addEventListener('load', () => console.log('加载完成'))
+
+// 引入 jsr 模块
+import math from 'jsr:mathjs'
+// 从 url 导入模块
+import { pascalCase } from 'https://deno.land/x/case/mod.ts'
+
+// HTTP 服务器
+Deno.serve(async (req) => {
+  // 注: Deno 支持 HTTP/2 和 HTTPS
+  return new Response('Hello, World!')
+})
+```
+
+```bash
+# 创建一个 Deno 项目
+deno init
+# 创建 Next.js 项目
+deno run -A npm:create-next-app@latest
+cd xxx
+deno task dev
+# 创建 Vite 项目
+deno run -A npm:create-vite@latest
+cd xxx
+deno install
+deno task dev
+```
+
+### deno.json
+
+```json
+{
+  // 设置依赖或路径的别名
+  "imports": {
+    "@luca/cases": "jsr:@luca/cases@^1.0.0",
+    "cowsay": "npm:cowsay@^1.6.0",
+    "cases": "https://deno.land/x/case/mod.ts",
+    "@": "/src"
+  },
+  // 设置脚本
+  "tasks": {
+    "start": "deno run --allow-net --allow-read server.ts",
+    "test": "deno test --allow-read",
+    "lint": "deno lint"
+  },
+  // 设置代码检查
+  "lint": {
+    "include": ["src/"],
+    "exclude": ["src/testdata/", "src/fixtures/**/*.ts"],
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["ban-untagged-todo"],
+      "exclude": ["no-unused-vars"]
+    }
+  },
+  // 设置代码格式化
+  "fmt": {
+    "useTabs": true,
+    "lineWidth": 80,
+    "indentWidth": 4,
+    "semiColons": true,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "include": ["src/"],
+    "exclude": ["src/testdata/", "src/fixtures/**/*.ts"]
+  },
+  // 设置不稳定的 API
+  "unstable": ["kv"],
+  // 全局排除
+  "exclude": ["dist/"],
+}
+```
+
+- `Deno` 也可以解析 `package.json` 文件
+- `Deno` 不推荐手动设置 `TypeScript` 配置, 而是使用默认配置
+
+### JSR和标准库
+
+`JSR` 是一个现代的 `JavaScript` 模块注册机构, 内部的模块被要求类型安全; `JSR` 还会标注每个模块的可用平台, 如 `Deno`、`Node.js`、`Web`、`Workers` 等
+
+`Deno` 的标准库也存放于 `JSR` 中, 例如 `jsr:@std/fs`、`jsr:@std/path` 等
+
+> `JSR` 在 `node.js` 中同样可用, 只需运行 `bunx jsr add xxx` 即可
+
+### Deno KV
+{% notel yellow 提示 %}
+本部分笔记写于 `Deno 1.x` 时期, 且 `Deno KV` 本身属于不稳定的 `API`, 可能会有变动
+{% endnotel %}
+
+`Deno` 提供了内置的 `KV` 存储驱动, 用于存储键值对数据, 可以在本地或 `Deno Deploy` 上直接使用
+
+本地访问远程 `KV` 存储时, 需要将 `Deno Deploy` 的 `Access Token` 设置为环境变量 `DENO_KV_ACCESS_TOKEN`, 并在调用 `Deno.openKv` 时传入数据库的 `URL` 作为参数
+
+`key` 是一个数组, 元素按照重要性先后排列, 如 `['user', 'xiaoyezi']`; 元素可以是 `Uint8Array`、`string`、`number`、`bigint`、`boolean`; `value` 是一个对象
+
+| 方法 | 说明 |
+| :---: | :---: |
+| `Deno.openKv(['URL'])` | 打开 KV 数据库 |
+| `kv.close()` | 关闭 KV 数据库 |
+| `kv.delete(key)` | 删除键值对 |
+| `kv.get(key)` | 获取键值对 |
+| `kv.getMany(keysArray)` | 获取多个键值对 |
+| `kv.list(selector)` | 列出键值对, 返回迭代器而不是 `Promise`<br>但遍历迭代器时会返回 `Promise` |
+| `kv.set(key, value[, { expireIn }])` | 设置键值对<br>`expireIn`: 过期时间（毫秒） |
+
+- 获取到的多个键值对是一个 `KvListIterator` 类的可迭代对象, 也可以用 `[]` 访问其元素
+- 获取到的键值对是一个 `Deno.KvEntry` 类的实例对象: `{ key: KvKey; value: T; versionstamp: string; }`
+- `selector` 是一个 `Deno.KvListSelector` 类的实例对象: `{ prefix: KvKey; }` (前缀选择器); 详见[官方文档](https://deno.land/api@v1.41.3?s=Deno.KvListSelector)
+
+```javascript
+// 打开 KV 数据库
+const kv = await Deno.openKv()
+// 设置键值对
+await kv.set(['user', 'xiaoyezi'], { name: 'xiaoyezi', age: 18 })
+// 获取键值对
+const data = await kv.get(['user', 'xiaoyezi'])
+console.log(data.value)
+// 删除键值对
+await kv.delete(['user', 'xiaoyezi'])
+// 关闭 KV 数据库
+kv.close()
+```
+
+##### 常见问题
+要这么写才对, 而不是在 `kv.list` 前加 `await`
+
+```javascript
+const test = kv.list({ prefix: [params.hostname, 'visitors'] })
+for await (const key of test) {
+  console.log(key)
+}
+```
+
+## Bun
+`Bun` 也是一个 `JavaScript` 和 `TypeScript` 运行时, 基于 `JavaScriptCore` 而不是 `V8`; 相比于 `Deno`, `Bun` 更注重于 `Node.js` 的兼容性, 可以无痛迁移, 也可以作为类似 `npm` 的包管理器使用
+
+`Bun` 的内置 `API` 都挂载于全局对象 `Bun` 上, 与 `Deno` 的 `Deno` 对象类似; 并且也支持很多 `WebAPI`
+
+```bash
+# 安装 (Windows)
+powershell -c "irm bun.sh/install.ps1|iex"
+# 验证
+bun
+# 升级
+bun upgrade
+# 卸载 (Windows)
+powershell -c ~\.bun\uninstall.ps1
+```
+
+```typescript
+Bun.serve({
+  async fetch(req, server) {
+    return new Response(`Your IP: ${server.requestIP}`)
+  },
+  port: 3333, // 默认为 3000
+  hostname: 'test.local', // 默认为 0.0.0.0
+})
+```
+
+### Runtime
+| `bun` | `node` |
+| :---: | :---: |
+| `bun [--watch] [run] x.js/ts/jsx/tsx` | `node xxx.js` |
+| `bun [run] xxx` | `npm run xxx` |
+| `bun run --bun xxx` | 强制使用 `Bun` 运行脚本<br>忽略 `#!/usr/bin/env node` 声明 |
+| `bun init` | `pnpm init` |
+| `bun create xxx` | `pnpm create xxx` |
+
+- 内置命令和 `package.json` 冲突时, 优先使用内置命令; 此时应使用 `bun run xxx` 而不是 `bun xxx`
+- 通过 `bun add -d @types/bun` 可以安装 `Bun` 的类型声明文件
+
+### .env
+`Bun` 会自动按顺序读取以下环境变量文件 (无需 `dotenv`), 并挂载到 `process.env` 上 (但也可以通过 `Bun.env` 或 `import.meta.env` 获取)
+
+1. **通过命令行传递: `KEY=VALUE bun run dev`**
+2. 手动指定文件: `bun --env-file=xxx run dev`
+3. `.env.local`
+4. `.env.production` / `.env.development` / `.env.test` (根据 `NODE_ENV` 环境变量)
+5. `.env`
+
+```bash
+# .env
+NAME=xiaoyezi
+AGE=18
+```
+  
+```javascript
+// 读取环境变量
+console.log(process.env.NAME) // xiaoyezi
+console.log(typeof process.env.AGE) // string
+```
+
+### import.meta
+| 属性 | 说明 |
+| :---: | :---: |
+| `import.meta.dirname`<br>`import.meta.dir` | 当前模块目录的绝对路径 |
+| `import.meta.filename`<br>`import.meta.path` | 当前模块的绝对路径 |
+| `import.meta.file` | 当前模块的文件名, 如 `xxx.ts` |
+| `import.meta.main` | 是否为主模块, 类似于 `Python` 的 `__name__ == '__main__'` |
+| `import.meta.url` | 以 `file://` 开头的当前模块的绝对路径 |
+
+### Shell
+```typescript
+// 引入 Shell 模块
+import { $ } from 'bun'
+
+// 执行命令
+const { stdout: Buffer, stderr: Buffer } = await $`echo "Hello, World!"`
+
+// 阻止输出
+await $`echo "Hello, World!"`.quiet()
+
+// 获取输出
+const output: string = await $`echo "Hello, World!"`.text()
+const output: string = await $`echo "Hello, World!"`.json()
+for await (const line of $`echo "Hello, World!"`.lines()) {
+  console.log(line)
+}
+const output: Blob = await $`echo "Hello, World!"`.blob()
+
+// 改变工作目录
+await $.cwd('/xxx')
+await $`echo "Hello, World!"`.cwd('../')
+
+// 覆盖环境变量
+await $`echo $NAME`.env({ ...import.meta.env, NAME: 'xiaoyezi' }) // xiaoyezi
+```
+
+#### 🚧 Redirect
+```typescript
+import { $ } from 'bun'
+
+// 输出到 TypedArray
+const u8a = new Uint8Array()
+await $`echo "Hello, World!" > ${u8a}`
+// 输出到文件
+const file = Bun.file('xxx.txt')
+await $`echo "Hello, World!" > ${file}`
+
+// 其他 ...
+```
+
+### File I/O
+| 方法 | 说明 | 类型 |
+| :---: | :---: | :---: |
+| `Bun.file('path'[, options])` | 创建文件对象 | `(string, object?) => BunFile` |
+| `Bun.stdin` | 标准输入 | 只读 `BunFile` |
+| `Bun.stdout` | 标准输出 | `BunFile` |
+| `Bun.stderr` | 标准错误 | `BunFile` |
+| `Bun.write(dest, data)` | 写入文件 | `(string \| URL \| BunFile, string \| Blob \| BunFile \| ArrayBuffer \| TypedArray \| Response) => Promise<number>` |
+
+> `Bun.file` 的 `path` 可以指向不存在的文件, 可以通过 `options.type` 来指定文件类型, 如 `text/plain;charset=utf-8`, `application/json`
+
+#### BunFile
+| 方法 | 说明 | 类型 |
+| :---: | :---: | :---: |
+| `file.size` | 文件大小 | `number` |
+| `file.type` | 文件 `MIME` 类型 | `string` |
+| `file.exists()` | 判断文件是否存在 | `Promise<boolean>` |
+| `file.text()` | 读取文件 | `Promise<string>` |
+| `file.stream()` | 读取文件 | `Promise<ReadableStream>` |
+| `file.arrayBuffer()` | 读取文件 | `Promise<ArrayBuffer>` |
+| `file.bytes()` | 读取文件 | `Promise<Uint8Array>` |
+| `file.writer([options])` | 创建 `FileSink` 对象 | `Promise<FileSink>` |
+
+#### FileSink
+| 方法 | 说明 | 类型 |
+| :---: | :---: | :---: |
+| `writer.write(data)` | 写入缓存 | `void` |
+| `writer.flush()` | 写入本地磁盘 | `void` |
+| `writer.end()` | 写入并关闭文件 | `void` |
+
+> `file.writer` 的 `options.highWaterMark` 可以自定义缓存区大小, 达到缓存大小后会自动 `flush`
+
+### SQLite
+`Bun` 原生实现了一个高性能 `SQLite3` 数据库驱动, 可以直接通过 `bun:sqlite` 引入
+
+```typescript
+import { Database } from 'bun:sqlite'
+
+// 打开数据库
+const db = new Database(':memory:') // 内存数据库
+const db = new Database('xxx.sqlite') // 文件数据库
+const db = new Database('xxx.sqlite', { readonly: true }) // 只读数据库
+const db = new Database('xxx.sqlite', { create: true }) // 不存在则创建数据库
+const db = new Database('xxx.sqlite', { strict: true }) // 严格模式
+
+// 创建表
+const query = db.query(`create table if not exists users (id integer primary key, name text)`)
+query.run() // 执行 SQL 但不返回数据结果
+
+// 查询
+const query = db.query(`select * from users where id = ?`)
+query.all() // 获取所有结果为数组
+query.get() // 获取第一条结果
+query.values() // 获取所有结果为数组
+// 销毁查询, 释放资源
+query.finalize()
+
+// 绑定参数查询
+const query = db.query(`select $param from users`)
+query.all({ param: 'name' })
+query.all()
+query.finalize()
+
+// 关闭数据库
+db.close(false) // 关闭数据库, 等待所有查询完成
+db.close(true) // 关闭数据库, 如果有查询未完成则抛出错误
+```
+
+> 注意: 与 `PostgreSQL` 等一般数据库不同, `SQLite` 的一个文件就是一个数据库
+
+# 包管理工具
+
+包 `package` 指一些特定功能源码的集合, 而包管理工具则是用于安装、卸载、更新、发布、管理包的工具, 如 `python` 的 `pip`、`Java` 的 `Maven`
+
+## bun pm
+| `bun` | `pnpm` |
+| :---: | :---: |
+| `bun install/i` | `pnpm i` |
+| `bun update` | `pnpm up` |
+| `bun add/a xxx`<br>`bun add/a --dev/-d/-D xxx`<br>`bun add/a --global/-g xxx` | `pnpm add xxx`<br>`pnpm add -D xxx`<br>`pnpm add -g xxx` |
+| `bun remove/rm xxx` | `pnpm rm xxx` |
+| `bun pm ls [-g]` | `pnpm list [-g]` |
+| `bunx [--bun] xxx`<br>`bun x [--bun] xxx` | `pnpx xxx` |
+| `bun publish` | `pnpm publish` |
+| `bun pm whoami` | `pnpm whoami` |
+
+- `--bun` 会强制使用 `Bun` 运行脚本, 忽略 `#!/usr/bin/env node` 声明
+- 如果没有 `node_modules` 目录, `Bun` 会像 `Deno` 一样自动安装依赖 (到全局缓存)
+
+## npm
+`JavaScript` 中常用的包管理工具是 `npm`, 它是 `Node.js` 自带的包管理工具, 可以用 `npm -v` 验证是否安装并查看版本
+
+{% notel green 本段内容 %}
+{% btn 初始化::#初始化 %} {% btn 安装包::#安装包 %} {% btn 其他包命令::#其他包命令 %} {% btn 语义化版本规范::#语义化版本规范 %} {% btn `npx`::#npx %} {% btn 发布包::#发布包 %}
+{% endnotel %}
+
+> 在操作系统层面也有包管理工具, 用于管理软件包, 如 `Ubuntu` 的 `apt`、`CentOS` 的 `yum`、`Windows` 的 `chocolatey`
+
+##### 全局与本地
+- **全局安装**: 安装在 `Node.js` 的安装目录下, 可以在命令行中直接使用
+- **本地安装**: 安装在当前项目的 `node_modules` 目录下, 只能在当前项目中使用
+- 只有一些命令行工具才需要全局安装
+- 在 `windows` 中, 可能需要以管理员身份运行命令行才能全局安装包
+
+|命令|作用|
+|:---:|:---:|
+|`npm install -g xxx`|全局安装 `xxx` 包|
+|`npm uninstall -g xxx`<br>`npm remove -g xxx`|全局卸载 `xxx` 包|
+|`npm update -g xxx`|全局更新 `xxx` 包|
+|`npm list -g`|查看全局下的所有包|
+
+##### 计算机环境变量
+`windows` 中, 可以在 `系统属性` -> `高级系统设置` -> `环境变量` 中设置环境变量; 在命令行执行某个命令时, 会先在当前目录下查找, 然后在环境变量 `Path` 中的目录下查找（优先查找系统的环境变量, 然后查找用户的环境变量）
+
+环境变量的作用是为了方便在任意目录下使用某些命令行工具, 如 `node`、`npm`、`git` 等
+
+#### 初始化
+|命令|作用|
+|:---:|:---:|
+|`npm init`|交互式地初始化一个 `package.json` 文件<br>将当前工作目录作为一个项目（包）的根目录|
+|`npm init -y`|快速初始化一个 `package.json` 文件<br>使用默认值, 不需要交互|
+
+- `package.json` 是一个 `JSON` 格式的文件, 用于描述项目的信息和依赖
+- `dependencies` 是项目运行时需要的依赖, 如框架、库等, 在生产和开发环境中都使用
+- `devDependencies` 是开发时需要的依赖, 如测试框架、打包工具等, 只在开发环境中使用
+- `scripts` 是一些脚本命令, 可以通过 `npm run xxx` 来执行
+- `scripts` 中的 `start` 是一个特殊的脚本命令, 可以直接通过 `npm start` 来执行
+- `npm run xxx` 同样有向上级目录查找的特性, 所以可以在 `package.json` 所在的目录的子目录中执行
+
+```json
+{
+  "name": "xxx", // 项目名称, 不能有大写字母和中文
+  "version": "1.0.0", // 项目版本, 遵循语义化版本规范
+  "description": "xxx", // 项目描述, 可以有中文
+  "main": "index.js", // 入口文件
+  "private": true, // 是否私有, 默认为 false, 设置为 true 后不能发布包
+  "scripts": {
+    "start": "node --watch index.js"
+  },
+  "dependencies": {
+    "xxx": "x.x.x"
+  },
+  "devDependencies": {
+    "xxx": "x.x.x"
+  },
+  "author": "xxx", // 作者
+  "license": "MIT", // 许可证
+  "bin": { // 用于设置命令行工具
+    "xxx": "./bin/xxx.js"
+  }
+}
+```
+
+> 设置 `bin` 属性后, 可以在命令行中直接使用 `xxx` 命令, 会执行 `./bin/xxx.js` 文件 (用户全局安装后)
+
+##### 命令行工具
+可以在 `package.json` 中的 `bin` 属性中设置命令行工具, 然后在 `bin` 目录下创建一个 `xxx.js` 文件, 用于处理命令行参数
+
+```javascript
+// bin/hello.js
+
+#!/usr/bin/env node
+
+console.log('Hello, World!')
+```
+
+```json
+// package.json
+
+{
+  "bin": {
+    "hello": "./bin/hello.js"
+  }
+}
+```
+
+```bash
+# 全局安装
+npm i -g xxx
+# 使用命令行工具
+hello
+```
+
+#### 安装包
+可以在 `npm` 的官网 [npmjs.com](https://www.npmjs.com/) 上搜索需要的包, 然后在命令行中安装
+
+|命令|作用|
+|:---:|:---:|
+|`npm install`|安装 `package.json` 中的所有依赖<br>第一次运行时, 会在当前目录下创建 `node_modules` 目录和 `package-lock.json` 文件|
+|`npm install xxx`<br>`npm install --save xxx`|安装 `xxx` 包并将其添加到 `dependencies` 中|
+|`npm install xxx@x.x.x`<br>`npm install --save xxx@x.x.x`|安装指定版本的 `xxx` 包并将其添加到 `dependencies` 中|
+|`npm install -D xxx`<br>`npm install --save-dev xxx`|安装 `xxx` 包并将其添加到 `devDependencies` 中|
+
+- 上面的 `install` 命令可以简写为 `i`
+- 安装包时, 会自动安装其依赖包至 `node_modules` 目录下, 但不会在 `package.json` 中显示
+- `package-lock.json` 文件用于锁定依赖的版本, 防止不同环境下安装的依赖版本不一致
+- 用 `npm install` 安装依赖时, 会根据 `package-lock.json` 文件中的版本号来安装依赖
+- 用 `require('xxx')` 引入的包会优先从 `./node_modules` 目录下查找, 然后查找 `../node_modules` 目录, 以此类推
+- `require('./node_modules/xxx')` 一般与 `require('xxx')` 等价, 但不会向上级目录查找
+- 根据[模块化](#模块化)一节中的知识, 导入包实质上是导入包的入口文件
+
+> `node_modules` 目录下的包不需要上传到 `git` 仓库（太多了）, 所以克隆的项目需要重新安装依赖
+
+#### 其他包命令
+|命令|作用|
+|:---:|:---:|
+|`npm uninstall xxx`<br>`npm remove xxx`|卸载 `xxx` 包|
+|`npm update`|更新 `package.json` 中的所有依赖|
+|`npm update xxx`|更新 `xxx` 包|
+|`npm list`|查看当前目录下的所有包|
+|`npm info xxx`|查看 `xxx` 包的信息|
+
+- `npm uninstall` 和 `npm remove` 可以简写为 `npm r`
+- 更新包时, 会更新 `package.json` 中的版本号, 然后重新安装依赖
+- 如果 `package.json` 中的版本号含 `^` 或 `~`, 会根据[语义化版本规范](#语义化版本规范)来更新
+- 如果存在 `package-lock.json` 文件, 更新包时会根据 `package-lock.json` 文件中的版本号来更新
+
+#### 语义化版本规范
+`Semantic Versioning`, 简称 `SemVer`, 是一种版本号规范, 用于描述包的版本号, 对于 `x.y.z` 形式的版本号, 有以下规定
+
+- `x`: 主版本号, 当做了不兼容的 API 修改时, 增加
+- `y`: 次版本号, 当做了向下兼容的功能性新增时, 增加
+- `z`: 修订号, 当做了向下兼容的问题修正时, 增加
+- `^x.y.z`: `x` 不变, `y` 和 `z` 可以更新到最新
+- `^0.y.z`: `0` 和 `y` 不变, `z` 可以更新到最新
+- `~x.y.z`: `x` 和 `y` 不变, `z` 可以更新到最新
+- `*`: 任意版本
+
+#### npx
+`npx` 是 `npm` 自带的一个包运行器, 用于运行本地安装的包, 或者直接运行远程的包
+
+运行 `npx command` 会自动地在项目的 `node_modules` 文件夹中找到命令的正确引用, 而无需知道确切的路径, 也不需要在全局和用户路径中安装软件包; 甚至, 当找不到本地包时, `npx` 还会询问你是否安装它
+
+```bash
+# Hexo 相关命令
+npx hexo clean # 清除生成的静态文件
+npx hexo g # 生成静态文件
+npx hexo s # 启动服务器
+npx hexo d # 部署静态文件
+```
+
+> 如果不使用 `npx`, 则需要在 `package.json` 中的 `scripts` 中设置命令, 然后通过 `npm run xxx` 来执行项目中的命令
+
+#### 发布包
+类似于 `GitHub`, `npm` 也是一个开源的包管理平台, 可以将自己的包发布到 `npm` 上
+
+|命令|作用|
+|:---:|:---:|
+|`npm login`|登录 `npm`|
+|`npm publish`|发布包|
+|`npm unpublish <name>`|撤销发布 `xxx` 包, 只会撤销最近的一个版本|
+|`npm logout`|登出 `npm`|
+|`npm whoami`|查看当前登录的用户|
+
+- 发布包时, 会将当前目录下的 `package.json` 文件中的 `name` 和 `version` 作为包的名称和版本号
+- 发布包时, 会将当前目录下的所有文件上传到 `npm` 上, 所以需要在 `.gitignore` 文件中忽略一些文件
+- **发布前必须先将镜像源切换至 `npm` 官方源**, 如执行: <br>`npm config set registry https://registry.npmjs.org`<br>或 `nrm use npm`
+- 用上面的命令可能报错, 查看错误信息即可, 为避免误操作删除不该删除的包, 这里不再提供详细的命令
+
+## yarn
+[`yarn`](https://yarnpkg.com) 是 `Facebook` 开发的包管理工具, 与 `npm` 类似, 但更快、更安全、更可靠
+
+```bash
+# 安装 yarn
+npm install -g yarn
+```
+
+- `yarn` 也可以通过 `yarn config set registry https://registry.npm.taobao.org` 来切换至淘宝镜像
+- `yarn` 用于锁定依赖的版本的文件是 `yarn.lock`, 与 `npm` 不同
+- 尽量不要同时使用 `npm` 和 `yarn` 来安装依赖
+
+|项目命令|作用|
+|:---:|:---:|
+|`yarn init [-y]`|初始化一个 `package.json` 文件|
+|`yarn add xxx[@x.x.x]`|安装 `xxx` 包并将其添加到 `dependencies` 中|
+|`yarn add xxx[@x.x.x] --dev`|安装 `xxx` 包并将其添加到 `devDependencies` 中|
+|`yarn remove xxx`|卸载 `xxx` 包|
+|`yarn`|安装 `package.json` 中的所有依赖|
+|`yarn upgrade`|更新 `package.json` 中的所有依赖|
+|`yarn upgrade xxx`|更新 `xxx` 包|
+|`yarn list`|查看当前目录下的所有包|
+|`yarn xxx`|执行 `package.json` 中的 `scripts` 中的 `xxx` 脚本<br>简化了 `run` 命令, 所以注意自定义的脚本命令不能与 `yarn` 的命令重名|
+
+|全局命令|作用|
+|:---:|:---:|
+|`yarn -v`|验证是否安装并查看版本|
+|`yarn global bin`|查看全局安装的包的路径|
+|`yarn global add xxx`|全局安装 `xxx` 包|
+|`yarn global remove xxx`|全局卸载 `xxx` 包|
+|`yarn global upgrade`|更新全局安装的包|
+|`yarn global list`|查看全局下的所有包|
+|`yarn config list`|查看 `yarn` 的配置|
+
+## pnpm
+`pnpm` 会把所有依赖安装在一个地方, 并使用符号链接的方式链接到各个项目, ~~节省校园网流量~~
+
+```bash
+# 安装 pnpm
+npm install -g pnpm
+```
+
+| `pnpm` | `npm` |
+| :---: | :---: |
+| `pnpm install/i` | `npm install` |
+| `pnpm add [-D/-g] xxx` | `npm install [-D/-g] xxx` |
+| `pnpm update/up [-g] [xxx]` | `npm update [-g] [xxx]` |
+| `pnpm remove/rm [-D/-g] xxx` | `npm uninstall [-D/-g] xxx` |
+| `pnpm prune` | 移除不需要的依赖 |
+| `pnpm list [-g]` | `npm list [-g]` |
+| `pnpm [run] xxx` | `npm run xxx` |
+| `pnpx xxx` | `npx xxx` |
+
+> 如果运行有问题, 可能需要手动设置环境变量: 将 `PNPM_HOME` 设置为你想要的路径如 `C:\Users\xxx\pnpm`，然后在 `Path` 中添加 `%PNPM_HOME%`    
+> 首次安装 (如在 `C` 盘) 后, 如果出现在其他盘符 (如 `D` 盘) 上的包存放位置错误的问题, 可以先在正确的目录运行 `pnpm store path` 获取正确位置, 再运行 `pnpm config set store-dir 刚才的正确位置` 进行设置
+
+# 打包工具
+
+## Webpack
+`Webpack` 是一个现代 `JavaScript` 应用程序的静态模块打包器 `module bundler`, 它主要用于打包 `JavaScript` 模块, 但也能够打包 `CSS`、`HTML`、`图片`、`字体`等文件
+
+```bash
+# 全局安装
+npm install -g webpack
+# 本地安装
+npm install webpack webpack-cli --save-dev
+# 打包
+npx webpack
+npm run build # 在 package.json 中设置脚本
+```
+
+- `webpack` 是 `Webpack` 的核心包, `webpack-cli` 是 `Webpack` 的命令行工具
+- 注意: 默认状态下, `webpack` 打包的入口文件是 `src/index.js`, 输出文件是 `dist/main.js`
+- `ES6` 模块化语法 `import` 和 `export` 以及 `CommonJS` 模块化语法 `require` 和 `module.exports` 都可以被 `Webpack` 解析, 但建议不要混用
+- `Node.js` 中的模块化语法 `require` 和 `module.exports` 不能直接在浏览器中使用, 需要通过 `Webpack` 打包
+- `npm` 包无法通过 `script` 标签或 `import` 语句直接在浏览器中使用, 也需要通过 `Webpack` 打包, 或者使用 `CDN` 引入
+
+|打包前|打包后|
+|:---:|:---:|
+|![](/images/note/webpack1.png)|![](/images/note/webpack2.png)|
+
+> 上面的警告会在创建下面的配置文件后消失
+
+{% folding red::完整配置示例 %}
+```json
+// package.json
+{
+  "name": "jsdemo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack --mode=production",
+    "start": "cross-env NODE_ENV=development webpack serve --open --mode=development"
+  },
+  "author": "leaf",
+  "license": "MIT",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.10.0",
+    "css-minimizer-webpack-plugin": "^6.0.0",
+    "html-loader": "^5.0.0",
+    "html-webpack-plugin": "^5.6.0",
+    "mini-css-extract-plugin": "^2.8.0",
+    "style-loader": "^3.3.4",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.2"
+  }
+}
+```
+
+```javascript
+// webpack.config.js
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+// loader 只需要安装, 不需要 require
+
+module.exports = {
+  mode: 'production',  // 模式
+  entry: path.resolve(__dirname, 'src/index.js'),  // 入口文件路径
+  output: { 
+    filename: 'bundle.js', // 输出文件名和路径
+    path: path.resolve(__dirname, 'dist'), // 输出文件路径
+    clean: true // 生成前清空输出文件夹, 默认为 false
+  },
+  plugins: [
+    new HtmlWebpackPlugin({ // 用于生成 HTML 文件
+      template: path.resolve(__dirname, 'src/index.html'), // 模板文件
+      filename: 'index.html' // 输出文件名和路径
+    }),
+    new MiniCssExtractPlugin({ // 用于将 CSS 文件单独打包
+      filename: 'index.css' // 输出文件名和路径
+    })
+  ],
+  module: {
+    rules: [
+      { // 用于处理 CSS 文件
+        test: /\.css$/i,
+        use: [
+          process.env.NODE_ENV === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          'css-loader'
+        ]
+      },
+      { // 用于处理图片文件
+        test: /\.(png|jpeg|jpg|gif|svg)$/i,
+        type: 'asset',
+        generator: {
+          filename: 'images/[name].[hash:6][ext]' // 输出文件名和路径
+        }
+      },
+      { // 用于处理 HTML 文件
+        test: /\.html$/i,
+        use: ['html-loader']
+      }
+    ]
+  },
+  optimization: {
+    minimizer: [
+      '...', // ... 表示保留默认的压缩插件
+      new CssMinimizerPlugin() // 用于压缩 CSS 文件
+    ]
+  },
+  devServer: {
+    open: true, // 是否自动打开浏览器
+    port: 23333 // 端口号
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src') // 设置 src 目录的别名为 @
+    }
+  }
+}
+
+if (process.env.NODE_ENV === 'development') {
+  module.exports.devtool = 'inline-source-map'
+} // 开发环境设置 source map
+```
+{% endfolding %}
+
+#### 配置
+`Webpack` 的配置文件是 `webpack.config.js`, 它是一个 `CommonJS` 模块, 返回一个配置对象; `Webpack` 会自动查找当前目录下的 `webpack.config.js` 文件
+
+默认情况下, `Webpack` 不会创建 `HTML` 文件, 可以使用 `HtmlWebpackPlugin` 插件来生成 `HTML` 文件
+
+```bash
+# 安装插件
+npm install html-webpack-plugin --save-dev
+```
+
+```javascript
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin') // 记得先安装
+
+module.exports = {
+  // 模式, development / production / none
+  // 只有在 production 模式下, Webpack 才会自动压缩代码
+  mode: 'development', 
+  // 入口文件路径, 可以是字符串、数组、对象
+  entry: path.resolve(__dirname, 'src/index.js'), 
+  // 输出文件
+  output: { 
+    filename: 'bundle.js', // 输出文件名
+    path: path.resolve(__dirname, 'dist'), // 输出文件路径
+    clean: true // 生成前清空输出文件夹, 默认为 false
+  },
+  // 插件
+  plugins: [
+    // HtmlWebpackPlugin 用于生成 HTML 文件
+    // 并在生成的 HTML 文件中自动引入打包后的 JS 文件
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/index.html'), // 模板文件
+      filename: './index.html' // 输出文件名和路径, 相对于 output.path
+    })
+  ],
+}
+```
+
+|打包前|打包后|
+|:---:|:---:|
+|![](/images/note/webpack3.png)|![](/images/note/webpack4.png)|
+
+> 打包后的 `bundle.js` 在加入 `HTML` 时会自动添加 `defer` 属性, 在 `HTML` 加载完后再执行
+
+##### 引入 CDN
+`externals` 对象用于配置哪些模块不应该被 `webpack` 打包, 而是在运行时从环境中的某个特定环境变量获取
+
+```javascript
+// webpack.config.js
+module.exports = {
+  // ...
+  plugins: [
+    new HtmlWebpackPlugin({
+      CDN: process.env.NODE_ENV === 'production'
+      // 自定义属性, 用于判断是否使用 CDN
+    })
+  ]
+}
+
+if (process.env.NODE_ENV === 'production') {
+  module.exports.externals = {
+    // key: 包名, import from xxx 的 xxx
+    // value: 全局变量名, 要与 CDN 引入的内容一致
+    // CSS 等不需要全局变量的资源的 value 可设置为 true 等内容
+    'swiper': 'Swiper'
+  }
+}
+```
+
+```html
+<!-- index.html -->
+<!-- 这是插件的自定义语法, 用 <% %> 执行 JavaScript 代码 -->
+<% if (htmlWebpackPlugin.options.CDN) { %>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<% } %>
+```
+
+{% notel green 常用免费&nbsp;`CDN` %}
+- [<b>jsDelivr</b>](https://www.jsdelivr.com)
+- [<b>unpkg</b>](https://unpkg.com)
+- [<b>BootCDN</b>](https://www.bootcdn.cn): 国内访问较快
+- [<b>CDNJS</b>](https://cdnjs.com)
+- [<b>Cloudflare</b>](https://www.cloudflare.com): 主要用于加速网站（~~在国内可能是减速~~）, 需要你的域名使用 `Cloudflare` 解析
+{% endnotel %}
+
+##### 多页面打包
+```javascript
+// webpack.config.js
+module.exports = {
+  // ...
+  entry: {
+    // 多个入口文件, 前面的 key 可以自定义
+    index: path.resolve(__dirname, 'src/index.js'),
+    about: path.resolve(__dirname, 'src/about.js')
+  },
+  output: {
+    filename: '[name].js', // 输出文件名
+    // [name] 为 entry 的 key
+    path: path.resolve(__dirname, 'dist')
+  },
+  plugins: [
+    // 用多个插件对象分别设置不同页面
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/index.html'),
+      filename: './index.html',
+      chunks: ['index'] // 指定页面使用的 JS 文件, 可以多个
+    }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/about.html'),
+      filename: './about.html',
+      chunks: ['about']
+    }),
+    new MiniCssExtractPlugin({
+      filename: './[name].css'
+    })
+  ]
+}
+```
+
+##### 分割公共代码
+`splitChunks` 对象用于配置 `Webpack` 如何将模块分割成块, 并将这些块作为单独的文件加载; 可以将公共的模块提取到一个单独的文件中, 以便多页面共享, 减少加载时间
+
+```javascript
+// webpack.config.js
+module.exports = {
+  // ...
+  optimization: {
+    splitChunks: {
+      chunks: 'all', // async / initial / all
+      cacheGroups: {
+        // 缓存组
+        commons: {
+          // 生成的文件名
+          name(module, chunks, cacheGroupKey) {
+            // module 是当前模块, chunks 是当前模块所属的块
+            const name = chunks.map(chunk => chunk.name).join('-')
+            // 返回文件名和路径, 相对于 output.path
+            return `./js/${name}`
+          },
+          chunks: 'initial', // async / initial / all
+          minSize: 0, // 最小文件大小
+          minChunks: 2, // 最小引用次数
+        },
+      }
+    }
+  }
+}
+```
+
+##### 集成打包 CSS
+`Webpack` 只能处理 `JavaScript` 和 `JSON` 文件, 其他类型的文件需要使用加载器 `loader` 来处理
+
+```bash
+# 安装加载器
+npm install css-loader --save-dev # 用于解析 CSS 文件
+npm install style-loader --save-dev # 用于将 CSS 文件插入到 HTML 文件中
+```
+
+```javascript
+// webpack.config.js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/i, // 匹配文件的正则表达式
+        use: ['style-loader', 'css-loader'] // 使用的加载器
+        // 注意不要颠倒顺序, 因为加载器是从右向左执行的
+      }
+    ]
+  }
+}
+
+// index.js
+// 由于 webpack 只能从入口文件开始解析
+// 所以需要在入口文件中引入 CSS 文件
+require('./index.css')
+// 与 import './index.css' 等效
+```
+
+|打包前|打包后|
+|:---:|:---:|
+|![](/images/note/webpack5.png)|![](/images/note/webpack6.png)|
+
+##### 单独打包 CSS
+上述方法会将所有的 `JavaScript` 和 `CSS` 文件打包到一个文件中, 但有时需要将 `CSS` 文件单独打包, 从而优化加载速度
+
+```bash
+# 安装插件
+npm install mini-css-extract-plugin --save-dev # 用于将 CSS 文件单独打包
+npm install css-minimizer-webpack-plugin --save-dev # 用于压缩 CSS 文件
+```
+
+```javascript
+// webpack.config.js
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        // 使用 MiniCssExtractPlugin.loader 代替 style-loader
+        use: [MiniCssExtractPlugin.loader, 'css-loader']
+      }
+    ]
+  },
+  plugins: [
+    // MiniCssExtractPlugin 用于将 CSS 文件单独打包
+    // 并在生成的 HTML 文件中自动引入打包后的 CSS 文件
+    new MiniCssExtractPlugin({
+      filename: './style.css' // 输出文件名和路径, 相对于 output.path
+    })
+  ],
+  optimization: {
+    minimizer: [
+      // 如果不设置 minimizer, Webpack 会自动压缩 JS 文件
+      // 但设置了 minimizer 后, 需要手动添加 JS 文件的压缩插件
+      // 或者写上 `...` 表示保留默认的压缩插件
+      '...',
+      // CssMinimizerPlugin 用于压缩 CSS 文件
+      new CssMinimizerPlugin()
+    ]
+  }
+}
+
+// index.js
+// 注意: 仍需要在入口文件中引入 CSS 文件
+require('./index.css')
+```
+
+|打包前|打包后|
+|:---:|:---:|
+|![](/images/note/webpack7.png)|![](/images/note/webpack8.png)|
+
+##### 打包其他资源
+`Webpack5` 之后, 一些资源文件（如图片、字体等）可以直接使用 `asset` 模块类型来打包, 不再需要额外的加载器 `loader`
+
+|模块类型|说明|
+|:---:|:---:|
+|`asset/resource`|用于将文件单独打包|
+|`asset/inline`|用于将文件转换为 `base64` 编码的 `URL`|
+|`asset/source`|用于将文件导出为字符串|
+|`asset`|将大于 `8KB` 的文件单独打包<br>小于 `8KB` 的文件转换为 `base64` 编码的 `URL`|
+
+- `asset/inline` 适用于小图片, 可以减少 `HTTP` 请求
+- 但 `asset/inline` 会增加图片的体积, 所以不适用于大图片
+- 打包完成后, `Webpack` 会自动将图片文件的路径替换为打包后的路径
+- 除了上面的 `html-webpack-plugin` 插件外, 还需要安装 `html-loader` 加载器来处理 `HTML` 文件, 否则 `HTML` 文件中的图片路径不会被替换
+
+```bash
+# 安装加载器
+npm install html-loader --save-dev
+```
+
+```javascript
+// webpack.config.js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpeg|jpg|gif|svg)$/i,
+        type: 'asset',
+        generator: {
+          filename: './images/[name].[hash:6][ext]' // 输出文件名和路径, 相对于 output.path
+          // [name]: 文件名, 如 logo
+          // [ext]: 文件扩展名, 如 .png
+          // [hash:6]: 文件哈希值, 6 位, 可以防止缓存
+        }
+      },
+      // 用于处理 HTML 文件
+      // 注意: 仍需要 html-webpack-plugin 插件来生成 HTML 文件
+      { 
+        test: /\.html$/i,
+        use: ['html-loader']
+      }
+    ]
+  }
+}
+```
+
+|打包前|打包后|
+|:---:|:---:|
+|![](/images/note/webpack9.png)|![](/images/note/webpack10.png)|
+
+#### 开发环境
+`Webpack` 可以通过 `webpack-dev-server` 来搭建开发环境, 它是一个基于 `Node.js` 的 `Web` 服务器, 可以实现热更新、代理等功能
+
+```bash
+# 安装插件
+npm install webpack-dev-server --save-dev
+```
+
+```javascript
+// webpack.config.js
+module.exports = {
+  mode: 'development', 
+  // 这里非常重要, 如果还是 'production', 打包速度会很慢, 对于这个 demo: 
+  // 'development' 一次打包时间约为 30ms, 'production' 一次打包时间则高达 1000ms
+  // 但如果是真正的项目, 还是需要 'production' 的, 因为会最大化地压缩代码
+  devServer: {
+    // 静态文件路径
+    // 所有 webpack 生成的文件实际上都是在内存中的, 而下面的配置是告诉 webpack-dev-server 从哪里读取非 webpack 生成的文件
+    // 原文: [webpack-dev-server] Content not from webpack is served from 'D:\Github\jsdemo\dist' directory
+    // 相当于网站的根目录是同时包含了 webpack 生成的文件和非 webpack 生成的文件
+    // 但如果两个来源的文件名相同, webpack 生成的文件会覆盖非 webpack 生成的文件
+    // 这里我们的 html 文件也是 webpack 生成的, 所以这里可以不写（不写时默认为 ./public）
+    static: path.resolve(__dirname, 'dist'),
+    // 是否自动打开浏览器, 默认为 false
+    open: true, // 或者设置为 'Google Chrome' 等
+    // 端口号
+    port: 23333
+  }
+}
+
+// package.json
+{
+  "scripts": {
+    "start": "webpack serve --open"
+  }
+}
+```
+
+> `webpack` 命令可以用 `--mode=development` / `--mode=production` 来设置模式, 优先级高于配置文件, 从而避免反复修改配置文件
+
+##### source map
+如果代码有错误, 在浏览器中的报错指向的是打包后的文件, 不利于调试; `source map` 可以将打包后的文件映射回原始文件, 从而方便调试
+
+```javascript
+// webpack.config.js
+if (process.env.NODE_ENV === 'development') {
+  module.exports.devtool = 'inline-source-map'
+} // 放在末尾
+```
+
+> **注意: 不要在生产环境中使用 `source map`, 因为它会暴露源码和增加文件体积**
+
+#### 环境变量
+##### cross-env 工具
+`cross-env` 是一个跨平台的环境变量设置工具, 可以在 `Windows`、`Linux`、`macOS` 上设置环境变量
+
+```bash
+# 安装 cross-env
+npm install cross-env --save-dev
+```
+
+```json
+// package.json
+{
+  "scripts": {
+    // 执行命令时, 会自动设置 xxx 环境变量到 process.env.xxx
+    "build": "cross-env NODE_ENV=production webpack --mode=production",
+    "start": "cross-env NODE_ENV=development webpack serve --open --mode=development"
+  }
+}
+```
+
+**通过环境变量优化打包配置**
+
+```javascript
+// webpack.config.js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [
+          // 只在 production 模式下才将 CSS 文件单独打包
+          process.env.NODE_ENV === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          'css-loader'
+        ]
+      }
+    ]
+  }  
+}
+```
+
+> 如生产和开发配置差异过大, 用环境变量也很麻烦, 则可以配置两个配置文件, 分别为 `webpack.config.js` 和 `webpack.config.prod.js`, 然后在 `package.json` 中设置 `scripts`, 如 `"build": "webpack --config webpack.config.prod.js"`, 这样就可以根据不同的命令来执行不同的配置文件
+
+###### DefinePlugin
+`webpack`  内置的 `DefinePlugin` 用于在编译时将代码中的某个环境变量替换为指定的值或表达式
+
+如果给定的值是字符串, 需要用 `JSON.stringify` 来转换, 否则会被当做可执行代码（如变量名、函数名等）
+
+```javascript
+// webpack.config.js
+module.exports = {
+  plugins: [
+    new DefinePlugin({
+      // 将浏览器环境中的 process.env.NODE_ENV 替换为 Node.js 环境中的 process.env.NODE_ENV 的值
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    })
+  ]
+}
+```
+
+```javascript
+// index.js
+// 本来在浏览器中是无法直接使用 process.env.NODE_ENV 的
+// 通过 DefinePlugin, 可以在代码中直接使用 process.env.NODE_ENV
+if (process.env.NODE_ENV === 'production') {
+  // 创建一个空函数, 用于屏蔽 console.log
+  console.log = function () {}
+}
+```
+
+##### 解析别名 alias
+`Webpack` 可以通过 `resolve.alias` 来设置模块的别名, 从而简化模块的引入, 并将相对路径转换为绝对路径（更安全）
+
+```javascript
+// webpack.config.js
+module.exports = {
+  resolve: {
+    alias: {
+      // 设置 src 目录的别名为 @
+      '@': path.resolve(__dirname, 'src')
+    }
+  }
+}
+
+// index.js
+// 通过别名引入模块
+// 原本是 require('./index.css')
+require('@/index.css')
+```
+
+## Parcel
+[`Parcel`](https://parceljs.docschina.org/) 是一个零配置的打包工具, 可以用于打包 `JavaScript`、`CSS`、`HTML` 等文件, 相比 `Webpack` 等打包工具, `Parcel` 更加简单易用
+
+```bash
+# 安装 parcel
+npm i -D parcel-bundler
+# 配置 package.json
+{
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build"
+  },
+  "source": "./src/index.html" # 入口文件, js 或 html
+  # "main": "./dist/main.js" # 对于 js 包, parcel 会自动打包到 main 指定的文件中
+}
+# 启动服务（自带热更新）
+npm start
+# 打包文件
+npm run build
+```
+
+|命令|作用|
+|:---:|:---:|
+|`parcel [-p xxx] [entry]`|启动服务, `-p` 用于指定端口, 默认为 `1234`|
+|`parcel watch [entry]`|只监听文件变化并热替换, 不启动服务|
+|`parcel build [entry] [-d xxx]`|打包文件, `-d` 用于指定输出目录, 默认为 `dist`|
+
+- `entry` 既可以是 `HTML` 文件, 也可以是 `JavaScript` 文件
+- `Parcel` 会自动解析 `HTML`、`CSS`、`JavaScript` 等文件的依赖, 然后打包
+- `Parcel` 同时支持 `CommonJS`、`ES6` 两种模块规范
+- `Parcel` 原生支持 `TypeScript`, 不需要额外的配置
+
+#### 静态资源打包
+在 `jsPsych` 中, 一些图片往往不是直接在 `HTML` 或 `CSS` 引用的, 所有可能不会被打包, 可以使用 `parcel-reporter-static-files-copy` 插件来复制静态资源
+
+```bash
+# 安装插件
+npm i -D parcel-reporter-static-files-copy
+# 配置 .parcelrc
+{
+  "extends": ["@parcel/config-default"],
+  "reporters":  ["...", "parcel-reporter-static-files-copy"]
+}
+# 创建 static 文件夹
+# 将静态资源放入 static 文件夹
+# 打包文件
+npm run build
+```
+
+> 还有个办法, 在 `HTML` 里面 `preload` 一下图片, 然后 `JavaScript` 里获取 `<link>` 标签的 `href` 属性
+
+## Vite
+[`Vite`](https://vitejs.dev/) 是一个由 `Vue.js` 核心团队维护的下一代前端构建工具, 它主要用于快速搭建现代化的前端项目, 并提供了 `Vue`、`React`、`Preact` 等框架的插件
+
+{% notel green 本节内容 %}
+{% btn 环境变量::#环境变量-1 %} {% btn 配置文件::#配置文件 %} {% btn 分块策略::#分块策略 %}
+{% endnotel %}
+
+```bash
+# 创建一个 Vite 项目 (可以选择 React 等模板)
+pnpm create vite
+```
+
+| 命令 | 描述 |
+| :---: | :---: |
+| `pnpm dev` (`vite`) | 启动开发服务器 |
+| `pnpm build` (`vite build`) | 构建生产版本 |
+| `pnpm preview` (`vite preview`) | 预览生产版本 |
+
+- 使用 `Vite` 构建的前端项目默认入口是**根目录的** `index.html` 文件
+- 要打包的资源通过相对路径引入即可 (如 `<script src="src/main.js"></script>`, `import app from 'App.jsx'`); 其中引入的 `json` 文件会被自动解析
+- `/public` 目录下的静态资源会被直接复制到输出目录, 通过绝对路径引入 (如 `/favicon.ico`)
+- 样式表除了在 `HTML` 文件中引入, 还可以通过 `import` 语句引入, 如 `import 'App.css'`
+- 不能被直接引用的资源, 除了放在 `/public` 目录下, 还可以通过 `import 'xxx'` 的方式引入, 如:<br>`import img from 'img.png'`: 返回路径<br>`import str from 'file.txt?raw'`: 返回字符串<br>`import Worker from 'worker.js?worker'`: 返回 `Web Worker`
+
+#### 环境变量
+`Vite` 会默认将根目录的 `.env` 文件中的环境变量注入到 `import.meta.env` 对象中
+
+```bash
+.env                # 所有情况下都会加载
+.env.local          # 所有情况下都会加载，但会被 git 忽略
+.env.[mode]         # 只在指定模式下加载
+.env.[mode].local   # 只在指定模式下加载，但会被 git 忽略
+# mode 为 development | production
+```
+
+- 所有环境变量的类型都会被转换为**字符串**
+- **只有以 `VITE_` 开头的环境变量才能被客户端代码访问**
+- 可以在 `HTML` 文件中通过 `%VITE_XXX%` 的方式引用环墧变量
+- `Vite` 的 `mode` 与 `NODE_ENV` 是相对独立的, `vite build` 会自动设置 `NODE_ENV` 为 `production`, 但可以通过 `--mode development` 来将 `Vite` 的 `mode` 设置为 `development`
+- `import.meta.env.PROD/DEV` 是由 `NODE_ENV` 环境变量决定的; 而 `import.meta.env.MODE` 是由 `Vite` 的 `mode` 决定的
+
+#### 配置文件
+```javascript
+// vite.config.js
+/** @type {import('vite').UserConfig} */
+export default {
+  // 配置选项
+}
+```
+
+| 配置选项 | 描述 | 默认值 |
+| :---: | :---: | :---: |
+| `root` | 项目根目录(`index.html` 位置) | `process.cwd()` |
+| `mode` | `Vite` 模式 | 取决于命令 |
+| `plugins` | [插件](https://cn.vitejs.dev/guide/api-plugin) | `undefined` |
+| `publicDir` | 静态资源目录 | `'public'` |
+| `envDir` | 环境变量目录 | `root` |
+| `server.port`<br>**命令** `--port xxx` | 服务器端口 | `5173` |
+| `server.open`<br>**命令** `--open` | 启动时是否自动打开浏览器 | `false` |
+| `server.cors` | 是否启用跨域 (允许所有) | `false` |
+| `build.target` | 构建目标, `esnext`, `es2020`, `chrome80`, `safari14` 等 | `'modules'` |
+| `build.outDir`<br>**命令** `--outDir xxx` | 输出目录 | `'dist'` |
+| `build.minify` | 压缩和混淆代码, `false`, `'terser'`, `'esbuild'` | `'esbuild'` |
+
+#### 分块策略
+可以通过 `build.rollupOptions.output.manualChunks` 来手动配置分块策略, 见[`rollup` 文档](https://rollupjs.org/configuration-options/#output-manualchunks)
+
+```javascript
+// vite.config.js
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        // 将 antd 和 swiper 单独打包
+        manualChunks: {
+          swiper: ['swiper'],
+          antd: ['antd'],
+        }
+      }
+    }
+  }
+})
+```
+
+# 版本控制工具
+
+## Git
+Git 是一个分布式版本控制系统, 可以用于管理代码, 跟踪文件的变化, 协作开发等; 而世界上最大的代码托管平台 `GitHub` 就是基于 `Git` 的; 可以在[官网](https://git-scm.com)下载 `Git` 客户端, 并在 `Git Bash` 中使用命令行操作
+
+{% notel green 本节内容 %}
+{% btn 创建仓库::#创建仓库 %} {% btn 文件修改和提交::#文件修改和提交 %} {% btn 忽略文件::#忽略文件 %} {% btn 分支管理::#分支管理 %} {% btn 远程仓库::#远程仓库 %} {% btn 标签管理::#标签管理 %} {% btn 提交规范::#提交规范 %}
+{% endnotel %}
+
+|命令|作用|
+|:---:|:---:|
+|`git -v`|验证是否安装并查看版本|
+|`git --help`|查看帮助|
+|`git reflog --oneline`|查看所有操作日志|
+
+> 大多数命令都可以在 `VScode` 或 `GitHub Desktop` 中图形化地执行
+
+##### 配置用户信息
+使用 `Git` 前, 需要配置用户信息, 包括用户名和邮箱, 这样提交代码时才能知道是谁提交的
+
+```bash
+# 设置用户名
+git config --global user.name "leaf"
+# 设置邮箱
+git config --global user.email "xxx@xxx"
+# 查看配置信息
+git config --list # 会打开 Vim 编辑器
+git config --global --list # 查看全局配置信息
+```
+
+> 注: `Git Bash` 中清屏命令是 `clear`, 而不是 `cls`
+
+#### 创建仓库
+仓库是用于存放代码的地方, 可以是本地的, 也可以是远程的, 实质上是一个隐藏的 `.git` 目录, 里面存放着 `Git` 的版本库
+
+```bash
+# 在当前目录下创建仓库
+git init
+# 在指定目录下创建仓库
+git init xxx
+```
+
+##### 仓库的三个区域
+- **工作区**: 实际操作的文件夹
+- **暂存区**: 用于存放暂时的改动, 位于 `.git/index` 文件中
+- **版本库**: 存放历史记录, 位于 `.git/objects` 文件夹中
+
+##### 文件状态
+- **未跟踪** `U`: 未被 `Git` 跟踪（通常是新文件）, 不在版本库中; 暂存后变为 `A`
+- **新添加** `A`: 已被 `Git` 跟踪（首次暂存）, 未提交到版本库
+- **已修改** `M`: 已被 `Git` 跟踪, 且已被修改（不一定被暂存）, 修改未提交到版本库
+- **未修改** ` `: 已被 `Git` 跟踪, 且未被修改, 已提交到版本库
+- **已删除** `D`: 已被 `Git` 跟踪, 但已被删除, 删除操作未提交到版本库
+
+#### 文件修改和提交
+在 `Git` 中, 文件的添加、修改、删除等操作都需要经过 `add` 命令, 将文件的改动添加到暂存区
+
+|命令|作用|
+|:---:|:---:|
+|`git add xxx`|将 `xxx` 文件添加到暂存区|
+|<b>`git add .`</b>|将所有改动过的文件添加到暂存区|
+|`git rm --cached xxx`|从暂存区移除文件|
+|`git rm xxx`|从工作区移除文件, 并将删除操作添加到暂存区|
+|`git status -s`|查看工作区和暂存区的状态<br>`-s` 表示简短输出, 结果形如 `MM xxx`<br>第一位表示暂存区, 第二位表示工作区|
+|`git ls-files`|查看暂存区的文件|
+|`git restore xxx`|将暂存区的文件覆盖到工作区|
+|`git commit -m "some message"`|将暂存区的文件提交到版本库<br>`-m` 表示附加的提交信息<br>如果不加 `-m` 参数, 会打开 `Vim` 编辑器|
+
+> **在 `Git` 中务必使用相对路径**（相对于命令行所在的目录）
+
+##### 版本回退
+`Git` 的每次提交都会生成一个 `commit` 及其对应的 `SHA` 值（作为版本号）, 可以通过 `SHA` 值来回退到指定的 `commit`
+
+|命令|作用|
+|:---:|:---:|
+|`git log --oneline`|查看提交历史, 只显示 `SHA` 值和提交信息|
+|`git reset --hard xxx`|回退到指定的 `commit`, `xxx` 为 `SHA` 值|
+|`git reset --soft xxx`|回退到指定的 `commit`, 但保留暂存区和工作区的改动|
+|`git reset --mixed xxx`<br>`git reset xxx`|回退到指定的 `commit`, 但保留工作区的改动|
+|`git reset --hard HEAD`|放弃工作区和暂存区的所有改动|
+
+#### 忽略文件
+`.gitignore` 文件用于忽略不需要上传到 `git` 仓库的文件, 如 `node_modules` 目录、`package-lock.json` 文件等
+
+|内容|作用|
+|:---:|:---:|
+|`xxx`|忽略**所有**名为 `xxx` 的**文件和目录**|
+|`/xxx`|忽略**当前目录**下的名为 `xxx` 的**文件和目录**|
+|`/xxx/`|忽略**当前目录**下的名为 `xxx` 的**目录**|
+|`*.xxx`|忽略**所有**扩展名为 `xxx` 的文件<br>可以把 `*` 理解为除 `/` 之外的任意字符|
+|`/xxx/*.xxx`|忽略当前目录下的 `xxx` 目录中的所有扩展名为 `xxx` 的文件<br>不会忽略 `/xxx/xxx/xxx.xxx` 等子目录内的文件|
+|`/xxx/**/*.xxx`|忽略当前目录下的 `xxx` 目录中的所有扩展名为 `xxx` 的文件<br>会忽略 `/xxx/xxx/xxx.xxx` 等子目录内的文件|
+|`/xxx/**/?.xxx`|忽略当前目录下的 `xxx` 目录中的所有 `x.xxx` 文件<br>如 `1.xxx`、`a.xxx`, 不会忽略 `10.xxx`、`aa.xxx`|
+|`!xxx`|不忽略名为 `xxx` 的文件或目录<br>可以用于忽略整个目录, 但不忽略其中的某个文件|
+
+```bash
+# 忽略 node_modules 目录
+node_modules
+# 忽略 package-lock.json 文件
+package-lock.json
+# 忽略 vscode 配置文件
+.vscode
+# 忽略编译结果
+dist
+# 忽略所有 .log 文件
+*.log
+# 忽略密钥文件
+*.pem
+*.cer
+# 保留某个空文件夹
+uploads/**/*.*
+!.gitkeep 
+# 用于占位的文件一般命名为 .gitkeep
+```
+
+> 注意: `.gitignore` 文件只对未被 `Git` 跟踪的文件有效, 如果文件在之前的提交中已经被跟踪, 则需要先将其暂时移除
+
+#### 分支管理
+`Git` 的分支管理是其最大的特色之一, 可以通过分支来实现多人协作、版本控制、功能开发等; 默认的分支是 `master` 或 `main`
+
+|命令|作用|
+|:---:|:---:|
+|`git branch`|查看所有分支|
+|`git branch xxx`|创建分支 `xxx`|
+|`git checkout xxx`|切换到分支 `xxx`<br>暂存区和工作区的改动会转移到新分支<br>原分支变回最近一次提交的样子<br>没有更改时, 切换分支不影响两个分支的内容|
+|`git checkout -b xxx`|创建并切换到分支 `xxx`|
+|`git merge xxx`|将分支 `xxx` 合并到当前分支|
+|`git branch -d xxx`|删除分支 `xxx`|
+|`git branch -D xxx`|强制删除分支 `xxx`|
+|`git branch -m old new`|重命名分支 `old` 为 `new`|
+
+- 如果分支迁出后, 原分支没有新提交, 则将迁出的分支合并到原分支时, 迁出分支的所有提交会拼接到原分支, 并将 `HEAD` 指向合入分支的最新提交
+- 如果分支迁出后, 原分支有新提交, 则将迁出的分支合并到原分支时, `Git` 会尝试自动合并, 为原分支生成一个最新提交（将原分支和合入分支的最新提交合并）, 如果这个最新提交里有冲突, 则需要手动解决冲突; 而合入分支的其他提交会拼接到原分支
+- 冲突会在对同一文件的同一部分进行不同的修改时产生, 尝试合并后, 原分支和合入分支的内容已合并, 但冲突部分暂时全部保留并被特殊标记, `VScode` 会引导我们解决冲突, 解决冲突后, 需要手动提交
+
+#### 远程仓库
+`Git` 可以通过 `SSH` 或 `HTTPS` 协议来与远程仓库通信, `SSH` 协议更安全, 但需要配置公钥和私钥
+
+除了在自己的服务器上搭建 `Git` 仓库外, 还可以使用 `GitHub`、`GitLab`、`Gitee` 等代码托管网站上的 `Git` 仓库
+
+##### 配置公钥和私钥
+```bash
+# 生成 SSH 密钥
+ssh-keygen -t rsa -C "邮箱地址"
+# 查看公钥
+# 复制公钥, 粘贴到 GitHub 或 GitLab 的 SSH 设置中
+cat ~/.ssh/id_rsa.pub
+# 查看私钥
+# 注意: 私钥不要泄露, 不要上传到网上
+cat ~/.ssh/id_rsa
+```
+
+> 公钥和私钥简单来说是: 公钥加密的信息只能用私钥解密, 私钥加密的信息只能用公钥解密; 公钥用于交给要通信的对方, 私钥只有自己知道; 发信息时用对方的公钥加密, 收到信息时用自己的私钥解密
+
+##### 相关命令
+|命令|作用|
+|:---:|:---:|
+|`git remote add 远程仓库别名 远程仓库地址`|关联远程仓库, 别名一般取 `origin`|
+|`git push -u 远程仓库别名 分支名`|推送到远程仓库<br>若本地和远程分支名不一致, 写 `本地分支名:远程分支名`|
+|`git pull 远程仓库别名 分支名`|拉取远程仓库<br>相当于 `git fetch` 和 `git merge` 的合并操作<br>没有冲突时, 会自动合并到当前本地分支|
+|`git clone 远程仓库地址`|克隆远程仓库到当前目录<br>克隆后会自动关联远程仓库, 别名为 `origin`<br>如果要克隆到指定目录, 可以加上 `./xxx`|
+|`git remote -v`|查看远程仓库|
+|`git remote show 远程仓库别名`|查看远程仓库详细信息|
+|`git branch -r`|查看远程分支|
+|`git branch -a`|查看所有分支|
+|`git push origin xxx`|创建远程分支（在远程仓库没有 `xxx` 分支时）|
+|`git push origin --delete xxx`|删除远程分支|
+|`git remote rm 远程仓库别名`|删除远程仓库关联<br>不会影响本地和远程仓库的内容|
+|`git remote rename old new`|重命名远程仓库别名|
+
+> `VScode` 中的同步修改其实是 `pull` 和 `push` 的合并操作
+
+#### 标签管理
+`Git` 可以给 `commit` 打标签, 用于标记重要的提交, 如版本号、发布日期等
+
+|命令|作用|
+|:---:|:---:|
+|`git tag`|查看所有标签|
+|`git show xxx`|查看标签 `xxx` 的详细信息|
+|`git tag xxx`|给当前 `commit` 打标签 `xxx`|
+|`git tag -a xxx -m "some message"`|给当前 `commit` 打标签 `xxx`, 并附加信息|
+|`git tag -d xxx`|删除标签 `xxx`|
+|`git push origin xxx`|推送标签 `xxx` 到远程仓库|
+|`git push origin --tags`|推送所有标签到远程仓库|
+
+#### 提交规范
+`Git` 提交规范是指在提交代码时, 通过规范化的提交信息来标明提交的类型、影响范围、简要描述等, 以便更好地追踪和管理代码
+
+通常使用 `Conventional Commits` 规范: `type(scope): description`, 其中 `type` 为提交类型, `scope` 为影响范围, `description` 为简要描述; `scope` 可以省略
+
+| 类型 | 描述 |
+| :---: | :---: |
+| `feat` | 新功能, 如 `feat: add login page` |
+| `fix` | 修复问题, 如 `fix: fix login bug` |
+| `docs` | 文档修改, 如 `docs: update README` |
+| `style` | 代码格式修改, 不影响代码含义, 如 `style: format code` |
+| `refactor` | 代码重构, 如 `refactor: refactor login page` |
+| `perf` | 性能优化, 如 `perf: improve login speed` |
+| `test` | 测试用例, 如 `test: add login test` |
+| `chore` | 构建过程或辅助工具的变动, 如 `chore: update dependencies` |
+| `build` | 构建工具相关的修改, 如 `build: update webpack config` |
+| `ci` | CI 配置文件和脚本的修改, 如 `ci: update GitHub Actions` |
+| `revert` | 撤销上一次的提交, 如 `revert: revert login page` |
+
+> 如果要标注破坏性变更, 可以在 `type` 后加上 `!`, 如 `feat!: add login page`
+
+**如果还需要更详细的信息, 可以在提交信息中添加 `body` 和 `footer`**
+
+```markdown
+feat: add login page
+
+- add login form
+- add login button
+
+BREAKING CHANGE: remove login modal
+```
+
+# 前端框架
+
+## React
+见[React/Solid学习笔记](/2024/03/18/React/)
+
+## Solid
+见[React/Solid学习笔记](/2024/03/18/React/)
+
+# 后端/全栈框架
+
+## Express
+`Express` 是一个基于 `Node.js` 平台的 `Web` 应用开发框架, 可以用于构建 `Web` 服务器、`API` 服务器等
+
+{% notel green 本节内容 %}
+{% btn 路由::#路由 %} {% btn 请求对象::#请求对象 %} {% btn 响应对象::#响应对象 %} {% btn 中间件::#中间件 %} {% btn EJS::#EJS %} {% btn Lowdb::#Lowdb %}
+{% endnotel %}
+
+```bash
+# 创建项目
+npm init
+# 安装 Express
+npm i express
+# 编辑代码后启动服务器
+node --watch app.js
+```
+
+```javascript
+// 导入 express 模块
+const express = require('express')
+// 创建应用对象
+const app = express()
+// 创建路由规则
+app.get('/demo', (req, res) => {
+  res.send('Hello World!')
+})
+// 监听端口
+app.listen(23333, () => {
+  console.log('Server is running at http://localhost:23333')
+})
+```
+
+> `res.send()` 与 `res.end()` 类似, 但 `res.send()` 可以自动设置 `Content-Type`, 并且可以发送 `Buffer`、`String`、`Object`、`Array` 等
+
+#### 路由
+`Express` 中的路由是指 `URL` 和处理函数之间的映射关系, 用于处理客户端的请求
+
+```javascript
+app.请求方式('路径', (req, res) => xxx)
+```
+
+```javascript
+// get 请求
+app.get('/', (req, res) => {
+  res.send('这里是首页')
+})
+// post 请求
+app.post('/post', (req, res) => {
+  res.send(req.body)
+  res.send('这里是 post 请求')
+})
+// all 表示所有请求方式
+// * 用于匹配所有路径
+// 注意: * 要放在所有路由的最后, 一般用于处理 404
+app.all('*', (req, res) => {
+  res.send('404 Not Found')
+})
+```
+
+##### 路由参数
+路由参数是指路径中的占位符, 用于获取客户端传递的数据; 可通过 `req.params` 获取路由参数对象
+
+```javascript
+app.get('/user/:id', (req, res) => {
+  res.send(req.params)
+  // 访问 http://localhost:23333/user/123
+  // 返回 { id: '123' }
+})
+app.post('/user/:page.html', (req, res) => {
+  res.send(req.params.page)
+  // 访问 http://localhost:23333/user/2.html
+  // 返回 2
+})
+```
+
+##### 路由模块化
+为便于维护和开发, 可以将路由规则封装到单独的模块中, 然后导入到主模块中
+
+```javascript
+// routes/user.js
+// 导入 express 模块
+const express = require('express')
+// 创建路由对象, 相当于一个小型的 app 对象
+const router = express.Router()
+// 创建路由规则
+router.get('/login', (req, res) => {
+  res.send('这里是登录页面')
+})
+// rounter 也可以使用中间件
+function middleware (req, res, next) {
+  console.log('这里是中间件')
+  next()
+}
+router.get('/register', middleware, (req, res) => {
+  res.send('这里是注册页面')
+})
+// 导出路由对象
+module.exports = router
+```
+
+```javascript
+// app.js
+// 导入 user 路由模块
+const userRouter = require('./routes/user.js')
+// 使用 user 路由模块
+app.use('/user', userRouter)
+// 访问 http://localhost:23333/user/login
+// 返回 '这里是登录页面'
+// 访问 http://localhost:23333/user/register
+// 返回 '这里是注册页面'
+```
+
+#### 请求对象
+`Express` 完全兼容 `Node.js` 的 [`http` 模块的属性和方法](#http-模块), 但也提供了一些更高级的属性和方法, 还可以用第三方中间件来实现更多功能
+
+|属性或方法|作用|
+|:---:|:---:|
+|`req.method`|（原生）获取**请求方式**|
+|`req.url`|（原生）获取请求 <b>`URL`</b>|
+|`req.httpVersion`|（原生）获取 `HTTP` 版本|
+|`req.headers`|（原生）获取**请求头**对象|
+|`req.path`|(原生) 获取**请求路径**|
+|`req.query`|获取**查询字符串**对象|
+|`req.ip`|获取客户端的 <b>`IP`</b> 地址|
+|`req.get('xxx')`|获取**请求头中的 `xxx` 属性**|
+|`req.params`|获取**路由参数**对象|
+|`req.body`|获取**请求体**对象|
+
+##### 解析请求体
+`Express` 默认不解析 `POST` 请求的请求体, 需要使用中间件
+  
+```javascript
+// 解析 application/x-www-form-urlencoded 格式的请求体
+app.use(express.urlencoded({ extended: false }))
+// 解析 application/json 格式的请求体
+app.use(express.json())
+
+// 访问请求体
+app.post('/post', (req, res) => {
+  res.send(`你好, ${req.body.name}`)
+  // 访问 http://localhost:23333/post
+  // 发送 { name: 'leaf', age: 18 }
+  // 返回 '你好, leaf'
+})
+```
+
+##### 解析文件
+`formidable` 是一个用于解析 `form` 表单的包, 可以用于解析 `form` 表单的请求体, 包括图片、文件等
+
+```bash
+# 安装 formidable
+npm i formidable
+```
+
+```javascript
+// 导入 formidable 模块
+const formidable = require('formidable')
+
+// post 请求
+app.post('/upload', (req, res) => {
+  // 创建表单解析对象
+  const form = formidable({ 
+    multiples: true // 是否解析多个文件, 默认为 false
+    uploadDir: path.resolve(__dirname, '../public/upload') // 上传文件的保存路径, 默认为系统临时目录
+  })
+  // 解析请求体
+  form.parse(req, (err, fields, files) => {
+    // fields 为表单中的非文件字段的对象
+    // files 为表单中的文件字段的对象
+    if (err) {
+      res.status(500).send('Internal Server Error')
+      return
+    }
+    // 访问 http://localhost:23333/upload 上传文件
+    // 文件会保存到 public/upload 目录下
+    res.send('上传成功')
+  })
+})
+```
+
+> 注意: 上传的文件不会自动删除, 需要手动进行管理
+
+###### options
+|属性|作用|默认值|
+|:---:|:---:|:---:|
+|`encoding`|设置编码|`utf-8`|
+|`uploadDir`|设置上传文件的保存路径|`os.tmpdir()`|
+|`keepExtensions`|是否保留文件扩展名|`false`|
+|`allowEmptyFiles`|是否允许上传空文件|`false`|
+|`minFileSize`|设置上传文件的最小大小（字节）|`1`|
+|`maxFiles`|设置上传文件的最大数量|`Infinity`|
+|`maxFileSize`|设置上传文件的最大大小（字节）|`200 * 1024 * 1024`|
+|`maxTotalFileSize`|设置上传文件的最大总大小（字节）|`options.maxFileSize`|
+|`maxFields`|设置非文件字段的最大数量|`1000`|
+|`maxFieldsSize`|设置非文件字段的最大大小（字节）|`20 * 1024 * 1024`|
+|`hashAlgorithm`|设置文件的哈希算法|`false`|
+|`fileWriteStreamHandler`|设置文件写入流的处理函数|`null`|
+|`filename`|`newFilename` 的处理函数<br>形如 `(field, file) => 'xxx'|`undefined`|
+|`filter`|文件过滤函数|`(field, file) => true`|
+
+###### files 对象
+`files` 对象是一个键值对, 键是表单中的文件字段名, 值是一个对象, 包含了文件的信息
+
+|属性|含义|
+|:---:|:---:|
+|`size`|文件大小（字节）|
+|`filepath`|文件的保存路径|
+|`originalFilename`|文件的原始名|
+|`newFilename`|经过 `filename` 的回调函数处理后的文件名|
+|`mimetype`|文件的 `MIME` 类型（`Content-Type`）|
+|`mtime`|文件的最后修改时间, 是一个 `Date` 对象|
+|`hashAlgorithm`|文件的哈希算法|
+
+> 传入的文件数据并不会保存到 `files` 对象中, 而是保存到 `uploadDir` 目录下, 并将其路径保存到 `files` 对象中
+
+#### 响应对象
+|属性或方法|作用|
+|:---:|:---:|
+|`res.statusCode`|（原生）设置状态码, 默认为 `200`|
+|`res.statusMessage`|（原生）设置状态消息, 默认与状态码对应|
+|`res.setHeader('key', 'value')`|（原生）设置响应头|
+|`res.write(xxx)`|（原生）向响应体中写入数据|
+|`res.end([xxx])`|（原生）结束响应, 向客户端发送数据|
+|`res.status(404)`|设置**状态码**|
+|`res.set('key', 'value')`|设置**响应头**|
+|`res.send(xxx)`|向客户端**发送数据**, 自动设置 `Content-Type`<br>可以发送 `Buffer`、`String`、`Object`、`Array` 等|
+|`res.json(xxx)`|向客户端**发送 `JSON` 数据**|
+|`res.download('path')`|向客户端**发送下载**|
+|`res.redirect('path')`|向客户端**发送重定向**|
+|`res.sendFile('path')`|向客户端**发送文件**|
+
+- 后四种方法都会自动设置 `Content-Type`
+- `res.download()` 与 `res.sendFile()` 的区别在于, 前者会自动设置 `Content-Disposition` 头, 用于告诉浏览器以下载的方式打开文件
+- 支持链式调用, 如 `res.status(200).set('x-powered-by', 'Express').send('Hello World!')`
+
+#### 中间件
+`Express` 中的中间件是指一个可以访问请求和响应对象的函数, 用于封装和处理请求和响应的逻辑
+
+- 中间件分为全局中间件和路由中间件: <br>**全局中间件**: 任何传入请求都会先经过这个中间件<br>**路由中间件**: 只有传入请求的路径匹配时, 才会经过这个中间件
+- **注意: 书写顺序很重要, 全局中间件要放在所有路由之前**
+- 如果全局中间件在某个路由中间件之后, 那匹配这个路由的请求就不会经过全局中间件
+
+```javascript
+// 全局中间件
+// 任何传入请求都会先经过这个中间件
+app.use((req, res, next) => {
+  // 记录所有请求的 IP 地址和 URL
+  const { url, ip } = req
+  fs.appendFileSync(path.resolve(__dirname, 'visitors.log'), `${ip} ${url}\n`)
+  // 继续执行后续的回调函数
+  // 如果不调用 next, 不会执行路由回调函数
+  next()
+})
+
+// 路由中间件
+// 一般会事先定义
+function middleware (req, res, next) {
+  // 判断传入请求是否含有 code=000 的查询字符串
+  if (req.query.code !== '000') {
+    // 如果没有, 则返回 403
+    res.status(403).send('Forbidden')
+  } else {
+    // 如果有, 则继续执行后续的回调函数
+    next()
+  }
+}
+// 传入请求会先经过全局中间件, 再经过路由中间件
+// 最后才会执行原本的回调函数
+app.get('/demo', middleware, (req, res) => {
+  res.send('Hello World!')
+})
+```
+
+##### 静态资源
+`Express` 内置了一个静态资源中间件 `express.static`, 用于向客户端发送静态资源文件
+
+- `express.static` 会自动设置 `Content-Type`、`Cache-Control` 等响应头
+- `express.static` 会自动根据请求路径去指定目录下查找文件, 如果找到了就发送, 找不到就继续执行后续的回调函数
+- 但如果传入请求的路径是一个目录（包括 `/`）, 则会自动发送目录下的 `index.html` 文件
+- 路由规则一般用于处理动态资源, 而静态资源中间件用于处理静态资源
+
+```javascript
+// 将 public 目录下的文件作为静态资源
+app.use(express.static(path.resolve(__dirname, 'public')))
+```
+
+##### 防盗链
+`Express` 可以通过中间件来实现防盗链, 即只允许指定的域名访问资源
+
+- 每一个发出的请求都会携带 `Referer` 头, 用于告诉服务器请求的来源
+- 服务器可以根据 `Referer` 头来判断请求的来源, 从而决定是否允许访问资源
+- 下面代码的功能与 `Access-Control-Allow-Origin` 类似, 但是 `Access-Control-Allow-Origin` 的拒绝请求的判断是在浏览器中进行的, 而下面代码的拒绝请求的判断是在服务器中进行的
+
+> `Cloudflare` 可以通过设置 `Hotlink Protection` 来实现防盗链, 无需在代码中实现
+
+```javascript
+app.use((req, res, next) => {
+  // 获取请求头中的 Referer 属性
+  const referer = req.get('Referer')
+  // 判断请求头中的 Referer 属性是否包含指定的域名
+  if (referer && referer.includes('leafyee.xyz')) {
+    // 如果包含, 则继续执行后续的回调函数
+    next()
+  } else {
+    // 如果不包含, 则返回 403
+    res.status(403).send('Forbidden')
+  }
+})
+```
+
+#### EJS
+**模板引擎**是一种将模板和数据结合起来生成 `HTML` 的工具, `Express` 可以通过模板引擎来渲染 `HTML` 文件; 常用的模板引擎有 `EJS`、`Pug`、`Handlebars` 等
+
+> 随着 `React`、`Vue` 等前端框架的兴起, 前后端分离的开发模式越来越流行, 模板引擎的使用也越来越少
+
+```bash
+# 安装 EJS
+npm i ejs
+```
+
+```javascript
+// 设置模板引擎
+app.set('view engine', 'ejs') // 无需手动导入 ejs 模块
+// 设置模板目录
+app.set('views', path.resolve(__dirname, 'views'))
+// 渲染模板
+app.get('/demo', (req, res) => {
+  // 渲染 views/index.ejs
+  // 并发送渲染后的 HTML
+  res.render('index', { title: 'Hello World!' })
+})
+```
+
+```html
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+</head>
+<body>
+  <h1><%= title %></h1>
+</body>
+</html>
+```
+
+##### 语法
+`EJS` 是一种简单的模板引擎, 可以通过 `<% %>` 来插入 `JavaScript` 代码, 通过 `<%= %>` 来插入 `JavaScript` 表达式的值
+
+**注意: `HTML` 中应当使用绝对路径（如 `/xxx`）来引用静态资源（指向 `public/xxx`）**
+
+```javascript
+// 引入 ejs 模块
+const ejs = require('ejs')
+
+// 渲染模板字符串
+// 也可以把 .html 文件的内容读取到内存中, 转换成字符串后再渲染
+const htmlStr = ejs.render('<h1><%= title %></h1>', { title: 'Hello World!' })
+console.log(html) // <h1>Hello World!</h1>
+
+// 渲染模板文件
+const htmlFile = ejs.renderFile('views/index.ejs', { title: 'Hello World!' }, (err, html) => {
+  err ? console.log(err) : console.log(html) // <!DOCTYPE html>...
+})
+```
+
+```html
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+</head>
+<body>
+  <h1><%= title %></h1>
+</body>
+</html>
+```
+
+###### 列表渲染
+```html
+<!-- views/index.ejs -->
+<ul>
+  <% for (let i = 0; i < 5; i++) { %>
+    <li><%= i %></li>
+  <% } %>
+</ul>
+```
+
+###### 条件渲染
+```html
+<!-- views/index.ejs -->
+<% if (title === 'Hello World!') { %>
+  <h1><%= title %></h1>
+<% } else { %>
+  <h1>其他标题</h1>
+<% } %>
+```
+
+###### 包含模板
+```html
+<!-- views/index.ejs -->
+<% include header.ejs %>
+<h1><%= title %></h1>
+<% include footer.ejs %>
+```
+
+## Hono
+`Hono` 是一个跨平台的 `Web` 框架, 适用于 `Cloudflare Workers`, `Node.js`, `Deno`, `Bun`, `Vercel` 等环境; `Hono` 的使用方法与 `Express` 类似
+
+```bash
+# 创建一个 hono 项目
+pnpm create hono xxx
+deno run -A npm:create-hono xxx
+bunx create-hono xxx
+# 可以选择不同环境的模板
+```
+
+```javascript
+// 引入 hono
+import { Hono } from 'hono'
+// 创建一个 hono 实例
+const app = new Hono()
+// 添加一个路由
+app.get('/', c => {
+  return c.text('Hello World!')
+})
+
+// 对于 Cloudflare Workers
+export default app
+// 对于 Deno
+Deno.server([{ port: xxx }, ]app.fetch)
+// 对于 Bun
+export default app | { port: xxx, fetch: app.fetch }
+// 对于 Node.js
+import { server } from '@hono/node-server'
+server(app | { port: xxx, fetch: app.fetch })
+```
+
+#### CORS
+`Hono` 提供了一个 `cors` 中间件, 可以用于设置 `CORS` 头
+
+```javascript
+import { cors } from 'hono/cors'
+// ...
+app.use('*', cors([options]))
+```
+
+> `options.origin` 默认为 `*`, 详见官方文档
+
+#### App
+| 方法 | 作用 |
+| :---: | :---: |
+| `new Hono()` | 创建一个 `Hono` 实例 |
+| `new Hono().basePath('/api')` | 设置基础路径, 路由的 `path` 会自动添加在基础路径之后 |
+| `app.get(path, handler)` | 添加一个 `GET` 路由 |
+| `app.post(path, handler)` | 添加一个 `POST` 路由 |
+| `app.put(path, handler)` | 添加一个 `PUT` 路由 |
+| `app.delete(path, handler)` | 添加一个 `DELETE` 路由 |
+| `app.all(path, handler)` | 添加一个通用路由 |
+| `app.use([path,] middleware)` | 添加一个中间件 |
+
+- 路径中可以使用 `*` 来匹配任意字符串
+- 路径中可以使用 `:key` 来匹配任意字符串, 通过 `c.req.param('key')` 来获取参数
+- `:key` 可以用正则表达式来匹配, 如 `:data{[0-9]+}`, `:title{[a-zA-Z]+}`
+- 路由顺序是按照添加的顺序来的, 先添加的先匹配
+
+#### Context
+| 方法 | 作用 |
+| :---: | :---: |
+| `c.env` | 环境变量 (`wrangler.toml` 中) |
+| `c.text('text')` | 创建文本响应 |
+| `c.json({ data })` | 创建 `JSON` 响应 |
+| `c.html('<App />'` | 创建 `HTML` 响应, **支持 `JSX`** |
+| `c.notFound()` | 创建 `404` 响应 |
+| `c.redirect('url'[, status])` | 创建重定向响应, 默认状态码为 `302` |
+| `c.req` | `HonoRequest` 对象 |
+| `c.res` | 一般在中间件中使用, 如 `c.res.headers.append('key', 'value')` |
+| `c.set('key', 'value')` | 一般在中间件中使用, 设置变量 |
+| `c.get('key')` | 一般在路由中使用, 获取变量 |
+
+> 不是必须用 `c.text()` 等方法, 也可以自己创建 `Response` 对象
+
+#### Request
+`c.req` 是一个 `HonoRequest` 对象, 用于获取请求的一些信息
+
+| 方法 | 作用 |
+| :---: | :---: |
+| `c.req.params('key')` | 获取路由中 `:key` 的值 |
+| `c.req.query('key')` | 获取查询参数 |
+| `c.req.queries('key')` | 获取查询参数数组, 适用于有多个相同参数的情况 |
+| `c.req.header('key')` | 获取请求头 |
+| `c.req.parseBody()` | 解析请求体, 返回 `Promise` |
+| `c.req.json()` | 解析请求体为 `JSON` 格式, 返回 `Promise` |
+| `c.req.text()` | 解析请求体为 `text` 格式, 返回 `Promise` |
+| `c.req.arrayBuffer()` | 解析请求体为 `ArrayBuffer` 格式, 返回 `Promise` |
+| `c.req.path` | 请求的路径 |
+| `c.req.url` | 请求的**完整** `URL` |
+| `c.req.method` | 请求的方法 |
+| `c.req.raw` | 请求的原始 `Request` 对象 |
+
+> `c.req.query` 会自动进行 `URL` 解码, 无需额外处理
+
+## Next.js
+见[React/Solid学习笔记](/2024/03/18/React/)
+
+## SolidStart
+见[React/Solid学习笔记](/2024/03/18/React/)
+
+## 🚧 Astro
+
+# 数据库
+## MongoDB
+`MongoDB` 是一个基于分布式文件存储的数据库, 由 `C++` 语言编写, 旨在为 `Web` 应用提供可扩展的高性能数据存储解决方案
+
+- **服务器** `Server`: 一个 `MongoDB` 实例, 可以包含多个数据库
+- **数据库** `Database`: 一个数据仓库, 可以包含多个集合
+- **集合** `Collection`: 类似于 `JavaScript` 中的数组, 是一个文档的集合, 可以包含多个文档
+- **文档** `Document`: 类似于 `JavaScript` 中的对象, 是一个键值对的集合, 可以包含多个键值对
+- 一般情况下, 一个项目对应一个数据库
+- 一个集合会存储同一类型的数据, 如用户数据、商品数据等
+
+#### 安装 (Windows)
+1. [下载 `MongoDB` 安装包](https://www.mongodb.com/try/download/community)
+2. 安装 `MongoDB`, 并将 `bin` 目录添加到环境变量
+3. 在 `xxx` 目录下创建 `data/db` 目录, 用于存放数据
+4. 在 `xxx` 目录下创建 `logs` 目录, 用于存放日志
+5. 在 `xxx` 目录下创建 `mongod.cfg` 文件, 用于配置 `MongoDB` 服务
+6. 在 `xxx` 目录下打开命令行, 输入 `mongod --config mongod.cfg` 启动 `MongoDB` 服务
+
+- 如果直接运行 `mongod`, 会按默认配置启动 `MongoDB` 服务, 数据会存放在 `C:\data\db` 目录下、日志会直接输出到控制台
+- 注意: 通过上面的方式启动 `MongoDB` 服务后, 不可以选中命令行窗口内的日志内容, 否则会导致服务暂停
+- 可以用绝对路径指定配置文件, 如 `mongod --config D:\Database\mongod.cfg`
+
+#### 基础配置文件
+```yaml
+systemLog: # 系统日志
+  destination: file # 输出方式, 可以是 file、console、syslog
+  path: D:\xxx\logs\mongod.log # 日志文件路径
+storage: # 存储
+  dbPath: D:\xxx\data\db # 数据库路径
+```
+
+### 命令行操作
+- 下面的命令需要下载 `mongosh` 客户端来运行
+- `mongosh` 可以直接运行 `JavaScript` 代码, 如 `console.dir(db.demo)`
+- 要断开连接, 可以输入 `exit` 或 `quit`, 或直接关闭 `mongosh` 窗口
+- 推荐使用 `MongoDB Compass` 图形化客户端来操作数据库（内部集成了 `mongosh`, 界面设计也很好看）
+
+#### 数据库操作
+|命令|作用|
+|:---:|:---:|
+|`show dbs`|显示所有数据库|
+|`use xxx`|切换到 `xxx` 数据库|
+|`db`|显示当前数据库|
+|`db.dropDatabase()`|删除当前数据库|
+
+#### 集合操作
+|命令|作用|
+|:---:|:---:|
+|`show collections`|显示当前数据库的所有集合|
+|`db.createCollection('xxx')`|创建一个名为 `xxx` 的集合|
+|`db.xxx.drop()`|删除 `xxx` 集合|
+|`db.xxx.renameCollection('abc')`|重命名 `xxx` 集合为 `abc`|
+
+#### 文档操作
+|命令|作用|
+|:---:|:---:|
+|`db.xxx.find([{ filter }])`|查询 `xxx` 集合的文档, 可以传入查询条件<br>查询条件如 `{ name: 'xiaoyezi' }`<br>会返回所有 `name` 为 `xiaoyezi` 的文档|
+|`db.xxx.insertOne({ data })`|向 `xxx` 集合插入文档|
+|`db.xxx.updateOne({ filter }, { data })`|更新 `xxx` 集合的文档<br>**不保留除 `_id` 以外的其他字段**|
+|`db.xxx.updateOne({ filter }, { $set: { data } })`|更新 `xxx` 集合的文档<br>**保留除修改字段以外的其他字段**|
+|`db.xxx.deleteOne({ filter })`|删除 `xxx` 集合的文档|
+
+> 每个文档都有一个 `_id` 属性, 用于唯一标识文档, 可以手动指定 `_id`, 也可以不指定, `MongoDB` 会自动为其生成一个唯一的 `ObjectId`
+
+### 增删改查
+`MongoDB` 官方提供了一个 `Node.js` 驱动, 可以用于连接 `MongoDB` 数据库、操作数据库、定义模型等
+
+> 参见[官方文档](https://www.mongodb.com/docs/drivers/node/current/)
+
+```bash
+# 安装 mongodb
+npm i mongodb
+```
+
+```javascript
+// 导入 mongodb 模块
+const { MongoClient } = require('mongodb')
+// 连接服务器
+const client = new MongoClient('mongodb://localhost:27017')
+// 连接数据库
+const db = client.db('demo')
+// 连接集合
+const coll = db.collection('demo')
+// 增删改查
+;(async () => {
+  try {
+    await coll.insertOne({ name: 'leaf', age: 18 }) // 插入一条数据
+    console.log(await coll.find().toArray()) // 查询所有数据
+    await coll.updateOne({ name: 'leaf' }, { $set: { age: 20 } }) // 更新数据
+    await coll.deleteOne({ name: 'leaf' }) // 删除数据
+    client.close() // 关闭连接
+  } catch (err) {
+    console.error(err)
+  }
+})()
+```
+
+|方法|作用|
+|:---:|:---:|
+|`coll.findOne({ filter })`|查询集合的一个文档|
+|`coll.insertOne({ data })`|向集合插入一个文档|
+|`coll.insertMany([{ data }, { data }, ...])`|向集合插入多个文档|
+|`coll.updateOne({ filter }, { $set: { data } })`|更新集合的一个文档|
+|`coll.updateMany({ filter }, { $set: { data } })`|更新集合的多个文档|
+|`coll.updateOne({filter}, { $push: { data }})`|向集合的一个文档中的数组字段中添加一个元素|
+|`coll.updateMany({filter}, { $push: { data }})`|向集合的多个文档中的数组字段中添加一个元素|
+|`coll.replaceOne({ filter }, { data })`|替换集合的一个文档|
+|`coll.deleteOne({ filter })`|删除集合的一个文档|
+|`coll.deleteMany({ filter })`|删除集合的多个文档|
+|`coll.countDocuments({ filter })`|统计集合的文档数量|
+
+- 以上的方法都是异步的, 返回 `Promise`
+- 向数组添加元素示例: `({ name: 'leaf' }, { $push: { hobbies: 'coding' }})`, 如果 `hobbies` 不存在, 则会自动创建一个数组字段
+
+#### 批量操作
+```javascript
+await coll.bulkWrite([
+  {
+    insertOne: {
+      document: {
+        name: 'leaf',
+        age: 18
+      }
+    }
+  },
+  {
+    deleteMany: {
+      filter: { age: { $lt: 20 } }
+    }
+  }
+])
+```
+
+### 过滤器
+上面的 `filter` 用于筛选文档, 除了指定某字段等于某值外, 还可以指定某字段大于、小于、包含等于某值, 以及使用逻辑与、或、非等
+
+|筛选器和作用|示例|
+|:---:|:---:|
+|`{ key: value }`<br>字段等于某值|`{ name: 'xiaoyezi' }`|
+|`{ key: { $gt: value } }`<br>字段**大于**某值|`{ age: { $gt: 18 } }`|
+|`{ key: { $lt: value } }`<br>字段**小于**某值|`{ age: { $lt: 18 } }`|
+|`{ key: { $gte: value } }`<br>字段**大于等于**某值|`{ age: { $gte: 18 } }`|
+|`{ key: { $lte: value } }`<br>字段**小于等于**某值|`{ age: { $lte: 18 } }`|
+|`{ key: { $in: [value1, value2] } }`<br>字段**包含**某值|`{ name: { $in: ['xiaoyezi', 'leaf'] } }`|
+|`{ key: { $nin: [value1, value2] } }`<br>字段**不包含**某值|`{ name: { $nin: ['xiaoyezi', 'leaf'] } }`|
+|`{ key: { $exists: true } }`<br>字段**存在**|`{ name: { $exists: true } }`|
+|`{ key: { $exists: false } }`<br>字段**不存在**|`{ name: { $exists: false } }`|
+|`{ key: { $regex: /pattern/ } }`<br>`{ key: new RegExp('pattern') }`<br>`{ key: /pattern/ }`<br>字段匹配**正则表达式**|`{ name: { $regex: /xiaoyezi/ } }`<br>`{ name: new RegExp('xiaoyezi') }`<br>`{ name: /xiaoyezi/ }`|
+|`{ key: { $or: [{ filter1 }, { filter2 }] } }`<br>逻辑**或**|`{ $or: [{ name: 'xiaoyezi' }, { age: 18 }] }`|
+|`{ key: { $and: [{ filter1 }, { filter2 }] }}`<br>逻辑**与**|`{ $and: [{ name: 'xiaoyezi' }, { age: 18 }]}`|
+|`{ key: { $not: { filter } } }`<br>逻辑**非**|`{ name: { $not: { name: 'xiaoyezi' } } }`|
+
+### 高级查询
+|方法|作用|
+|:---:|:---:|
+|`coll.find({ filter })`|查询集合的文档, 返回一个 `Cursor` 对象, **而不是文档本身**|
+|`for await (const doc of cursor) { }`|异步遍历 `Cursor` 对象|
+|`cursor.toArray()`|将 `Cursor` 对象转换为数组, `Promise<Document[]>`|
+|`cursor.stream()`|查询集合的文档, 返回一个 `Readable` 流|
+|`cursor.close()`|**关闭 `Cursor` 对象**, 释放客户端和服务端资源|
+|`cursor.sort({ key: 1 })`|按 `key` 升序排序, `-1` 降序排序|
+|`cursor.limit(10)`|限制返回的文档数量|
+|`cursor.skip(10)`|跳过前 `10` 个文档|
+|`cursor.project({ key: 1, _id: 0 })`|只返回值为 `1` 的字段, 除 `_id` 外都默认为 `0`|
+|`coll.findOne({ filter }, { projection })`|查询集合的一个文档, `projection` 同 `project`|
+|`coll.distinct('key'[, { filter }])`|查询集合中某字段的所有不同值, 返回一个 `Cursor` 对象|
+
+> 上面的读取方法可以链式调用; 当文档量较大时, 警惕 `toArray` 方法带来的性能问题
+
+```javascript
+// 按照年龄降序排序, 只返回年龄第 4-6 名的名字
+const users = User.find()
+.sort({ age: -1 })
+.skip(3)
+.limit(3)
+.project({ name: 1, _id: 0 }) // 1 表示返回, 0 表示不返回, 除 _id 外, 默认为 0
+for await (const user of users) {
+  console.log(user.name)
+}
+```
+
+```javascript
+// 也可以直接写在一个方法中
+const users = User.find({}, {
+  sort: { age: -1 },
+  skip: 3,
+  limit: 3,
+  project: { name: 1, _id: 0 }
+})
+```
+
+## Lowdb
+`lowdb` 是一个轻量级的 `JSON` 数据库, 可以用于存储数据, 支持链式调用和异步操作
+
+```bash
+# 安装 lowdb
+npm i lowdb
+```
+
+```javascript
+// 导入 lowdb 模块
+import { JSONFilePreset } from 'lowdb/node'
+// 注意: lowdb 是一个纯 ES 模块, 不支持 CommonJS
+// 要使用上述语法导入
+// 需要在 package.json 中添加 "type": "module"
+// 但此时又没法使用 require 和 __dirname 等 CommonJS 内容了
+// 要相应地用 import path from 'path' 来代替 require('path')
+import path from 'path'
+// 并通过以下方式来获取 __dirname 和 __filename
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+// 创建或导入数据库
+const defaultData = { names: [], ages: [] }
+const db = await JSONFilePreset('db.json', defaultData)
+
+// 更新数据库
+await db.update(({ names }) => names.push('leaf'))
+await db.update(({ ages }) => ages.push(18))
+
+// 也可以先写入临时数据, 再更新数据库
+db.data.names.push('xiaoyezi')
+db.data.ages.push(18)
+await db.write()
+
+// 查询数据库
+const names = db.data.names
+const ages = db.data.ages
+```
+
+
+## SQL
+`SQL` 是一种用于管理关系数据库的标准化语言, 用于查询、更新、删除和管理数据库中的数据
+
+{% notel green 本段内容 %}
+{% btn 创建和删除表::#创建和删除表 %} {% btn 数据类型::#数据类型 %} {% btn 插入数据::#插入数据 %} {% btn 查询数据::#查询数据 %} {% btn 更新数据::#更新数据 %} {% btn 删除数据::#删除数据 %} {% btn 连接查询::#连接查询 %} {% btn 集合运算::#集合运算 %} {% btn 分组查询::#分组查询 %} {% btn 子查询::#子查询 %}
+{% endnotel %}
+
+- 不同的数据库管理系统（`DBMS`）有不同的 `SQL` 方言, 如 `MySQL`、`PostgreSQL`、`SQLite`、`Oracle` 等, 但基本语法是相同的
+- `SQL` 语言**不区分大小写**, 但是建议关键字大写, 表名和字段名小写, 以提高可读性
+- `SQL` 的数据库层级结构: 数据库（`Database`） -> 表（`Table`） -> 记录（`Record`）/ 行（`Row`） -> 字段（`Field`）
+- `SQL` 语句以分号结尾, 可以在一行或多行书写, 分号可以省略
+- `SQL` 语句可以使用注释, 单行注释以 `--` 开头, 多行注释以 `/*` 开头和 `*/` 结尾
+
+#### 创建和删除表
+```sql
+-- 创建表
+CREATE TABLE IF NOT EXISTS table_name ( -- IF NOT EXISTS 避免重复创建
+  id INT PRIMARY KEY AUTO_INCREMENT, -- 名称 类型 主键 自增
+  uname VARCHAR(255) NOT NULL, -- 名称 类型 非空
+  age INT DEFAULT 18 -- 名称 类型 默认值
+)
+
+-- 删除表
+DROP TABLE IF EXISTS table_name -- IF EXISTS 避免不存在时报错
+```
+
+> 表的主键 `PRIMARY KEY` 用于唯一标识表中的每一行 (相当于 `MongoDB` 的 `_id`), 由表的一个或多个字段组成; 主键字段的值不能重复, 且不能为空; 主键字段可以是自增的, 也可以是手动指定的
+
+#### 数据类型
+| 类型 | 说明 |
+| :---: | :---: |
+| `int` | 整数类型 |
+| `numeric(p, s)` | 定点数, `p` 为总位数, `s` 为小数位数 |
+| `float(p)` | 浮点数, `p` 为精度 |
+| `char(n)` | 定长字符串, `n` 为长度 |
+| `varchar(n)` | 变长字符串, `n` 为最大长度 |
+| `text` | 文本类型, 适合存储大量文本 |
+| `date` | 日期类型, 格式为 `YYYY-MM-DD` |
+
+#### 插入数据
+```sql
+INSERT INTO table_name (uname, age) VALUES ('xiaoyezi', 18)
+INSERT INTO table_name (age) VALUES (18) -- 插入部分字段, 其他字段默认值或 NULL
+```
+
+> `null` 进行任意比较和运算的结果都是 `null`, 可以使用 `IS NULL` 和 `IS NOT NULL` 来判断, 不能用 `=` 和 `!=`
+
+#### 查询数据
+```sql
+SELECT * FROM table_name -- 查询所有字段
+SELECT uname, age FROM table_name -- 查询指定字段
+SELECT age, age + 1 FROM table_name -- 查询计算后的数据
+SELECT age + 1 AS new_age FROM table_name -- 查询计算后的数据并重命名 (AS 可省略)
+SELECT DISTINCT uname FROM table_name -- 查询不重复的数据
+
+SELECT * FROM table_name WHERE age > 18 -- 查询符合条件的数据
+SELECT * FROM table_name WHERE age = 18 AND uname != 'xiaoyezi' -- 查询符合多个条件的数据
+SELECT * FROM table_name WHERE age = 18 OR uname = 'xiaoyezi' -- 查询符合任一条件的数据
+SELECT * FROM table_name WHERE NOT age > 18 -- 查询不符合条件的数据
+SELECT * FROM table_name WHERE born_data >= '2000-01-01' -- 日期可以直接比较
+-- 条件较多时, 可以使用括号提高可读性
+
+SELECT * FROM table_name WHERE age IN (18, 19, 20) -- 查询集合内的数据
+SELECT * FROM table_name WHERE age NOT IN (18, 19, 20) -- 查询不在集合内的数据
+-- NOT IN 有一个常见的陷阱, 如果集合中有 NULL, 则结果为空
+SELECT * FROM table_name WHERE age BETWEEN 18 AND 20 -- 查询范围内的数据
+SELECT * FROM table_name WHERE age NOT BETWEEN 18 AND 20 -- 查询不在范围内的数据
+
+SELECT * FROM table_name WHERE uname LIKE 'xia%' -- 查询以 'xia' 开头的数据
+SELECT * FROM table_name WHERE uname LIKE '%zi' -- 查询以 'zi' 结尾的数据
+SELECT * FROM table_name WHERE uname LIKE '%xia%' -- 查询包含 'xia' 的数据
+SELECT * FROM table_name WHERE uname LIKE '__a%' -- 查询第三个字符为 'a' 的数据
+-- % 代表任意字符, _ 代表一个字符
+
+SELECT * FROM table_name ORDER BY age DESC -- 按照字段排序(降序)
+SELECT * FROM table_name ORDER BY age ASC -- 按照字段排序(升序)
+SELECT * FROM table_name ORDER BY age DESC, uname ASC -- 按照多个字段排序(先 age 降序, 再 uname 升序)
+-- 默认是升序, 可以省略 ASC
+
+SELECT * FROM table_name LIMIT 10 -- 限制返回的数据条数
+SELECT * FROM table_name LIMIT 10 OFFSET 10 -- 分页查询 (从第 11 条开始取 10 条)
+
+-- 从两张表中查询数据
+SELECT uname, age FROM table1, table2 WHERE table1.id = table2.id
+```
+
+> 字段别名如果有空格或特殊字符, 需要用引号包裹
+
+#### 更新数据
+```sql
+UPDATE table_name SET age = 19 WHERE uname = 'xiaoyezi' -- 更新符合条件的数据
+UPDATE table_name SET age = age + 1 -- 更新所有数据
+UPDATE table_name SET age = age + 1, uname = uname + 'lll' -- 更新多个字段
+UPDATE table_name SET age = 19 WHERE age = 18 ORDER BY age DESC LIMIT 1 -- 更新排序后的第一条数据
+UPDATE table_name SET age = NULL WHERE age = 18 -- 更新为 NULL
+
+UPDATE table_name SET age = CASE
+  WHEN age = 18 THEN 19
+  WHEN age = 19 THEN 20
+  ELSE age
+END -- 更新多个条件的数据
+
+-- 与 SELECT 语句结合使用
+UPDATE table_name SET age = age + 1 WHERE age = (SELECT MAX(age) FROM table_name)
+```
+
+#### 删除数据
+```sql
+DELETE FROM table_name -- 删除所有数据(但不删除表)
+TRUNCATE TABLE table_name -- 删除所有数据(且重置自增, 比 DELETE 更快)
+DELETE FROM table_name WHERE age = 18 -- 删除符合条件的数据
+DELETE FROM table_name WHERE age = 18 ORDER BY age DESC LIMIT 1 -- 删除排序后的第一条数据
+```
+
+#### 连接查询
+```sql
+-- 内连接查询
+SELECT * FROM table1 INNER JOIN table2 ON table1.id = table2.id
+-- 由于内连接是默认的, 可以省略 INNER
+-- 对于两个表中有相同字段名的情况, 必须指定 select 哪个表的字段, 否则会报错
+SELECT a.id, uname, age FROM table1 a INNER JOIN table2 b ON a.id = b.id
+-- 连接可以连接自己, 并指定不同的别名
+
+-- 左连接查询
+-- 左连接会返回左表中的所有数据, 右表中符合条件的数据, 右表中没有的字段为 NULL
+SELECT * FROM table1 LEFT JOIN table2 ON table1.id = table2.id
+-- 右连接查询
+-- 右连接会返回右表中的所有数据, 左表中符合条件的数据, 左表中没有的字段为 NULL
+SELECT * FROM table1 RIGHT JOIN table2 ON table1.id = table2.id
+```
+
+#### 集合运算
+```sql
+-- 交集
+SELECT age FROM table1
+INTERSECT
+SELECT age FROM table2
+
+-- 并集
+SELECT age FROM table1
+UNION
+SELECT age FROM table2
+
+-- 并集(包含重复数据)
+SELECT age FROM table1
+UNION ALL
+SELECT age FROM table2
+```
+
+#### 分组查询
+```sql
+-- 统计函数
+SELECT COUNT(*) FROM table_name -- 计算数据条数
+SELECT COUNT(DISTINCT age) FROM table_name -- 计算不重复的数据条数
+SELECT SUM(age) FROM table_name -- 计算数据总和
+SELECT AVG(age) FROM table_name -- 计算数据平均值
+SELECT MAX(age) FROM table_name -- 计算数据最大值
+SELECT MIN(age) FROM table_name -- 计算数据最小值
+-- 可以批量书写
+SELECT COUNT(*) AS total, SUM(age) AS sum, AVG(age) AS avg FROM table_name
+/*
+total | sum | avg
+-----------------
+  11  | 207 | 19
+*/
+-- 注意: 统计函数会忽略 NULL 值
+
+-- 分组查询
+SELECT age, COUNT(*) FROM table_name GROUP BY age -- 按照字段分组
+/*
+age | COUNT(*)
+--------------
+ 17 |    1
+ 18 |    5
+ 19 |    5
+*/
+SELECT age, COUNT(*) FROM table_name GROUP BY age HAVING COUNT(*) > 1 -- 按照字段分组并筛选
+/*
+age | COUNT(*)
+--------------
+ 18 |    5
+ 19 |    5
+*/
+-- HAVING 用于筛选分组后的数据, WHERE 用于筛选原始数据
+SELECT age, COUNT(*) FROM table_name GROUP BY age ORDER BY age DESC -- 按照字段分组并排序
+/*
+age | COUNT(*)
+--------------
+ 19 |    5
+ 18 |    5
+ 17 |    1
+*/
+```
+
+#### 子查询
+```sql
+-- 查询年龄最大的人的姓名
+SELECT uname FROM table_name WHERE age = (SELECT MAX(age) FROM table_name)
+-- 查询姓名, 年龄, 并附上平均年龄
+SELECT uname, age, (SELECT AVG(age) FROM table_name) AS avg_age FROM table_name
+-- 查询姓名, 年龄, 年级, 并附上同年级的平均年龄
+SELECT 
+  uname,
+  age,
+  grade,
+  (SELECT 
+    AVG(age) 
+    FROM table_name 
+    WHERE grade = t.grade
+  ) AS avg_age 
+FROM table_name t
+
+-- 查询比一年级所有人年龄都大的人
+SELECT uname FROM table_name WHERE age > (SELECT AVG(age) FROM table_name WHERE grade = 1)
+-- 也可以使用 ALL 关键字
+SELECT uname FROM table_name WHERE age > ALL (SELECT age FROM table_name WHERE grade = 1)
+
+-- 查询比一年级任意一个人年龄大的人
+SELECT uname FROM table_name WHERE age > (SELECT MIN(age) FROM table_name WHERE grade = 1)
+-- 也可以使用 ANY 关键字
+SELECT uname FROM table_name WHERE age > ANY (SELECT age FROM table_name WHERE grade = 1)
+```
+
+# 自动化/测试工具
+## Puppeteer
+`Puppeteer` 是一个 `Node.js` 库, 提供了一组用于操纵 `Chrome` 或 `Chromium` 的 `API`, 可以用于爬取网页数据、生成网页截图、生成 `PDF` 等; <b>[官方文档](https://pptr.dev/api/)写地很详细和易懂, 要用什么去查即可</b>
+
+{% notel green 本段内容 %}
+{% btn 配置文件::#配置文件 %} {% btn 浏览器对象::#浏览器对象 %} {% btn 网页对象::#网页对象 %} {% btn 截图::#截图 %} {% btn PDF::#PDF %} {% btn 页面设置::#页面设置 %} {% btn iframe操作::#iframe-操作 %} {% btn 元素操作::#元素操作 %}
+{% endnotel %}
+
+```bash
+# 安装 puppeteer
+npm i puppeteer
+# 或者安装不带 Chromium 的 puppeteer-core
+npm i puppeteer-core
+```
+
+#### 配置文件
+`puppeteer` 可以用两种方法来进行设置: 
+
+- 创建一个设置文件, 如 `puppeteer.config.js`
+- 通过环境变量来设置
+- `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY` 只能通过环境变量来设置
+- 如果设置项会影响 `puppeteer` 的安装, 则修改后需要删除和重新安装 `puppeteer`
+- 设置项详见[官方文档](https://pptr.dev/api/puppeteer.configuration)
+
+```javascript
+// puppeteer.config.js
+module.exports = {
+  // 设置 puppeteer 的 chromium 缓存路径
+  // 默认 $HOME/.cache/puppeteer
+  cacheDirectory: ```~/.cache/puppeteer```
+}
+```
+
+#### 浏览器对象
+|方法|作用|
+|:---:|:---:|
+|`puppeteer.launch([settings])`|打开浏览器, 返回一个 `Browser` 对象|
+|`puppeteerCore.launch({ executablePath, ... })`|打开浏览器, 返回一个 `Browser` 对象<br>需要传入一个可执行文件路径<br>在 `chrome/edge://version` 中可查看|
+|`browser.newPage()`|打开一个新的页面, 返回一个 `Page` 对象|
+|`browser.close()`|关闭浏览器|
+
+##### 浏览器设置
+`puppeteer.launch` 方法可以传入一个配置对象, 用于设置浏览器的一些参数, 如路径、视口、用户代理等
+
+|属性|作用|
+|:---:|:---:|
+|`executablePath`|浏览器的可执行文件路径<br>仅 `puppeteer-core` 需要设置|
+|`slowMo`|减慢操作的速度, 单位为 `ms`, 默认为 `0`|
+|`defaultViewport`|视口的默认大小, 如 `{width:1920,height:1080}`, 默认为 `800x600`|
+|`args`|浏览器的启动参数数组, 如 `['--no-sandbox']`|
+
+```javascript
+const browser = await puppeteer.launch({
+  defaultViewport: { width: 1920, height: 1080 },
+  args: ['--window-size=1920,1080']
+})
+```
+
+#### 网页对象
+`puppeteer` 的 `page` 对象是一个 `Browser` 对象的实例, 可以用于访问网页、操作网页、获取网页信息等
+
+|方法|作用|
+|:---:|:---:|
+|`page.goto(url`<br>`[, { waitUntil, timeout, referer }])`|访问一个网页|
+|`page.evaluate(() => {})`|在网页中执行 `JavaScript` 代码<br>可以使用 `document`、`window` 等对象|
+|`page.waitForSelector(selector)`|等待一个元素出现在网页中|
+|`page.waitForNavigation`<br>`([{ waitUntil, timeout }])`|等待页面跳转|
+|`page.waitForNetworkIdle`<br>`({ idleTime(空闲时间, 默认500ms),`<br>`concurrency(判定空闲的最大并发请求数, 默认0),`<br>`timeout })`|等待网络空闲|
+|`page.type(selector, text)`|在一个输入框中输入文本|
+|`page.click(selector)`|点击一个元素|
+|`page.hover(selector)`|悬停在一个元素上|
+|`page.focus(selector)`|聚焦一个元素|
+|`page.close()`|关闭网页|
+
+- <b>基本所有方法都是异步的, 返回 `Promise` 对象, 可以使用 `await`（如果不确定可以加个 `await` 看编辑器有没有提示）</b>
+- `waitUntil` 可以设置为<br>`load`: 页面的 `load` 事件触发时, 默认值<br>`domcontentloaded`: 页面的 `DOMContentLoaded` 事件触发时<br>`networkidle0`: 网络空闲时<br>`networkidle2`: 网络空闲 2 秒后
+- `timeout` 默认为 `30000`, 单位为 `ms`, 可以设置为 `0` 来禁用超时
+- `goto` 中的 `referer` 会覆盖 `setExtraHTTPHeaders` 中的 `Referer`
+
+```javascript
+// 导入 puppeteer
+const puppeteer = require('puppeteer')
+
+;(async () => {
+  try {
+    const browser = await puppeteer.launch() // 打开浏览器
+    const page = await browser.newPage() // 打开一个页面
+    await page.goto('YOUR_SITE') // 访问一个网站
+    const element = await page.waitForSelector('.class-name') // 选择一个元素
+    await element.click() // 对元素进行操作, 比如点击一下
+    await browser.close() // 关闭浏览器
+  } catch (error) {
+    console.error(error)
+  }
+})()
+```
+
+> 进程退出时, `puppeteer` 会自动关闭浏览器, 如果操作结束后会立即退出, 无需手动关闭浏览器; 并且, 如果 `browser` 是在 `try` 语句中创建的, 那在 `catch` 和 `finally` 语句中无法访问 `browser` 对象（因为已被垃圾回收机制回收）
+
+#### 截图
+`page.screenshot(settings)` 方法可以用于截取网页的截图, 可以设置截图的路径、质量、类型等
+
+|属性|作用|默认值|
+|:---:|:---:|:---:|
+|`fullPage`|是否截取整个网页|`false`|
+|`path`|截图的保存路径|`undefined`|
+|`quality`|截图的质量, `0-100`<br>由于 `png` 是无损压缩, 所以该属性对其无效|`undefined`|
+|`type`|截图的类型, `jpeg`、`png`、`webp`|`png`|
+
+#### PDF
+`page.pdf(settings)` 方法可以用于生成网页的 `PDF` 文件, 可以设置 `PDF` 的路径、格式、尺寸等
+
+|属性|作用|默认值|
+|:---:|:---:|:---:|
+|`displayHeaderFooter`|是否显示页眉页脚|`false`|
+|`format`|`PDF` 的格式, `A4`、`Legal` 等|`letter`|
+|`height`|纸张的高度, 数字或字符串|`undefined`|
+|`width`|纸张的宽度, 数字或字符串|`undefined`|
+|`margin`|纸张的边距, 对象, 属性为数字或字符串<br>`{top:'10mm',right:'10mm',bottom:'10mm',left: '10mm'}`|`undefined`|
+|`outline`|是否生成大纲|`false`|
+|`pageRanges`|生成 `PDF` 的页码范围|`''`（全部）|
+|`path`|`PDF` 的保存路径|`undefined`|
+|`scale`|`PDF` 的缩放比例, `0.1-2`|`1`|
+
+#### 页面设置
+`page` 对象的 `setXXX` 方法可以用于设置页面的一些属性, 如 `userAgent`、`viewport`、`cookie` 等
+
+|方法|作用|
+|:---:|:---:|
+|`page.setCookie(cookieObjA, cookieObjB, ...)`|设置页面的 `cookie`|
+|`page.setExtraHTTPHeaders({ key: value })`|设置页面的 `HTTP` 头|
+|`page.setUserAgent({ userAgent: 'xxx' })`|设置页面的 `userAgent`|
+|`page.setViewport({ width, height, ... })`|设置页面的视口|
+|`page.setJavaScriptEnabled(true)`|设置页面的 `JavaScript` 是否启用|
+|`page.setGeolocation({ latitude, longitude })`|设置页面的地理位置|
+
+> `setUserAgent` 可以用来模拟不同的设备和浏览器, 默认的 `userAgent` 为 `HeadlessChrome`, 可以设置为 `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36` 来模拟 `Chrome` 浏览器（避免被识别为爬虫）
+
+##### Cookie
+|属性|作用|
+|:---:|:---:|
+|`name`|`cookie` 的名字|
+|`value`|`cookie` 的值|
+|`url`|`cookie` 的域名|
+|`domain`|`cookie` 的域名|
+|`path`|`cookie` 的路径|
+|`expires`|`cookie` 的过期时间|
+|`httpOnly`|`cookie` 是否只能通过 `HTTP` 协议访问|
+|`secure`|`cookie` 是否只能通过 `HTTPS` 协议传输|
+|`sameSite`|`cookie` 的 `SameSite` 属性|
+|`priority`|`cookie` 的优先级|
+|`sameParty`|`cookie` 是否只能通过同一站点访问|
+
+#### iframe 操作
+`iframe` 是一个 `HTML` 标签, 可以用于嵌入其他网页, `puppeteer` 可以用 `frame` 对象来操作 `iframe` 中的元素
+
+|方法|作用|
+|:---:|:---:|
+|`page.frames()`|返回一个 `Frame` 对象的数组|
+|`page.mainFrame()`|返回主 `frame` 对象|
+|`frames.find(frame => null)`|用数组的 `find` 方法来查找 `iframe`|
+|`frame.xxx`|`Frame` 对象的方法与 `page` 对象的方法基本相同|
+|`frame.childFrames()`|返回一个 `Frame` 对象的数组<br>用于查找 `iframe` 中的 `iframe`|
+
+- `frame` 没有 `screenshot`、`pdf`、`mainFrame`、`frames` 等方法
+- 要等待 `iframe` 加载完毕, 直接使用 `page.waitForNetworkIdle()` 即可
+- 但要等待 `iframe` 中的元素出现时, 需要使用 `frame.waitForSelector()` 方法
+  
+```javascript
+// 获取所有的 iframe
+const frames = page.frames()
+// 获取第一个 iframe
+const frame = frames[0]
+// 获取 url 为 'https://xxx.com' 的 iframe
+const frame = frames.find(frame => frame.url() === 'https://xxx.com')
+```
+
+#### 元素操作
+`ElementHandle` 对象是一个 `JSHandle` 对象的实例, 可以用于操作网页元素, 如点击、输入、获取属性等
+
+|方法|作用|
+|:---:|:---:|
+|`page.$(selector)`|选择一个元素, 返回一个 `ElementHandle` 对象|
+|`page.$$(selector)`|选择多个元素, 返回一个 `ElementHandle` 对象的数组|
+|`page.$eval(selector, ele => null)`|`$` 和 `evaluate` 的结合, 返回一个 `Promise`|
+|`page.$$eval(selector, eles => null)`|`$$` 和 `evaluate` 的结合, 返回一个 `Promise`|
+|`elementHandle.click()`|点击一个元素|
+|`elementHandle.type('text')`|在一个输入框中输入文本|
+|`elementHandle.select('value')`|选择一个下拉框中的选项|
+|`elementHandle.focus()`|聚焦一个元素|
+|`elementHandle.hover()`|悬停在一个元素上|
+|`elementHandle.screenshot({ path })`|截取一个元素的截图, 保存到指定路径|
+
+- 与真实的 `DOM` 元素不同, `ElementHandle` 对象的操作都是异步的, 返回 `Promise` 对象
+- 其他的方法与 `DOM` 元素的操作方法类似, 不再赘述
+- **以上操作也可以用 `page.click(selector)` 等方法来代替, 效果相同**
+
+## Playwright
+`Playwright` 由 `Microsoft` 开发, 用于操纵 `Chrome`、`Firefox`、`WebKit` 浏览器, 可以用于爬取网页数据、生成网页截图、生成 `PDF` 等; `Playwright` 支持 `Node.js`、`Python`、`C#`、`Go` 等语言, 详见[官方文档](https://playwright.dev) (其 `API` 与 `Puppeteer` 非常相似)
+
+## 🚧 bun test
+
+## 🚧 deno test 
+
+[官方文档](https://docs.deno.com/runtime/fundamentals/testing/)
+
+# 微服务
+
+## Wrangler
+`Wrangler` 是一个 `Cloudflare Workers` 的命令行工具, 可以用于创建、部署、管理 `Cloudflare Workers`, 详见[官方文档](https://developers.cloudflare.com/workers/wrangler)
+
+```bash
+# 安装 wrangler
+npm i -D wrangler
+```
+
+|命令|作用|
+|:---:|:---:|
+|`npm create cloudflare`|初始化项目|
+|`wrangler docs`|打开文档|
+|`wrangler login`|登录 `Cloudflare` 账号|
+|`wrangler dev`|启动本地开发服务器|
+|`wrangler deploy`|部署项目至 `Cloudflare Workers`|
+|`wrangler d1 create <name>`|创建一个数据库|
+|`wrangler d1 info <name>`|查看数据库信息|
+|`wrangler d1 list`|查看账号的所有数据库|
+|`wrangler kv:namespace create <name>`|创建一个命名空间|
+|`wrangler kv:namespace list`|查看账号的所有命名空间|
+|`wrangler r2 bucket create <name>`|创建一个存储桶|
+|`wrangler r2 bucket list`|查看账号的所有存储桶|
+
+- `D1` 是 `Cloudflare` 推出的一个 `Serverless` 数据库, 采用 `SQL` 语法
+- `KV` 也是一个 `Serverless` 数据库, 数据以键值对的形式存储
+- `R2` 是 `Cloudflare` 推出的对象存储服务, 兼容 `S3` 协议
+
+#### wrangler.toml
+`wrangler.toml` 是一个配置文件, 用于配置 `Cloudflare Workers` 的一些参数
+  
+```toml
+name = "my-worker" # 项目名称
+main = "src/index.js" # 入口文件
+compatibility_date = "2022-07-12" # 兼容性日期
+workers_dev = false # 是否启用 *.workers.dev 域名
+
+
+# 环境变量
+[vars]
+NAME = "leaf" # 通过 env.NAME / import.meta.env.NAME 访问
+AGE = 18 # 通过 env.AGE / import.meta.env.AGE 访问
+
+# D1 数据库
+# 用命令创建后会给出以下字段
+[[d1_databases]]
+binding = "<BINDING_NAME>"
+database_name = "<DATABASE_NAME>"
+database_id = "<DATABASE_ID>"
+
+
+# KV 数据库
+# 用命令创建后会给出以下字段
+[[kv_namespaces]]
+binding = "<BINDING_NAME1>"
+id = "<NAMESPACE_ID1>"
+
+[[kv_namespaces]]
+binding = "<BINDING_NAME2>"
+id = "<NAMESPACE_ID2>"
+
+
+# R2 存储桶
+# 用命令创建后会给出以下字段
+[[r2_buckets]]
+binding = "<BINDING_NAME1>"
+bucket_name = "<BUCKET_NAME1>"
+
+[[r2_buckets]]
+binding = "<BINDING_NAME2>"
+bucket_name = "<BUCKET_NAME2>"
+
+
+# AI
+[ai]
+binding = "AI" # 通过 env.AI 访问
+
+
+# 本地开发服务器
+[dev]
+port = 8787 # 本地开发服务器的端口
+```
+
+#### 示例
+以下是一些 `worker` 环境的基本代码, [点击查看更多教程](https://developers.cloudflare.com/workers/tutorials/)
+
+```javascript
+// src/index.js
+export default {
+  async fetch(request, env, context) {
+    return new Response("Hello World!")
+  }
+}
+```
+
+**返回网页**
+
+```javascript
+export default {
+  async fetch(request) {
+    const html = `
+      <!DOCTYPE html>
+  		<body>
+  		  <h1>Hello World</h1>
+  		  <p>This markup was generated by a Cloudflare Worker.</p>
+  		</body>`
+    return new Response(html, {
+      headers: {
+        "content-type": "text/html;charset=UTF-8"
+      }
+    })
+  }
+}
+```
+
+**返回 `JSON`**
+
+```javascript
+export default {
+  async fetch(request) {
+    const data = {
+      hello: "world",
+    }
+    return Response.json(data)
+  }
+}
+```
+
+**简单的代理服务器**
+
+```javascript
+export default {
+  async fetch(request) {
+    const remote = "https://www.google.com"
+    return await fetch(remote, request)
+  }
+}
+```
+
+## Vercel
+```bash
+# 安装
+bun add -g vercel
+# 登录
+vercel login
+# 创建
+vercel init # 可选多种模板
+# 部署/重新部署
+vercel [deploy]
+vercel redeploy
+
+# 编辑远程环境变量
+vercel env pull [file] # 拉取环境变量
+vercel env ls # 列出环境变量
+vercel env add [name] # 添加环境变量
+vercel env rm [name] # 删除环境变量
+```
+
+# 桌面/移动应用
+
+## Electron
+`Electron` 是一个 `Node.js` 框架, 可以用于创建桌面应用程序; `Electron Vite` 是一个命令行工具, 可以用于创建 `Electron` 项目, 详见[官方文档](https://cn.electron-vite.org/guide/introduction)
+
+```bash
+bun create @quick-start/electron@latest
+```
+
+#### 流程模型
+`Electron` 分为 `Main` 进程和 `Renderer` 进程, `Main` 进程用于控制应用程序的生命周期, 属于 `Node.js` 进程, `Renderer` 进程用于显示 `HTML` 页面, 属于 `Chromium` 进程
+
+`Main` 进程可以通过 `BrowserWindow` 类来创建窗口 (`Renderer` 进程), 通过 `ipcMain` 和 `ipcRenderer` 来进行进程间通信
+
+除此之外, 还有 `preload` 脚本, 在 `Renderer` 进程中运行, 它只能访问少量的 `Node.js` 模块, 主要用于与 `Main` 进程通信
+
+#### 进程通信
+`ipcMain` 和 `ipcRenderer` 是 `Electron` 提供的两个模块, 用于 `Main` 进程和 `Renderer` 进程之间的通信
+
+```ts
+// main.ts
+import { ipcMain } from 'electron'
+
+// ...
+
+app.on('ready', () => {
+  // 监听渲染进程发送的消息
+  ipcMain.handle('readFile', (): Promise<string> => {
+    return fs.promises.readFile('file.txt', 'utf-8')
+  })
+  ipcMain.on('writeFile', async (event, data) => {
+    await fs.promises.writeFile('file.txt', data)
+  })
+})
+```
+
+```ts
+// preload.ts
+import { ipcRenderer, contextBridge } from 'electron'
+
+// ...
+
+// 暴露方法给渲染进程
+contextBridge.exposeInMainWorld('api', {
+  readFile: () => ipcRenderer.invoke('readFile'),
+  writeFile: (data) => ipcRenderer.send('writeFile', data)
+})
+```
+
+```ts
+// renderer.ts
+// 也可以在渲染进程中直接使用 ipcRenderer
+
+// 调用主进程的方法
+api.readFile().then(data => console.log(data))
+api.writeFile('Hello World!')
+```
+
+> `on` 和 `send` 类似于 `Wails` 中的事件, `handle` 和 `invoke` 类似于 `Wails` 中调用 `Go` 函数
+
+##### 主进程发送浏览器事件
+`BrowserWindow` 类的 `webContents` 属性可以用于发送浏览器事件
+
+```ts
+// main.ts
+import { BrowserWindow } from 'electron'
+
+// ...
+
+app.on('ready', () => {
+  const win = new BrowserWindow()
+  win.loadURL('https://www.google.com')
+  // 监听 Web 页面的事件
+  win.webContents.on('did-finish-load', () => {
+    // 发起 Web 页面的事件
+    win.webContents.send('message', 'Hello World!')
+  })
+})
+```
+
+```ts
+// renderer.ts
+
+// 监听主进程的事件
+window.addEventListener('message', (event) => {
+  console.log(event.data)
+})
+```
+
+> 这个有点奇怪, 为什么不像 `Wails` 一样直接用 `ipcMain` 来向 `ipcRenderer` 发送事件
+
+## Wails
+`Wails` 是一个用于构建桌面应用程序的框架, 使用 `Go` 和 `Web` 技术进行开发, 类似于 `Rust` 的 `Tauri`
+
+```bash
+# 安装命令行工具
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+# 创建项目
+wails init -n project-name -t react
+wails init -n project-name -t react-ts # 使用 TypeScript
+# 运行项目
+wails dev
+# 打包项目
+wails build
+```
+
+#### 调用 Go 函数
+`Wails` 将自动生成 `Go` 函数的 `TypeScript` 类型定义, 通过 `import { Xxx } from '../wailsjs/go/main/App'` 即可引入; 所有的 `Go` 函数都返回 `Promise`
+
+```typescript
+import { SayHello } from '../wailsjs/go/main/App'
+
+export default function App() {
+  const handleClick = async () => {
+    const res = await SayHello('小叶子')
+    console.log(res)
+  }
+  return (
+    <button onClick={handleClick}>Click Me</button>
+  )
+}
+```
+
+### API
+`Go` 中的 `API` 通过导入 `github.com/wailsapp/wails/v2/pkg/runtime` 来获取, 所有函数的第一个参数 `context` 都是应用启动时传入的上下文
+
+`JavaScript` 中的 `API` 全部挂在 `window.runtime` 下, 可以通过 `runtime.xxx` 来调用
+
+| `Go` | `JavaScript` | 描述 |
+| :---: | :---: | :---: |
+| `Hide(c)` | `runtime.Hide()` | 隐藏窗口 |
+| `Show(c)` | `runtime.Show()` | 显示窗口 |
+| `Quit(c)` | `runtime.Quit()` | 退出应用 |
+| `BrowserOpenURL(c, "url")` | `runtime.BrowserOpenURL('url')` | 在默认浏览器中打开链接 |
+| `ClipboardGetText(c)` | `runtime.ClipboardGetText()` | 获取剪贴板文本 |
+| `ClipboardSetText(c, "text")` | `runtime.ClipboardSetText('text')` | 设置剪贴板文本 |
+| `MessageDialog(c, MessageDialogOptions)` | | 消息对话框, 返回 `(string, error)` |
+
+{% folding red::MessageDialogOptions %}
+| 字段 | 描述 |
+| :---: | :---: |
+| `Type` | 弹窗类型, `InfoDialog`、`ErrorDialog`、`WarningDialog`、`QuestionDialog` |
+| `Title` | 标题 |
+| `Message` | 消息 |
+| `Buttons` | 按钮, 仅对 `Mac` 有效 |
+| `DefaultButton` | 默认按钮, `OK`、`Cancel`、`Yes`、`No` |
+| `CancelButton` | 取消按钮, `OK`、`Cancel`、`Yes`、`No` |
+{% endfolding %}
+
+#### 事件
+`Wails` 中的事件在 `Go` 和 `JavaScript` 之间是统一的
+
+| `Go` | `JavaScript` | 描述 |
+| :---: | :---: | :---: |
+| `EventsOn(c, "event", f([data]))` | `runtime.EventsOn('event', f([data]))` | 监听事件 |
+| `EventsOff(c, "event")` | `runtime.EventsOff('event')` | 取消监听事件 |
+| `EventsOnce(c, "event", f([data]))` | `runtime.EventsOnce('event', f([data]))` | 一次性监听事件 |
+| `EventsOnMultiple(c, "event", f([data]), count)` | `runtime.EventsOnMultiple('event', f([data]), count)` | 监听多次事件, **返回取消监听的函数** |
+| `EventsEmit(c, "event", data)` | `runtime.EventsEmit('event', data)` | 触发事件 |
+
+#### 窗口
+| `Go` | `JavaScript` | 描述 |
+| :---: | :---: | :---: |
+| `WindowSetTitle(c, "title")` | `runtime.WindowSetTitle('title')` | 设置窗口标题 |
+| `WindowFullscreen(c)` | `runtime.WindowFullscreen()` | 全屏窗口 |
+| `WindowUnFullscreen(c)` | `runtime.WindowUnFullscreen()` | 退出全屏 |
+| `WindowIsFullscreen(c)` | `runtime.WindowIsFullscreen()` | 判断是否全屏 |
+| `WindowCenter(c)` | `runtime.WindowCenter()` | 居中窗口 |
+| `WindowReload(c)` | `runtime.WindowReload()` | 重新加载窗口 |
+| `WindowSetAlwaysOnTop(c, bool)` | `runtime.WindowSetAlwaysOnTop(bool)` | 设置窗口是否置顶 |
+| `WindowMaximise(c)`<br>`WindowUnmaximise(c)`<br>`WindowIsMaximised(c)` | `runtime.WindowMaximise()`<br>`runtime.WindowUnMaximise()`<br>`runtime.WindowIsMaximised()` | 最大化窗口 |
+| `WindowMinimise(c)`<br>`WindowUnminimise(c)`<br>`WindowIsMinimised(c)` | `runtime.WindowMinimise()`<br>`runtime.WindowUnMinimise()`<br>`runtime.WindowIsMinimised()` | 最小化窗口 |
+| `WindowToggleMaximise(c)` | `runtime.WindowToggleMaximise()` | 在最大化和非最大化之间切换 |
+
+### 配置
+`wails.Run()` 方法接收一个 `options.App` 结构体, 用于配置应用
+
+| 字段 | 类型 | 描述 |
+| :---: | :---: | :---: |
+| `Width` | `int` | 窗口宽度 |
+| `Height` | `int` | 窗口高度 |
+| `Title` | `string` | 窗口标题 |
+| `Framelss` | `bool` | 是否无边框 |
+| `MinWidth` | `int` | 窗口最小宽度 |
+| `MinHeight` | `int` | 窗口最小高度 |
+| `MaxWidth` | `int` | 窗口最大宽度 |
+| `MaxHeight` | `int` | 窗口最大高度 |
+| `StartHidden` | `bool` | 启动时是否隐藏 |
+| `BackgroundColour` | `*options.RGBA` | 背景颜色 |
+| `AlwaysOnTop` | `bool` | 是否置顶 |
+| `OnStartup` | `func(c)` | 启动时 (`index.html` 加载前) 回调 |
+| `OnDomReady` | `func(c)` | `DOM` 加载完成后回调 |
+| `OnShutdown` | `func(c)` | 关闭时回调 |
+| `OnBeforeClose` | `func(c)` | 关闭**前**回调 |
+| `Windows` | `*windows.Options` | `Windows` 配置 |
+| `Mac` | `*mac.Options` | `Mac` 配置 |
+| `Linux` | `*linux.Options` | `Linux` 配置 |
+
+> 对于无边框窗口, `Wails` 提供了一个非常简单的拖动解决方案: 任何具有 `--wails-draggable:drag` 样式的元素都可以拖动窗口
+
+#### Windows
+| 字段 | 类型 | 描述 |
+| :---: | :---: | :---: |
+| `WebviewIsTransparent` | `bool` | `Webview` 是否透明 |
+| `WindowIsTranslucent` | `bool` | 窗口是否半透明 |
+| `BackdropType` | `windows.BackdropType` | 半透明背景类型 |
+| `DisableWindowIcon` | `bool` | 禁用窗口图标 |
+
+> 半透明背景类型有 `3: Acrylic` (亚克力) 和 `2: Mica` (亚克力玻璃) 等
+
+#### Mac
+| 字段 | 类型 | 描述 |
+| :---: | :---: | :---: |
+| `TitleBar` | `*mac.TitleBar` | 标题栏外观 |
+| `WebviewIsTransparent` | `bool` | `Webview` 是否透明 |
+| `WindowIsTranslucent` | `bool` | 窗口是否半透明 |
+
+#### Linux
+| 字段 | 类型 | 描述 |
+| :---: | :---: | :---: |
+| `WindowIsTranslucent` | `bool` | 窗口是否半透明 |
+
+## Tauri
+`Tauri` 是一个用于构建桌面端/移动端应用程序的 `Rust` 框架, 它使用 `Web` 技术来构建用户界面, 并使用 `Rust` 来构建应用程序的后端
+
+- `Tauri` 类似于 `Electron`, 也有一个 `Core` 进程和一个/多个 `Webview` 进程, 但 `Tauri` 的 `Webview` 直接使用系统的 `Webview` 组件, 而不是使用内置的 `Chromium` 内核
+- `Tauri` 也使用了类似 `Electron` 的 `IPC` 机制, 并将其分为 `Events` (事件, 核心进程和浏览器进程都可以发送) 和 `Commands` (命令, 浏览器进程调用, 核心进程执行)
+- 浏览器进程和核心进程之间有 `Brownfield` (默认) 和 `Isolation` 两种关系模式; `Isolation` 模式下, 所有前端发送到后端的信息都将经过一个安全程序的检查或修改, 这会带来一定的性能开销和兼容性问题, 详见[官方文档相关内容](https://tauri.app/zh-cn/concept/inter-process-communication/isolation/)
+- `Tauri` 可以嵌入附加文件, 并在 `Rust` 或 `JavaScript` 中访问, 详见[官方文档](https://tauri.app/zh-cn/develop/resources/)
+- `Tauri` 可以嵌入外部可执行文件, 称为 `sidecar`, 并在 `Rust` 或 `JavaScript` 中访问, 详见[官方文档](https://tauri.app/zh-cn/develop/sidecar/)
+- 如果在 `Rust` 端需要对某个状态进行竞争性访问, 可能需要使用 `std::sync::Mutex` 等线程安全的数据结构, 详见[官方文档](https://tauri.app/zh-cn/develop/state-management/)
+- 关于软件分发、安全性、测试工具的更多信息, 详见[官方文档](https://tauri.app/zh-cn/)
+
+```bash
+# 创建一个新项目
+bun create tauri-app
+# 启动桌面端开发服务器
+bun tauri dev
+# 启动移动端开发服务器
+bun tauri [android|ios] dev
+```
+
+> 移动开发相关额外设置详见[官方文档](https://tauri.app/zh-cn/develop/)
+
+### Events
+`Tauri` 中的 `Events` 用于在 `Rust` 和 `JavaScript` 之间进行简单通信, 相比于 `Commands`, `Events` 没有强类型支持, 事件的有效负载始终是一个 `JSON` 字符串
+
+#### 后端发送全局事件
+```rust
+use tauri::{AppHandle, Emitter};
+
+#[tauri::command]
+fn download(app: AppHandle, url: String) {
+  app.emit("download-started", &url).unwrap();
+  for progress in [1, 15, 50, 80, 100] {
+    app.emit("download-progress", 10).unwrap();
+  }
+  app.emit("download-finished", &url).unwrap();
+}
+```
+
+#### 后端向特定浏览器发送事件
+```rust
+use tauri::{AppHandle, Emitter};
+
+#[tauri::command]
+fn login(app: AppHandle, user: String, password: String) {
+  let authenticated = user == "tauri-apps" && password == "tauri";
+  let result = if authenticated { "loggedIn" } else { "invalidCredentials" };
+  // 发送事件给名为 "login" 的浏览器
+  app.emit_to("login", "login-result", result).unwrap();
+}
+```
+
+#### 前端监听全局事件
+```ts
+import { listen } from '@tauri-apps/api/event';
+
+type DownloadStarted = {
+  url: string;
+  downloadId: number;
+  contentLength: number;
+};
+
+listen<DownloadStarted>('download-started', (event) => {
+  console.log(
+    `downloading ${event.payload.contentLength} bytes from ${event.payload.url}`
+  );
+});
+```
+
+> **注意: `listen` 函数返回一个 `unlisten` 函数, 用于取消监听事件**; 对于 `MPA` 项目, 切换页面时会自动取消当前页面监听, 但对于 `SPA` 项目, 需要手动取消监听 (对于 `React` 项目, 应在 `useEffect` 监听并在 `return` 中取消监听)
+
+#### 前端监听特定浏览器事件
+```ts
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+
+const appWebview = getCurrentWebviewWindow();
+appWebview.listen<string>('logged-in', (event) => {
+  localStorage.setItem('session-token', event.payload);
+});
+```
+
+#### 前端单次监听
+```ts
+import { once } from '@tauri-apps/api/event';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+
+once('ready', (event) => {});
+
+const appWebview = getCurrentWebviewWindow();
+appWebview.once('ready', () => {});
+```
+
+#### 后端监听全局事件
+```rust
+use tauri::Listener;
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+  tauri::Builder::default()
+    .setup(|app| {
+      app.listen("download-started", |event| {
+        if let Ok(payload) = serde_json::from_str::<DownloadStarted>(&event.payload()) {
+          println!("downloading {}", payload.url);
+        }
+      });
+      Ok(())
+    })
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
+}
+```
+
+**取消监听**
+
+```rust
+// unlisten outside of the event handler scope:
+let event_id = app.listen("download-started", |event| {});
+app.unlisten(event_id);
+
+// unlisten when some event criteria is matched
+let handle = app.handle().clone();
+app.listen("status-changed", |event| {
+  if event.data == "ready" {
+    handle.unlisten(event.id);
+  }
+});
+```
+
+#### 后端监听特定浏览器事件
+```rust
+use tauri::{Listener, Manager};
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+  tauri::Builder::default()
+    .setup(|app| {
+      let webview = app.get_webview_window("main").unwrap();
+      webview.listen("logged-in", |event| {
+        let session_token = event.data;
+        // save token..
+      });
+      Ok(())
+    })
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
+}
+```
+
+#### 后端单次监听
+```rust
+app.once("ready", |event| {
+  println!("app is ready");
+});
+```
+
+#### 前端触发全局事件
+```ts
+import { emit } from '@tauri-apps/api/event';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+
+// emit(eventName, payload)
+emit('file-selected', '/path/to/file');
+
+const appWebview = getCurrentWebviewWindow();
+appWebview.emit('route-changed', { url: window.location.href });
+```
+
+#### 前端触发特定浏览器事件
+```ts
+import { emit } from '@tauri-apps/api/event';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+
+// emitTo(webviewLabel, eventName, payload)
+emitTo('settings', 'settings-update-requested', {
+  key: 'notification',
+  value: 'all',
+});
+
+const appWebview = getCurrentWebviewWindow();
+// 向名为 "editor" 的浏览器发送事件
+appWebview.emitTo('editor', 'file-changed', {
+  path: '/path/to/file',
+  contents: 'file contents',
+});
+```
+
+### Channels
+`Events` 不适合用于发送大量或强即时性的数据, `Channels` 则被设计用于快速传递有序的数据流, 例如下载进度、子进程输出等
+
+#### Rust 端
+```rust
+use tauri::{AppHandle, ipc::Channel};
+use serde::Serialize;
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase", tag = "event", content = "data")]
+enum DownloadEvent<'a> {
+  #[serde(rename_all = "camelCase")]
+  Started {
+    url: &'a str,
+    download_id: usize,
+    content_length: usize,
+  },
+  #[serde(rename_all = "camelCase")]
+  Progress {
+    download_id: usize,
+    chunk_length: usize,
+  },
+  #[serde(rename_all = "camelCase")]
+  Finished {
+    download_id: usize,
+  },
+}
+
+#[tauri::command]
+fn download(app: AppHandle, url: String, on_event: Channel<DownloadEvent>) {
+  let content_length = 1000;
+  let download_id = 1;
+
+  on_event.send(DownloadEvent::Started {
+    url: &url,
+    download_id,
+    content_length,
+  }).unwrap();
+
+  for chunk_length in [15, 150, 35, 500, 300] {
+    on_event.send(DownloadEvent::Progress {
+      download_id,
+      chunk_length,
+    }).unwrap();
+  }
+
+  on_event.send(DownloadEvent::Finished { download_id }).unwrap();
+}
+```
+
+#### JavaScript 端
+```ts
+import { invoke, Channel } from '@tauri-apps/api/core';
+
+type DownloadEvent =
+  | {
+      event: 'started';
+      data: {
+        url: string;
+        downloadId: number;
+        contentLength: number;
+      };
+    }
+  | {
+      event: 'progress';
+      data: {
+        downloadId: number;
+        chunkLength: number;
+      };
+    }
+  | {
+      event: 'finished';
+      data: {
+        downloadId: number;
+      };
+    };
+
+const onEvent = new Channel<DownloadEvent>();
+onEvent.onmessage = (message) => {
+  console.log(`got download event ${message.event}`);
+};
+
+await invoke('download', {
+  url: 'https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-schema-generator/schemas/config.schema.json',
+  onEvent,
+});
+```
+
+### webview.eval
+`webview.eval` 方法用于在 `Rust` 中控制前端执行 `JavaScript` 代码
+
+```rust
+use tauri::Manager;
+
+tauri::Builder::default()
+  .setup(|app| {
+    let webview = app.get_webview_window("main").unwrap();
+    webview.eval("console.log('hello from Rust')")?;
+    Ok(())
+  })
+```
+
+> 对于复杂脚本, 推荐使用 `serialize-to-javascripit` `Crate`
+
+### Commands
+`Commands` 用于在 `JavaScript` 中调用 `Rust` 函数
+
+```rust
+// src-tauri/src/lib.rs
+
+// 添加宏来导出函数, 不能直接使用 pub 关键字
+#[tauri::command]
+fn my_custom_command() {
+  println!("I was invoked from JavaScript!");
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+  tauri::Builder::default()
+    .invoke_handler(tauri::generate_handler![
+      // 必须手动向构建器函数提供命令列表
+      my_custom_command
+    ])
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
+}
+```
+
+```ts
+// 导入方法一
+import { invoke } from '@tauri-apps/api/core'
+// 导入方法二
+const invoke = window.__TAURI__.core.invoke
+
+// 调用命令
+await invoke('my_custom_command') // Promise<T>
+```
+
+- 函数的参数名分别遵守 `Rust` 和 `JavaScript` 的命名规范, 即 `snake_case` 和 `camelCase`; 在 `JavaScript` 中调用时, 所有参数作为一个对象传入 `invoke` 函数的第二个参数
+- `Rust` 函数的返回值可以是一个 `Result` 类型, 以便 `JavaScript` 可以处理错误
+- 函数返回值**必须**可以被序列化为 `JSON` 格式, 即实现 `serde::Serialize` 特性
+- 一些第三方库的错误可能无法被序列化, 可以使用 `map_err` 方法将错误转换为字符串; 也可以使用自定义错误, 详见[官方文档](https://tauri.app/zh-cn/develop/calling-rust/#error-handling)
+- `Tauri` 中的命令默认是同步的, 如果需要异步命令, 在命令函数 `fn` 前添加 `async` 关键字即可; 目前, 异步命令不可以直接包含借用参数, 详见[官方文档](https://tauri.app/zh-cn/develop/calling-rust/#async-commands)
+- 命令还可以访问 `WebviewWindow`、`AppHandle`、`状态`、`原始IPC请求` 等数据, 详见[官方文档](https://tauri.app/zh-cn/develop/calling-rust/#accessing-the-webviewwindow-in-commands)
+
+#### 在单独的模块中导出命令
+```rust
+// src-tauri/src/commands.rs
+// 此时必须用 pub 关键字导出函数
+#[tauri::command]
+pub fn my_custom_command() {
+  println!("I was invoked from JavaScript!");
+}
+```
+
+```rust
+// src-tauri/src/lib.rs
+mod commands;
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+  tauri::Builder::default()
+    .invoke_handler(tauri::generate_handler![
+      // 导入的命令的前缀在前端无需书写, 即仍然是 my_custom_command
+      commands::my_custom_command
+    ])
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
+}
+```
+
+### Plugins
+`Tauri` 通过其插件系统支持各个系统的原生功能, 例如文件系统、系统通知、剪贴板、对话框、`NFC`、`SQL` 等, 从而让开发者在很多情况下不用编写 `Rust`、`Kotlin` 或 `Swift` 代码
+
+各个插件支持的平台不尽相同, 详见[官方文档](https://tauri.app/zh-cn/plugins/)
+
+## 🚧 React Native
+`React Native` 是一个用于构建移动应用程序的框架, 使用 `JavaScript` 和 `React` 进行开发, 通过 `JavaScript` 代码调用原生 `API` 来实现跨平台开发
+
+由于页面的布局和样式是由原生组件实现的, 所以 `React Native` 的性能和体验要优于基于 `Web` 技术的 `Tauri` 和 `Ionic` 框架
+
+# 其他
+
+## WebAssembly
+
+### 🚧 AssemblyScript
+
+### Rust
+
+`wasm-pack` 是一个用于构建 `Rust` 项目为 `WebAssembly` 模块的工具, 它可以将 `Rust` 项目编译为 `WebAssembly` 模块, 并生成 `JavaScript` 包装器, 以便在 `Web` 环境中调用
+
+```bash
+# 添加 wasm32-unknown-unknown 编译目标
+rustup target add wasm32-unknown-unknown
+# 安装 wasm-pack
+cargo install wasm-pack
+# 创建一个新项目
+wasm-pack new xxx
+# 构建项目
+wasm-pack build --target web
+# 发布到 npm
+wasm-pack login
+wasm-pack publish
+```
+
+```rust
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen] // 这个宏允许 Rust 代码被 JavaScript 调用
+pub fn add(a: f64, b: f64) -> f64 {
+  a + b
+}
+```
+
+```typescript
+import init, { add } from 'xxx'
+// 初始化模块
+await init()
+// 调用函数
+console.log(add(1, 2))
+```
+
+### 🚧 Pyodide
+
+### 🚧 WebR
+
+## Docker
+`Docker` 是一个开源的应用容器引擎, 使用 `Go` 语言开发, 可以让开发者打包应用及其依赖, 并以容器的形式进行交付; 相比于虚拟机, 容器更轻量, 更快速, 可以在同一台机器上运行更多的容器
+
+推荐使用 `Docker Desktop` 来安装 `Docker` 和 `Docker Compose`
+
+| 命令 | 描述 |
+| :---: | :---: |
+| `docker version/info` | 查看版本/信息 |
+| `docker pull/rmi <image>[:tag]` | 拉取(下载)/删除镜像 |
+| `docker images` | 查看镜像 |
+| `docker ps [-a] [-s]` | 查看容器, `-a` 查看所有容器, `-s` 查看容器资源使用情况 |
+| `docker run [-d] [-p from:to] [-e xxx=xxx] [--name xxx] <image[:tag]>` | 运行容器<br>`-d` 后台运行(不占用当前控制台)<br>`-p` 端口映射, `主机端口:容器端口`<br>`--name` 容器名称<br>`-e` 环境变量, 可以多次使用 |
+| `docker rename <container> newname` | 重命名容器 |
+| `docker port/top/stats/logs <container>` | 查看容器端口/进程/资源使用情况/日志 |
+| `docker start/stop/restart/pause/unpause <container>` | 启动/停止/重启/暂停/恢复容器 |
+| `docker rm [-f] <container>` | 删除容器, `-f` 强制删除 |
+| `docker exec -it <container> bash` | 进入容器, `-it` 交互式终端, `bash` 进入 `bash` |
+| `docker cp <container>:<path> <path>` | 从容器中复制文件到宿主机, 反之亦然 |
+| `docker commit [-m "xxx"] <container> <image[:tag]>` | 提交容器为镜像, 类似于 `git commit` |
+| `docker save [-o <file.tar>] <image>` | 保存镜像为文件 |
+| `docker load -i <file.tar>` | 加载镜像文件 |
+| `docker login` | 登录 `Docker Hub` |
+| `docker tag <image[:tag]> <newimage[:tag]>` | 重命名镜像, 发布镜像时需要重命名为 `username/repo`<br>重命名后原镜像不会被删除, 两个镜像的 `ID` 相同 |
+| `docker push <image[:tag]>` | 发布镜像到 `Docker Hub` |
+
+> 小寄巧-删除全部容器: `docker rm -f $(docker ps -aq)`
+
+#### 存储
+`Docker` 容器中的文件可以通过目录挂载 (将宿主机目录/文件挂载到容器目录/文件中) 或卷映射 (将容器目录/文件映射到宿主机中 `Docker` 的卷目录中) 来保存和编辑; 前者会将宿主机目录/文件**覆盖**到容器中
+
+- 也可以直接在 `Docker Desktop` 中编辑容器的文件
+- 使用命令 `docker volume ls` 可以查看所有卷
+- `-v` 参数可以多次使用, 用于挂载/映射多个目录/卷
+
+| 方式 | 命令 |
+| :---: | :---: |
+| 目录挂载 | `docker run -v /path/in/host:/path/in/container`<br>删除容器后, 被挂载的目录/文件不会被删除 |
+| 卷映射 | `docker run -v <volume_name>:/path/in/container`<br>为了区分卷名和路径, 目录挂载中的 `./` 不能省略<br>`Docker` 会在 `/var/lib/docker/volumes` 中创建**或使用已有**卷, 删除容器后, 卷不会被删除 |
+
+> 如果出现 `Permission Denied` 错误, 可以在主机中修改文件权限: `chmod -R 777 /path/in/host`
+
+#### 网络
+在默认情况下, 容器使用 `bridge` 网络, 通过 `NAT` 进行通信, 通过 `docker0` 网桥连接宿主机; 容器的 `IP` 地址为 `172.17.0.x`, 网关地址都是 `172.17.0.1`, 相互之间可以通过**内网** `IP` 直接通信
+
+默认的 `bridge` 网络不支持主机域名的解析, 可以通过 `docker network create` 创建自定义网络, 通过 `docker run --network <network>` 指定容器使用的网络
+
+| 命令 | 描述 |
+| :---: | :---: |
+| `docker network ls` | 查看所有网络(包括一些内置网络) |
+| `docker network create <name>` | 创建网络(默认 `driver` 为 `bridge`, 但**可以通过容器名作为域名来进行容器间通信**) |
+| `docker network inspect <name>` | 查看网络详情 |
+| `docker network connect/disconnect <network> <container>` | 连接/断开容器网络 |
+| `docker network rm <network>` | 删除网络 |
+
+| 内置网络 | 描述 |
+| :---: | :---: |
+| `bridge` | 默认模式, `driver` 为 `bridge` |
+| `host` | 容器和宿主机共享网络, 容器端口和宿主机端口一致, `driver` 为 `host` |
+| `none` | 容器不使用网络, 仅 `localhost`, `driver` 为 `null` |
+| `container:<name>` | 容器和指定容器共享网络, 两个容器可以通过 `localhost` 直接通信 |
+
+### Docker Compose
+`Docker Compose` 是一个用于定义和运行多容器 `Docker` 应用程序的工具, 通过 `YAML` 文件配置, 可以一次性启动多个容器
+
+`docker compose` 或 `docker-compose` 命令会自动在当前目录查找 `compose.yaml` 文件, 也可以通过 `-f` 参数指定文件
+
+| 命令 | 描述 |
+| :---: | :---: |
+| `docker compose up [-d] [-w]` | 创建并启动容器, `-d` 后台启动, `-w` 监听配置变化 |
+| `docker compose down [-v] [--rmi all]` | 停止并删除容器和网络, `-v` 删除卷, `--rmi all` 删除所有镜像 |
+| `docker compose start/stop/restart <service>` | 启动/停止/重启某个服务 |
+| `docker compose scale <service>=n` | 扩展服务数量 |
+| `docker compose ps` | 查看容器状态 |
+| `docker compose logs <service>` | 查看容器日志 |
+
+```yaml
+# compose.yaml
+
+name: project-name # 项目名称
+
+services: # 服务(容器)
+
+  service-name: # 服务名称
+    image: image[:tag] # 镜像
+    container_name: container-name # 容器名称(默认为 project-name_service-name_1)
+    ports: # 端口映射
+      - "from:to"
+    volumes: # 挂载目录
+      - "/path/in/host:/path/in/container"
+      - "volume_name:/path/in/container"
+    environment: # 环境变量
+      - key=value
+    networks: # 网络
+      - network-name
+    depends_on: # 依赖(影响启动顺序)
+      - another-service
+    restart: always # 重启策略(设为 always, 会在 docker 重启时自动启动)
+
+  another-service:
+    ...
+
+networks: # 网络
+  network-name:
+volumes: # 卷
+  volume-name:
+configs: # 配置(不常用)
+secrets: # 密钥(不常用)
+# 详见 https://docs.docker.com/compose/compose-file/
+```
+
+> 执行 `docker compose up` 时, 实际创建的容器/卷/网络等的名称都为 `project-name_xxx`
+
+### Dockerfile
+`Dockerfile` 是一个文本文件, 包含了一系列命令, 用于构建 `Docker` 镜像
+
+构建时, `Docker` 会从 `FROM` 开始执行, 每一条指令都会创建一个新的镜像层; 通过分层, 可以在多个镜像间实现层的复用, 减少实际需要存储的镜像的体积
+
+实际上, 每个容器都有一个只读的镜像层, 以及一个可读写的容器层, 容器层的改动不会影响镜像层, 但可以通过 `commit` 命令保存为新的镜像; 如果不保存, 容器删除后, 容器层也会被删除
+
+| 命令 | 描述 |
+| :---: | :---: |
+| `docker build -t <image[:tag]> [-f <Dockerfile>] <path>` | 构建镜像 |
+| `docker build .` | 使用当前目录下的 `Dockerfile` 构建镜像 |
+| `docker init` | 在项目中初始化 `docker` 相关文件 |
+| `docker compose up --build [-d]` | 构建并启动容器 |
+| `docker history <image>` | 查看镜像构建历史(各个层) |
+
+```dockerfile
+# Dockerfile
+
+# 继承某个基础镜像, 可以取别名
+FROM image[:tag]
+FROM image AS alias
+# 元数据
+LABEL maintainer="author"
+LABEL version="1.0"
+# 环境变量, 可以用 ${key} 引用
+ENV key=value
+# 构建参数, 可以用 ${key} 引用
+ARG key=value
+# 工作目录, RUN、CMD、ENTRYPOINT、COPY、ADD 命令都会在该目录下执行
+WORKDIR /path/in/container
+# 创建卷, 这个卷的主机对应地址由 Docker 自动分配, 一般只是为了在容器间共享数据
+VOLUME ["/path/in/container"]
+# 复制文件
+COPY /path/in/host /path/in/container
+# 类似 COPY, 但会自动解压并且可以是 URL
+ADD /path/in/host /path/in/container
+# 暴露端口(声明容器运行时需要映射的端口)
+EXPOSE <port>
+# ONBUILD 指令, 只有当被被 FROM 时, 才会执行该指令
+ONBUILD RUN ...
+# 构建镜像时执行的命令
+RUN command
+# 容器启动时执行的命令 (不可被覆盖)
+ENTRYPOINT ["command", "arg1", "arg2"]
+# 容器启动时执行的命令 (可以被覆盖)
+CMD ["command", "arg1", "arg2"]
+```
+
+{% folding red::打包一个JAVA程序 %}
+```dockerfile
+FROM openjdk:17
+LABEL maintainer="author"
+COPY app.jar /app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app.jar"]
+```
+{% endfolding %}
+
+{% folding red::打包一个Next.js程序 %}
+```dockerfile
+FROM bun:latest
+LABEL maintainer="author"
+WORKDIR /app
+COPY . .
+RUN bun install
+EXPOSE 3000
+ENTRYPOINT ["bun", "dev"]
+```
+{% endfolding %}
+
+#### .dockerignore
+`.dockerignore` 文件用于指定哪些文件不需要被复制到镜像中, 语法和 `.gitignore` 相同
+
+#### 多阶段构建
+使用多阶段构建能将构建依赖留在 `builder` 镜像中，只将编译完成后的二进制文件拷贝到运行环境中，大大减少镜像体积
+
+```dockerfile
+FROM golang:alpine as builder
+RUN apk --no-cache add git
+WORKDIR /go/src/github.com/go/helloworld/
+RUN go get -d -v github.com/go-sql-driver/mysql
+COPY app.go .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+
+FROM alpine:latest as prod
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /go/src/github.com/go/helloworld/app .
+CMD ["./app"]
+```

@@ -1,0 +1,468 @@
+---
+title: Markdown/HTML文章写作
+date: 2023-10-26 19:19:11
+categories: 笔记
+tags: [Note,Markdown,HTML,Coding]
+comment: true
+excerpt: false
+cover: "/images/cover/md.jpg"
+---
+**封面作者:[NOEYEBROW](https://x.com/noeyebrow313)**
+
+# 基础
+`Markdown` 是一种轻量级标记语言, 它允许人们使用易读易写的纯文本格式编写文档, 然后通过渲染器自动转换成 `HTML` 文档
+
+由于 `Markdown` 的轻量化、易读易写特性, 并且对于图片、图表、数学式都有支持, 许多网站都广泛使用 `Markdown` 来撰写帮助文档或是用于论坛上发表消息, 如 `GitHub`、`简书`、`CSDN`
+
+由于 `Markdown` 会被转换成 `HTML` 文档, 所以 `Markdown` 可以使用 `HTML` 语法, 从而使文章内容更加丰富; 本文将介绍 `Markdown` 的基本语法和 `HTML` 在文章写作时的常用语法
+
+![](/images/note/markdown.png)
+
+## 标题
+![](/images/note/biaoti.png)
+
+> 图片仅供参考
+
+```html
+<!-- HTML 对应代码 -->
+<h1>一级标题</h1>
+<h2>二级标题</h2>
+<h3>三级标题</h3>
+<h4>四级标题</h4>
+<h5>五级标题</h5>
+<h6>六级标题</h6>
+```
+
+## 段落
+- 一个段落（中间没有空行的一行或多行文字）内, 代码中的换行会被翻译成一个空格
+- 段落内的一行代码末尾敲两个或以上空格, 会视为一个换行符
+- 空至少一行代码, 表示上下内容为不同的段落
+- 直接键盘输入多个空格, 会被解析成一个空格, 可用 `&nbsp;` 表示空格
+
+```markdown
+我是第一个段落
+我也是第一个段落（空格）
+我和上一行之间只会显示一个空格（空格）（空格）
+我和上一行之间会显示一个空行
+
+我是第二个段落
+我和第一个段落之间会显示比一个空行更高的间距
+
+# 标题自成一个段落
+
+我是第三个段落
+书写图片、列表、表格、分割线等内容时
+应使它们前后各空一行
+
+![我是一张图片](xxxxx)
+
+我是第四个段落
+```
+
+```html
+<!-- HTML 中 <br> 表示换行符; <p>段落内容</p> 表示段落 -->
+<p>我是第一个段落的第一行<br>我是第一个段落的第二行</p>
+<p>我是第二个段落&nbsp;我左边的代码表示一个空格</p>
+```
+
+## 字形
+| 效果 | Markdown | HTML |
+| :---: | :---: | :---: |
+| *斜体* | \*斜体\* | \<i\>斜体\</i\> / \<em\>斜体\</em\> |
+| **粗体** | \*\*粗体\*\* | \<b\>粗体\</b\> / \<strong\>粗体\</strong\> |
+| ***粗斜体*** | \*\*\*粗斜体\*\*\* | \<b\>\<i\>粗斜体\</i\>\</b\> |
+| <u>下划线</u> | | \<u\>下划线\</u\> / \<ins\>下划线\</ins\> |
+| <s>删除线</s> | \~~删除线~~ | \<s\>删除线\</s\> / \<del\>删除线\</del\> |
+| <mark>高亮</mark> | \=\=高亮\=\= (兼容性一般) | \<mark\>高亮\</mark\> |
+| 上脚注<sup>上脚注</sup> | 上脚注\^上脚注\^ (兼容性一般) | 上脚注<sup>\<sup\>上脚注\</sup\></sup> |
+| 下脚注<sub>下脚注</sub> | 下脚注\~下脚注\~ (兼容性一般) | 下脚注<sub>\<sub\>下脚注\</sub\></sub> |
+| &#x2B50; (`Emoji`) | 直接输入或 `:star:` | `&#x2B50;`（`2B50` 为 `Emoji` 的 `16` 进制编号） |
+
+> 在HTML语法和形如 `{% %}` 的主题功能内部, Markdown语法可能不生效, 需要使用HTML语法
+
+## 列表
+- `- 无序列表`
+  - `- 每级多一个缩进`
+    - `- 用 * + - 都可以表示`
+
+- [ ] `- [ ] 任务列表`
+- [x] `- [x] 加x是已完成`
+- [ ] `- [ ] 加空格是未完成`
+
+> `> 引用内容`
+>> `>> 每级多一个箭头`
+>>> `>>> 这是第三级`
+
+1. `1. 有序列表`
+   1. `  1. 可以有多级`
+   2. `  2. 同级缩进相同`
+2. `2. 每级多一个缩进`
+
+```html
+<!-- HTML 对应代码 -->
+<ul>
+  <li>无序列表</li>
+  <li>每个li为一项</li>
+  <li>ul 里面只能放 li</li>
+  <li>li 里面可以放任何内容</li>
+</ul>
+
+<ol>
+  <li>有序列表</li>
+  <li>每个li为一项</li>
+  <li>ol 里面只能放 li</li>
+  <li>li 里面可以放任何内容</li>
+</ol>
+
+<dl>
+  <dt>自定义列表</dt>
+    <dd>dt 是一项的标题</dd>
+    <dd>dd 是一项的内容</dd>
+  <dt>dd 的数量可以不同</dt>
+    <dd>每个 dt-dds 对为一项</dd>
+  <dt>dl 里面只能放 dt / dd</dt>
+    <dd>dt / dd 里面可以放任何内容</dd>
+</dl>
+```
+
+## 链接
+`[Github](https://github.com) "啦啦啦"` [Github](https://github.com "啦啦啦")
+
+其中"啦啦啦"是鼠标悬停时展示的内容, 选填
+
+`<https://github.com>` <https://github.com>
+
+此种方法直接显示链接内容
+
+`<a href="/">返回主页</a>` <a href="/">返回主页</a>
+
+站外链接默认新窗口打开, 要在新窗口打开站内链接可以用 `target` 属性
+
+`<a href="/" target="_blank">返回主页</a>` <a href="/" target="_blank">返回主页</a>
+
+## 图片
+![标题选填](/images/00001.png)
+
+Markdown写法为 `![标题选填](/images/00001.png)`
+
+HTML写法为 `<img src="/images/00001.png" alt="标题选填">`
+
+要给图片附加链接, 只需把图片的代码放在上述链接代码的标题部分即可
+
+## 代码
+`单行代码`: <code>\`单行代码\`</code> 或 <code>\<code\>单行代码\</code\></code>
+
+~~~markdown
+```代码类型
+多行代码
+代码类型不写则默认为普通文本
+单行和多行代码代码内部的特殊符号不会被解析
+并且会原封不动地展示换行、缩进、空格等格式
+```
+~~~
+
+> 类似于 `JavaScript` 中在字符串内使用引号的方式, 如果要像上面这样展示代码, 可以用 `~~~ ``` ``` ~~~` 这样, 用不同的符号表示代码块的开始和结束
+
+## 表格
+#### Markdown表格
+```markdown
+| 标题-左对齐 | 标题-中对齐 | 标题-右对齐 |
+| :- | :-: | -: |
+| 如果自己写 | 嫌麻烦的话 | 可以用生成工具 |
+| 记得代码的 | 第二行 | 是`-` |
+```
+
+| 标题-左对齐 | 标题-中对齐 | 标题-右对齐 |
+| :- | :-: | -: |
+| 如果自己写 | 嫌麻烦的话 | 可以用[生成工具](https://www.tablesgenerator.com/markdown_tables) |
+| 记得代码的 | 第二行 | 是`-` |
+
+#### HTML表格
+相比Markdown表格, 能更好地调整格式
+
+```html
+<table style="text-align:center;">                
+  <tr>                   
+    <th width="200">TR表示行</th>
+    <th width="400">TH表示表头单元格</th>
+    <th width="400">TD表示普通单元格</th>
+  </tr>
+  <tr>
+    <td>可以用 width 控制相对宽度</td>
+    <td>第一行的各列写上 width 即可</td>
+    <td>用 style="text-align:xxx;" 来控制对齐方式</td>
+  </tr>
+</table>
+```
+
+<table style="text-align:center;">                
+  <tr>                   
+    <th width="200">TR表示行</th>
+    <th width="400">TH表示表头单元格</th>
+    <th width="400">TD表示普通单元格</th>
+  </tr>
+  <tr>
+    <td>可以用 width 控制相对宽度</td>
+    <td>第一行的各列写上 width 即可</td>
+    <td>用 style="text-align:xxx;" 来控制对齐方式</td>
+  </tr>
+</table>
+
+> VScode中, 可以用 `table>tr*3>td*5` 快速生成 `3*5` 表格框架
+
+还可以用来进行图片排版
+
+```html
+<table>
+  <tr>
+    <td><img src = "/images/00001.png"  width = "98%"></td>
+    <td><img src = "/images/00001.png"  width = "98%"></td>
+  </tr>
+</table>
+```
+
+<table>
+<tr>
+<td><img src = "/images/00001.png"  width = "98%"></td>
+<td><img src = "/images/00001.png"  width = "98%"></td>
+</tr>
+</table>
+
+## 其他
+- 分割线为 `---`, 前后空一行再输入分割线; 也可用 `<hr>` 表示
+- 用转义字符 `\` 来避免解析 `# * - > [ (` 等特殊符号
+- `VScode` 中, 按 `Ctrl`+`Shift`+`V` 实时预览 `.md` 文件
+- `HTML` 中的 `<span></span>` 没有特定的语义, 可以用来为文档中的文字设定属性
+
+#### HTML 属性
+{% tabs 属性的tabs %}
+<!-- tab id -->
+HTML元素附加id, 如 `<span id="001"></span>`
+
+可作为超链接在其他地方引用: `[标题](#001)`
+
+Hexo会自动为标题附加id, 可以通过`[进阶写作模块](#进阶写作模块)`引用: [进阶写作模块](#进阶写作模块)
+
+如果标题重名, 第一个会被命名为`#xxxxx`, 第二个会被命名为`#xxxxx-1`, 以此类推
+<!-- endtab -->
+<!-- tab download -->
+```html
+<a href="/images/00001.png" download="下载后的文件名">
+点击下载
+<img src="/images/icon/baitie.png" alt="QAQ" style="width:auto;">
+</a>
+中间可以加图片文字等元素
+```
+
+<a href="/images/00001.png" download="下载文件的名字">
+点击下载
+<img src="/images/icon/baitie.png" alt="QAQ" style="width:auto;">
+</a>
+
+**图片作者:[TK](https://x.com/a_k_0331)**
+<!-- endtab -->
+<!-- tab style -->
+<b>CSS样式, 常用的有</b> 
+
+`color` / `background-color`: 字体颜色 / 背景颜色, 可以用 `#xxxxxx` 也可以用 `LemonChiffon` 等颜色名, 详见[HTML颜色名](https://www.w3school.com.cn/tags/html_ref_colornames.asp)
+
+`background-image`: 背景图像
+
+`opacity`: 透明效果, 范围是[0,1], 越小越透明
+
+例如, `自古<span style="color: #ff0000; opacity: 0.3">红</span><span style="color: blue;background-color: LemonChiffon">蓝</span>出CP` 的效果是: 自古<span style="color: #ff0000; opacity: 0.3">红</span><span style="color: blue;background-color: LemonChiffon">蓝</span>出CP
+<!-- endtab -->
+{% endtabs %}
+
+# 进阶
+{% note yellow %}
+**本部分内容可能仅适用于 `Hexo` 博客框架的 `Redefine` 主题**
+{% endnote %}
+
+> `Hexo` 的使用见[Hexo官方文档](https://hexo.io/zh-cn/docs/)
+
+## 文章自定义
+- **文章加密**: 利用`encrypt`插件可以对文章进行加密, 只需在`Front-matter`中添加`password: xxxxx`即可
+- **文章置顶**: 在`Front-matter`中添加`sticky: xxx`, `xxx`的数值越大, 置顶的文章越靠前
+- **首页略缩图**: 在`Front-matter`中添加`thumbnail: "/images/xxx.jpg"`
+- **文章封面**: <br>在`Front-matter`中添加`cover/banner: "/iamges/xxx.jpg"`, `cover/banner`二者选其一即可<br>如果`thumbnail`和`cover/banner`只存在一个, 则另一个也会被自动设置为存在的那个设置的图片<br>要只保留一个, 则可把另一个设置为`: false`
+- **文章时效性**: 在`Front-matter`中添加`expires: YYYY-MM-DD HH:MM:SS`, 在超过此日期后, 用户会看到文章时效性提示
+- **注入代码**: 在 `Redefine` 主题的 `_config.redefine.yml` 的 `inject` 项中设置 `head` 和 `footer`
+
+## 选项卡
+```markdown
+{% tabs 页面内唯一名称 %}
+<!-- tab 栏目1 -->
+内容1
+<!-- endtab -->
+<!-- tab 栏目2 -->
+内容2
+<!-- endtab -->
+<!-- tab 栏目3 -->
+内容3
+<!-- endtab -->
+{% endtabs %}
+唯一名称建议用中文
+```
+
+{% tabs 唯一名称 %}
+<!-- tab 栏目1 -->
+*内容1*
+<!-- endtab -->
+<!-- tab 栏目2 -->
+**内容2**
+<!-- endtab -->
+<!-- tab 栏目3 -->
+***内容3***
+<!-- endtab -->
+{% endtabs %}
+
+## 提示块
+```markdown
+{% notel red fa-info 标题 %}
+这是大号提示块
+图标选填
+注意图标只填后半部分
+{% endnotel %}
+```
+
+{% notel red fa-info 标题 %}
+这是大号提示块, 图标选填
+注意图标只填后半部分
+{% endnotel %}
+
+```markdown
+{% note red fa-info %}
+这是小号提示块, 同样图标选填
+{% endnote %}
+```
+
+{% note red fa-info %}
+这是小号提示块, 同样图标选填
+{% endnote %}
+
+## 按钮
+```markdown
+{% btn 大小::名称::URL::图标 %}
+大小和图标选填, 不同大小见下方
+```
+
+{% btn 无参数::#按钮 %}
+{% btn regular::regular::#按钮 %}
+{% btn large::large::#按钮 %}
+{% btn center::center::#按钮 %}
+{% btn center large::center large::#按钮 %}
+{% btn center regular::center regular::#按钮 %}
+
+## 折叠
+```markdown
+{% folding red::标题 %}
+折叠内容
+{% endfolding %}
+```
+
+{% folding red::标题 %}
+折叠内容
+{% endfolding %}
+
+# 其他
+## 外链视频
+以哔哩哔哩为例, 参见[**官方文档**](https://player.bilibili.com/)
+
+在哔哩哔哩电脑网页端分享按钮处获取嵌入代码
+
+```javascript
+<iframe src="//player.bilibili.com/player.html?aid=788760715&bvid=BV1dy4y1F7Cq&cid=1311060040&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+```
+
+效果是
+
+<iframe src="//player.bilibili.com/player.html?aid=788760715&bvid=BV1dy4y1F7Cq&cid=1311060040&p=1&autoplay=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+<br>
+按需修改url的问号后的部分
+
+```
+    aid/BVid: 视频的AV和BV号, 填一个即可
+    p/cid: 视频分P, 有cid则p参数不生效
+    t(单位为秒): 从视频的第几秒开始播放
+    danmaku(false/others): 关闭弹幕/默认
+    poster(1/0): 展示封面
+    autoplay(1/0): 自动播放
+    muted(1/0): 静音
+```
+
+按需修改iframe的大小
+
+```
+    style="width: 100%; height: 480px;"
+    width: 宽度
+    height: 高度
+    可以用像素也可以用百分比
+```
+
+修改后代码为
+
+```javascript
+<iframe style="width: 100%; height: 480px;" src="//player.bilibili.com/player.html?bvid=BV1dy4y1F7Cq&p=1&danmaku=false&poster=1&autoplay=0&muted=1&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+```
+
+效果是
+
+<iframe style="width: 100%; height: 480px;" src="//player.bilibili.com/player.html?bvid=BV1dy4y1F7Cq&p=1&danmaku=false&poster=1&autoplay=0&muted=1&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+
+## Git 相关
+#### Github SSH 认证
+```bash
+# 打开 Git Bash
+# 生成 SSH 密钥
+ssh-keygen -t rsa -C "邮箱地址"
+# 查看公钥
+cat ~/.ssh/id_rsa.pub
+# 复制公钥
+Git中, 复制为 Ctrl + Insert, 粘贴为 Shift + Insert
+# 添加到 Github
+Github → Settings → SSH and GPG keys → New SSH key
+# 克隆仓库
+git clone "仓库地址"
+# 提交文件
+建议用 VSCode 进行同步
+```
+
+> 不想那么麻烦可以直接用 `Github Desktop` 或者 VScode的 `GitHub Repositories` 插件
+
+#### Git 网络错误
+`windows` 中, `Git` 默认不会使用系统代理, 所以即使连接代理或者打开代理软件, `GitHub` 的远程仓库也可能会出现无法访问的现象, 此时只需让 `Git` 使用系统代理即可
+
+```bash
+# 监听端口要根据使用的代理软件而定, 这里以 v2rayN 为例
+# 配置socks5代理
+git config --global http.proxy socks5 127.0.0.1:10808
+git config --global https.proxy socks5 127.0.0.1:10808
+# 配置http代理
+git config --global http.proxy 127.0.0.1:10809
+git config --global https.proxy 127.0.0.1:10809
+# 查看代理地址
+git config --global --get http.proxy socks5
+git config --global --get https.proxy socks5
+git config --global --get http.proxy
+git config --global --get https.proxy
+# 取消代理配置
+git config --global --unset http.proxy socks5
+git config --global --unset https.proxy socks5
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```
+
+> 如果代理软件是系统级的, 如 `Cloudflare Zero Trust`, 则不需要配置代理
+
+## Cloudflare 相关
+#### Zaraz
+除了本地注入代码外, 对于使用了 `Cloudflare CDN` 的网站, 还可以使用 `Zaraz` 服务快速、易开关地注入代码
+
+![](/images/note/zaraz.png)
+
+#### 缓存问题
+当通过 `CNAME` 绑定的域名访问网站时显示错误, 而直接通过 `xxx.pages.dev` / `xxx.vercel.app` / `xxx.github.io` 访问正常时, 可能是 `Cloudflare CDN` 的缓存问题, 可以尝试 `Cloudflare Dashboard` → 网站 → 缓存 → 配置 → 清除所有内容
+
+![](/images/note/clearcache.png)
+

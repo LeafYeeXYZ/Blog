@@ -1,20 +1,26 @@
 ---
+import type { CollectionEntry } from 'astro:content'
 import BaseHead from '../components/BaseHead.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts'
----
 
-<!doctype html>
+type Props = CollectionEntry<'programming'>['data']
+
+const { title } = Astro.props
+---
 <html lang="zh-CN">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
 	<body>
 		<Header />
-		<main class="mt-16">
-			主页
-		</main>
+		<div class="w-full font-bold text-center text-4xl mt-40 mb-24">
+			{title}
+		</div>
+		<article class="markdown">
+			<slot />
+		</article>
 		<Footer />
 	</body>
 </html>

@@ -1,0 +1,9 @@
+---
+type Props = {
+  link: string
+}
+
+const { link } = Astro.props
+---
+
+<a href={link} class="btn btn-outline"><slot /></a>

@@ -1,0 +1,1910 @@
+---
+title: HTML/CSS学习笔记
+comment: true
+excerpt: false
+date: 2024-01-21 15:11:15
+categories: 笔记
+tags: [Note, HTML, CSS, Network, Coding]
+cover: "/images/cover/html.png"
+---
+**封面作者:[NOEYEBROW](https://x.com/noeyebrow313)**
+
+**请先阅读[Markdown/HTML文章写作](/2023/10/26/MarkdownHTML/), 重复内容不再赘述**
+
+# &#x2B50;HTML
+**Hyper Text Markup Language, HTML**, 超文本标记语言, 是一种用于创建网页的标准标记语言; 一个网页由它的结构、样式、行为三部分组成; 其中, `HTML` 负责结构, `CSS` 负责样式, `JavaScript` 负责行为
+
+## 基本结构
+**`HTML` 文档由一个个标签组成**
+
+- **双标签**: 由开始标签和结束标签组成, 如 `<html></html>`、`<head></head>`、`<body></body>`、`<h1></h1>` 等, 绝大多数标签都是双标签
+- **单标签**: 只有开始标签, 没有结束标签, 如 `<meta>`、`<br>`、`<img>` 等
+- **属性**: 标签可以拥有多个属性, 属性采取键值对的格式, 如 `<meta charset="UTF-8">`, 可以选择性地写
+- **注释**: 注释不会在浏览器中显示, 可以用来对代码进行解释说明, 格式为 `<!-- 注释内容 -->`
+- **内容**: 标签的内容写在开始标签和结束标签之间, 如 `<h1>我是内容</h1>`
+
+**一个 `HTML` 文档由以下几部分组成**
+
+- `<!DOCTYPE html>`: 文档类型声明标签, 告诉浏览器这个页面采取 `html5` 版本来显示页面
+- `<html></html>`: `html` 标签, 内含整个 `html` 文档的内容, 属性 `lang` 声明了文档的语言种类
+- `<head></head>`: 头标签, 内含 `html` 文档的一些信息, 如 `title`、`meta`、`link` 等
+- `<body></body>`: 身体标签, 内含 `html` 的主要内容, 如 `h1`、`p`、`img` 等
+
+**以下是一个最简单的 `HTML` 文档**
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一个最简单的 HTML 文档</title>
+</head>
+<body>
+  <h1>Hello World!</h1>
+</body>
+</html>
+```
+
+> 在 `VS Code` 中, 输入 `!`, 按下 `Tab` 键, 即可生成一个最简单的 `HTML` 文档模板
+
+#### 特殊字符
+`HTML` 中有一些字符是有特殊含义的, 如 `<`、`>`、`&` 等, 如果直接在 `HTML` 文档中使用这些字符, 可能出现错误, 可以使用以下代码替代它们
+
+|字符|代码|
+|:---:|:---:|
+|空格|`&nbsp;`|
+|`<`|`&lt;`|
+|`>`|`&gt;`|
+|`&`|`&amp;`|
+|`"`|`&quot;`|
+|`'`|`&apos;`|
+|`#`|`&num;`|
+
+## 头部标签
+### `<title></title>`
+用于定义文档的标题, 即显示于浏览器标签页的标题; 它是 `<head>` 标签中唯一的一个必须存在的标签
+
+### `<meta>`
+用于定义 `HTML` 文档的元数据, 如字符集、关键字、描述等; 它是 `<head>` 标签中最常用的标签
+
+|作用|写法|
+|:---:|:---:|
+|定义字符集|`<meta charset="UTF-8">`, 无需修改|
+|定义某类内容|`<meta name="xxx" content="xxx, xxx, xxx">`|
+
+#### 视口
+用于定义 `HTML` 文档在移动设备上的显示方式, 如宽度、缩放等
+
+- **布局视口** `Layout Viewport`: 手机浏览器默认的视口, 宽度为 `980px`, 通常会使页面元素过小
+- **视觉视口** `Visual Viewport`: 用户正在看到的网站区域的宽度（缩放后的宽度）
+- **理想视口** `Ideal Viewport`: 布局视口和视觉视口的交集, **需要通过 `meta` 标签手动设置**
+
+**<code>\<meta name="viewport" content="xxx, xxx, xxx"></code>**
+
+|`content` 属性|描述|值|
+|:---:|:---:|:---:|
+|`width`|视口宽度|如 `device-width`、`1000`|
+|`initial-scale`|初始缩放比例|如 `1.0`|
+|`minimum-scale`|最小缩放比例|如 `0.5`|
+|`maximum-scale`|最大缩放比例|如 `2.0`|
+|`user-scalable`|用户是否可以缩放|`yes` / `1`、`no` / `0`|
+
+```html
+<!-- 标准的视口设置 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+```
+
+> 移动端开发通常采取独立开发一个新网页的方式, 但也可以通过响应式布局来让同一个网页适配不同设备
+
+### `<link>`
+用于定义文档与外部资源的关系, 如引入 `CSS` 文件、`icon` 等
+
+|作用|写法|
+|:---:|:---:|
+|引入 `CSS` 文件|`<link rel="stylesheet" href="style.css">`|
+|引入 `icon`|`<link rel="icon" href="favicon.ico">`|
+|预加载文件|`<link rel="preload" href="icon/moon.svg" as="image">`|
+
+**绝对路径和相对路径**
+
+- **绝对路径**: 以 `http://`、`https://`、`//`、`/` 开头的路径<br>`//` 表示使用当前页面的协议的网址<br>`/` 表示本网站的根目录
+- **相对路径**: 以 `../`、`./` 或直接以文件或文件夹的名称开头 `相当于./` 的路径<br>`../` 表示相对于当前文件上一级的路径, 可以叠加使用, 如 `../../`、`../../../`<br>`./` 表示相对于当前文件同级的路径
+
+## 基本标签
+### 基本块级标签
+- `<h1></h1>` - `<h6></h6>`: 标题标签, `h1` 最大, `h6` 最小
+- `<p></p>`: 段落标签
+- `<div></div>`: 块级标签, 用于包裹其他标签, 没有特定的语义
+
+### `<img>`
+用于定义图片, 它是一个单标签, 没有结束标签, 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`src`|图片地址, **必要**|如 `images.jpg`、`https://www.leafyee.xyz/assets/avatar.jpg`|
+|`alt`|图片描述|图片加载失败时显示的文字|
+|`width`|图片宽度|如 `100px`、`100%` 等|
+|`height`|图片高度|如 `100px`、`100%` 等|
+|`title`|图片标题|鼠标悬停时显示的文字|
+|`border`|图片边框|如 `1px solid #000000`|
+
+### `<a></a>`
+用于定义超链接, 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`href`|链接地址, **必要**|如 `https://www.leafyee.xyz`、`/page/`、`#`<br>如果链接指向 `.exe`、`.zip` 等文件, 会下载文件<br>如果链接是 `javascript:;`, 点击后不会跳转|
+|`target`|链接打开方式|`_blank`: 新窗口打开<br>`_self`: 当前窗口打开<br>`_parent`: 父窗口打开<br>`_top`: 顶层窗口打开|
+
+### `<table></table>`
+用于定义表格, 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`align`|表格对齐|`left`: 左对齐<br>`center`: 居中对齐<br>`right`: 右对齐|
+|`border`|表格边框|`1`: 有边框<br>`0`: 无边框|
+|`cellpadding`|单元格内边距|如 `10px`、`10%`|
+|`cellspacing`|单元格间距|如 `10px`、`10%`|
+
+**完整表格示例**
+
+- `<caption>`: 定义表格的标题
+- `<colgroup>`: 定义表格一列的属性
+- `<thead>`: 定义表格的表头部分
+- `<tbody>`: 定义表格的主体部分
+- `<tfoot>`: 定义表格的表尾部分
+- `<tr>`: 定义表格的一行
+- `<th>`: 定义表格的表头单元格
+- `<td>`: 定义表格的普通单元格
+
+```html
+<table>
+  <caption>标题</caption>
+  <colgroup><!-- 定义表格一列的属性 -->
+    <col span="2" style="color: red;"><!-- 设置前两列的文字颜色为红色 -->
+    <col style="color: blue;"><!-- 设置第三列的文字颜色为蓝色 -->
+  </colgroup>
+  <thead><!-- 表头 -->
+    <tr>
+      <th>...</th>
+      ...
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>...</td>
+      ...
+    </tr>
+    ...
+  </tbody>
+  <tfoot>
+    <tr>
+      <td>...</td>
+      ...
+    </tr>
+  </tfoot>
+  <!-- 浏览器在滚动表格时, 表头和表尾始终显示 -->
+</table>
+```
+
+**合并单元格**
+
+|跨行合并|跨列合并|
+|:---:|:---:|
+|1. 找到起始单元格 `最上方`|1. 找到起始单元格 `最左侧`|
+|2. 写上 `rowspan="合并单元格的个数"`|2. 写上 `colspan="合并单元格的个数"`|
+|3. 删除多余的单元格|3. 删除多余的单元格|
+
+### `<button></button>`
+用于定义按钮,  与 `<input type="button">` 相比, 它可以包含图片、文字等内容; 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`type`|按钮类型|`button`: 普通按钮<br>`submit`: 提交按钮, 配合 `form` 使用<br>`reset`: 重置按钮, 配合 `form` 使用|
+|`name`|按钮名称|如 `login`|
+|`value`|按钮值|注意: 不是按钮的显示内容|
+|`disabled`|禁用按钮|`""` 或 `false`|
+|`onclick`|点击事件|如 `alert('你好呀')`|
+
+```html
+<button type="button" name="login">
+  点击登陆<br>
+  <img src="https://www.leafyee.xyz/assets/avatar.jpg">
+</button>
+```
+
+### `<video></video>`
+`HTML5` 新增的标签, 用于定义视频, 可以替代 `Flash`; 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`src`|视频地址, **必要**|如 `video.mp4`、`https://www.leafyee.xyz/assets/video.mp4`|
+|`controls`|显示视频控制面板|`""` 或 `false`|
+|`autoplay`|自动播放|`""` 或 `false`|
+|`loop`|循环播放|`""` 或 `false`|
+|`muted`|静音播放|`""` 或 `false`|
+|`poster`|视频封面|如 `video.jpg`|
+|`width`|视频宽度|如 `100px`、`100%`|
+|`height`|视频高度|如 `100px`、`100%`|
+
+> 属性详见 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video)
+
+```html
+<!-- 简单写法 -->
+<video src="video.mp4" autoplay loop muted width="100%" height="100%"></video>
+
+<!-- 兼容写法 -->
+<video controls autoplay loop muted width="100%" height="100%">
+  <source src="video.mp4" type="video/mp4">
+  <source src="video.webm" type="video/webm">
+  播放失败, 请升级浏览器
+  <!-- 会优先尝试播放先写的 source -->
+  <!-- 如果都播放失败, 会显示文字 -->
+</video>
+```
+
+### `<audio></audio>`
+`HTML5` 新增的标签, 用于定义音频, 可以替代 `Flash`; 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`src`|音频地址, **必要**|如 `audio.mp3`、`https://www.leafyee.xyz/assets/audio.wav`|
+|`controls`|显示音频控制面板|`""` 或 `false`|
+|`autoplay`|自动播放|`""` 或 `false`|
+|`loop`|循环播放|`""` 或 `false`|
+
+> 属性详见 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/audio)
+
+```html
+<!-- 简单写法 -->
+<audio src="audio.mp3" autoplay loop></audio>
+
+<!-- 兼容写法 -->
+<audio controls autoplay loop>
+  <source src="audio.mp3" type="audio/mp3">
+  <source src="audio.wav" type="audio/wav">
+  播放失败, 请升级浏览器
+  <!-- 会优先尝试播放先写的 source -->
+  <!-- 如果都播放失败, 会显示文字 -->
+</audio>
+```
+
+### `<iframe></iframe>`
+内联框架标签, 用于在当前页面中嵌入另一个页面, 如 `bilibili` 和 `YouTube` 的嵌入视频; 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`src`|内联框架地址, **必要**|如 `https://www.leafyee.xyz`|
+|`width`|内联框架宽度|如 `100px`、`100%`|
+|`height`|内联框架高度|如 `100px`、`100%`|
+|`scrolling`|滚动条|`yes`: 有滚动条<br>`no`: 无滚动条<br>默认为 `auto`|
+|`frameborder`|边框|`1`: 有边框<br>`0`: 无边框<br>默认为 `1`|
+|`sandbox`|限制内联框架的行为|详见下方|
+
+#### `sandbox` 属性
+用于限制内联框架的行为, 不写以下值则默认为 `false`; 它有以下值
+
+|值|描述|
+|:---:|:---:|
+|`allow-forms`|允许内联框架提交表单|
+|`allow-pointer-lock`|允许内联框架使用鼠标锁定|
+|`allow-popups`|允许内联框架弹出新窗口|
+|`allow-same-origin`|允许内联框架与父页面同源|
+|`allow-scripts`|允许内联框架运行脚本|
+|`allow-top-navigation`|允许内联框架跳转顶层页面|
+
+> 详见 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/iframe)
+
+### `<dialog></dialog>`
+`HTML5` 新增的标签, 用于定义对话框, 会强制显示在顶层（不是通过 `z-index`）, 并且会阻止用户与页面的其他部分交互; 它有以下属性; 注意: 直接对 `<dialog>` 设置 `display` 属性会将其转换为 `<div>`; 可以在内部套一层 `<div>` 来设置样式
+
+**强烈推荐, 这个元素特别好用**
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`open`|打开对话框|`""` 或 `false`, 不加时默认为 `false`|
+
+|`dialog` 元素的方法|描述|
+|:---:|:---:|
+|`element.show()`|显示对话框, 等同于 `element.open = true`|
+|`element.close()`|关闭对话框, 等同于 `element.open = false`|
+
+```html
+<dialog id="dialog">
+  <h1>标题</h1>
+  <p>内容</p>
+  <button onclick="document.querySelector('#dialog').close()">关闭对话框</button>
+</dialog>
+<button onclick="document.querySelector('#dialog').show()">打开对话框</button>
+
+<style>
+  dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+  } /* 对话框外部的背景 */
+</style>
+```
+
+> 推荐使用 `show` 和 `close` 方法, 而不是直接修改 `open` 属性
+
+### `<ruby></ruby>`
+`HTML5` 新增的标签, 用于定义注音, 即在文字上方显示拼音: <ruby> 汉 <rp>(</rp><rt>hàn</rt><rp>)</rp> 字 <rp>(</rp><rt>zì</rt><rp>)</rp></ruby>
+
+```html
+<ruby>
+  汉 <rp>(</rp><rt>hàn</rt><rp>)</rp>
+  字 <rp>(</rp><rt>zì</rt><rp>)</rp>
+</ruby>
+```
+
+### `<progress></progress>`
+`HTML5` 新增的标签, 用于定义进度条:
+
+<progress value="50" max="100"></progress>
+
+```html
+<progress value="50" max="100"></progress>
+```
+
+## 表单标签
+通过表单标签, 可以收集用户的信息; 一个完整的表单由表单域、表单元素和提示信息三部分组成
+
+### `<form></form>`
+用于定义表单域, 即包含表单元素的区域, 可以将内部表单元素的值传递给服务器; 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`action`|表单提交地址|如 `login.php`|
+|`method`|表单提交方式|`GET` 或 `POST`|
+|`name`|表单域名称|如 `loginAndRegister`|
+
+```
+# GET: 将表单元素的值拼接在 `action` 属性后面, 以 `?` 开头, 以 `&` 分隔
+
+如 login.php?userName=xiaoyezi&userPassWord=123456
+
+# POST: 将表单元素的值放在请求体中, 不会在地址栏中显示
+
+如 userName=xiaoyezi&userPassWord=123456
+```
+
+### `<input>`
+输入表单元素, 其必要的 `type` 属性决定了它的表现形式
+
+|`type`|描述|`HTML5` 新增 `type`|描述|
+|:---:|:---:|:---:|:---:|
+|`text`|文本输入框|`url`|网址输入框|
+|`password`|密码输入框|`date`|日期输入框|
+|`radio`|单选框|`time`|时间输入框|
+|`checkbox`|复选框|`month`|月份输入框|
+|`file`|文件上传|`week`|周输入框|
+|`image`|图像上传|`number`|数字输入框|
+|`hidden`|隐藏输入框|`tel`|电话号码输入框|
+|`submit`|提交按钮|`search`|搜索输入框|
+|`reset`|重置按钮|`color`|颜色输入框|
+|`button`|普通按钮 `搭配JS使用`|`email`|邮箱输入框|
+
+**除 `type` 外的其他属性**
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`name`|**表单元素名称**|如 `userName`, 单选和复选框的 `name` 属性应相同|
+|`value`|**表单元素值**|如 `xiaoyezi`, 单选和复选框的 `value` 属性应不同|
+|`checked`|默认选中|`""` 或 `false`, 单选框只能有一个默认选中|
+|`maxlength`|最大长度|如 `10`, 注意: 一个中文字符占两个长度|
+|`placeholder`|表单元素提示|如 `请输入用户名`, 显示在输入框内|
+|`readonly`|只读|`""` 或 `false`|
+|`disabled`|禁用|`""` 或 `false`|
+|`required`|必填|`""` 或 `false`|
+|`autofocus`|自动聚焦|`""` 或 `false`|
+|`autocomplete`|自动填充|`on` 或 `off`, 默认为 `on`|
+|`multiple`|多选文件提交|`""` 或 `false`, 仅 `file` 类型有效|
+
+**完整示例**
+
+```html
+<form>
+  用户名: 
+  <input type="text" name="userName" placeholder="请输入" maxlength="10" required autofocus><br>
+  密码: 
+  <input type="password" name="userPassWord" placeholder="请输入" required><br>
+  邮箱: 
+  <input type="email" name="userEmail" placeholder="请输入"><br>
+  性别: 
+  <input type="radio" name="userSex" value="男" checked>
+  男
+  <input type="radio" name="userSex" value="女">
+  女
+  <input type="radio" name="userSex" value="保密">
+  其他<br>
+  <input type="checkbox" name="userAgree" value="同意用户协议" required>
+  同意用户许可协议
+  <input type="checkbox" name="userAgree" value="同意隐私协议" required>
+  同意用户隐私协议<br>
+  <input type="submit" value="提交">
+  <input type="reset" value="重置">
+</form>
+```
+
+![](/images/note/input.png)
+
+#### `<label></label>`
+用于定义表单元素的标注, 即**点击 `label` 文字, 相当于点击表单元素**; 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`for`|绑定表单元素|如 `userName`, `for` 属性的值应与表单元素的 **`id`** 属性相同|
+
+```html
+<form>
+  <input type="checkbox" name="userAgree" id="用户协议" required>
+  <label for="用户协议">同意用户许可协议</label>
+  <label for="隐私协议">
+    同意用户隐私协议
+    <input type="checkbox" name="userAgree" id="隐私协议" required>
+  </label>
+  <br>
+  <input type="submit" value="提交">
+</form>
+```
+
+> `input` 即可以在 `label` 内, 也可以在 `label` 外, 但 `label` 内的 `input` 会优先被点击
+
+### `<select></select>`
+下拉列表表单元素, 功能类似于 `input` 的单选框; 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`name`|表单元素名称|如 `userCity`|
+|`size`|下拉列表大小|如 `5`, 默认为 `1`|
+
+#### `<option></option>`
+
+下拉列表的选项, 应至少有一个; 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`selected`|默认选中|`""` 或 `false`|
+
+```html
+<form>
+  请选择城市: <br>
+  <select name="userCity">
+    <option selected>请选择</option>
+    <option>北京</option>
+    <option>上海</option>
+    <option>广州</option>
+    <option>深圳</option>
+  </select>
+  <br><input type="submit" value="提交">
+</form>
+```
+
+![](/images/note/select.png)
+
+### `<textarea></textarea>`
+文本域表单元素, 功能类似于 `input` 的文本框, 但可以输入多行文字; 它有以下属性
+
+|属性|描述|值|
+|:---:|:---:|:---:|
+|`name`|表单元素名称|如 `userMessage`|
+|`placeholder`|表单元素提示|如 `请输入`, 显示在输入框内|
+|`cols`|文本域宽度, 单位列|如 `20`|
+|`rows`|文本域高度, 单位行|如 `3`|
+|`value.length`|文本域长度|可用于统计字数|
+
+```html
+<form>
+  请输入留言: <br>
+  <textarea name="userMessage" cols="20" rows="3" placeholder="请输入"></textarea>
+  <!-- textarea 内部可以输入默认内容 -->
+  <!-- 不同于 placeholder, 输入的内容可以被用户删除 -->
+  <br><input type="submit" value="提交">
+</form>
+```
+
+![](/images/note/textarea.png)
+
+## 语义化标签
+在以前的 `HTML` 版本中, 几乎所有的元素都是 `div`, 而 `HTML5` 中新增了很多语义化的标签, 可以更好地描述页面的结构, 便于搜索引擎抓取, 也便于开发者阅读和维护
+
+|标签|描述|
+|:---:|:---:|
+|`<header></header>`|定义文档的页眉, 通常包含网站的介绍、logo、搜索框等|
+|`<nav></nav>`|定义文档的导航栏, 通常包含网站的导航链接|
+|`<article></article>`|定义文档的独立内容, 通常包含一篇文章、一篇博客等|
+|`<section></section>`|定义文档内的一节内容, 通常包含一些相关的内容|
+|`<aside></aside>`|定义文档的侧边栏, 通常包含一些广告、推荐内容等|
+|`<footer></footer>`|定义文档的页脚, 通常包含版权信息、联系方式等|
+|`<main></main>`|定义文档的主要内容, 通常包含文档的主要内容|
+
+```html
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li>首页</li>
+        <li>关于</li>
+        <li>联系</li>
+    </nav>
+  </header>
+  <main>
+    <h1>HTML5 学习笔记</h1>
+  </main>
+  <footer>
+    <p>©2024 小叶子</p>
+  </footer>
+</body>
+```
+
+# &#x2B50;EMMET 语法
+`Emmet` 语法的前身是 `Zen Coding`, 它使用缩写来提高 `HTML` / `CSS` 的编写速度; `VScode` 内部已经集成该语法, 输入后按下 `Tab` 键即可生成对应的代码
+
+#### HTML
+|缩写|生成内容|
+|:---:|:---:|
+|`!`|一个最简单的 `HTML` 文档|
+|`div`|`<div></div>`|
+|`div>p`|`<div><p></p></div>`|
+|`div+p`|`<div></div><p></p>`|
+|`div*3`|`<div></div><div></div><div></div>`|
+|`div#title`|`<div id="title"></div>`|
+|`div.title`|`<div class="title"></div>`|
+|`#title`|`<div id="title"></div>`|
+|`.title`|`<div class="title"></div>`|
+|`.title*3`|`<div class="title"></div><div class="title"></div><div class="title"></div>`|
+|`.title$*3`|`<div class="title1"></div><div class="title2"></div><div class="title3"></div>`|
+|`a[href="https://leafyee.xyz"]`|`<a href="https://www.leafyee.xyz"></a>`|
+|`a[href="#"]{小叶子}`|`<a href="#">小叶子</a>`|
+|`div{$}*3`|`<div>1</div><div>2</div><div>3</div>`|
+
+> 可以随意组合和嵌套使用
+
+#### CSS
+|缩写|生成内容|
+|:---:|:---:|
+|`m10-20`|`margin: 10px 20px;`|
+|`p2em`|`padding: 2em;`|
+|`w100p`|`width: 100%;`|
+|`h100px`|`height: 100px;`|
+|`b1s#000`|`border: 1px solid #000;`|
+|`w100h100`|`width: 100px; height: 100px;`|
+|`tdn`|`text-decoration: none;`|
+
+> `VScode` 中, 按 `alt` + `shift` + `F` 可以快速格式化代码
+
+# &#x2B50;CSS
+**Cascading Style Sheets, CSS**, 层叠样式表, 用于定义 `HTML` 文档的样式; 它由选择器和声明组成, 其中, 选择器用于选中元素, 声明用于设置样式
+
+```css
+选择器 {
+  属性: 值;
+  属性: 值; 
+  属性: 值
+}
+/* 注释 */
+```
+
+## 引入方法
+与 `JavaScript` 类似, `CSS` 也有三种引入方法: 行内样式、内部样式和外部样式; 详见[JavaScript引入](/2024/01/17/JavaScript/#运行方法)
+
+```html
+<!-- 行内样式 -->
+<h1 style="color: red;">Hello World!</h1>
+
+<!-- 内部样式 -->
+<style>
+  h1 {
+    color: red;
+  }
+</style>
+
+<!-- 外部样式 --><!-- 放在 <head> 标签中 -->
+<link rel="stylesheet" href="style.css">
+```
+
+## 选择器
+用于选中要设置样式的元素, 以以下元素为例; 详见 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Reference#选择器)
+
+```html
+<div class="container">
+  <span class="title block" id="title">标题</span>
+  <ul class="navBar">
+    <li data-liName="1">首页</li>
+    <li data-liName="2">关于</li>
+    <li data-liName="3">联系</li>
+  </ul>
+</div>
+```
+
+**选择器的优先级**
+
+|选择器|优先级|权重|
+|:---:|:---:|:---:|
+|`!important`|1|无穷大|
+|行内样式|2|1-0-0-0|
+|`id` 选择器|3|0-1-0-0|
+|类、伪类、属性选择器|4|0-0-1-0|
+|标签、伪元素选择器|5|0-0-0-1|
+|通配符选择器、继承|6|0-0-0-0|
+
+- `!important` 的用法是 `属性: 值!important;`
+- 如果元素未设样式且无默认样式, 则会继承父元素的样式
+- 权重的比较方法是从左到右比较, 复合选择器的权重会叠加
+- 同优先级的样式, 后加载的会覆盖先加载的
+
+### 基本选择器
+
+|基本选择器|描述|示例|
+|:---:|:---:|:---:|
+|类选择器|选中 `class` 属性|`.title`|
+|`id` 选择器|选中 `id` 属性|`#title`|
+|标签选择器|选中 `HTML` 标签|`span`|
+|通配符选择器|选中所有元素|`*`|
+|后代选择器|隔一个空格, 选中后代元素|`.container .title`|
+
+### 属性选择器
+
+|属性选择器|描述|示例|
+|:---:|:---:|:---:|
+|`[属性]`|选中具有该属性的元素|`[data-liName]`|
+|`[属性="值"]`|选中具有该属性且属性值为该值的元素|`[data-liName="1"]`|
+|`[属性~="值"]`|选中具有该属性, 该属性是一个以空格分隔的列表<br>且属性值包含该值的元素|`[class~="block"]`|
+|`[属性^="值"]`|选中具有该属性且属性值以该值开头的元素|`[class^="title"]`|
+|`[属性$="值"]`|选中具有该属性且属性值以该值结尾的元素|`[class$="block"]`|
+|`[属性*="值"]`|选中具有该属性且属性值包含该值的元素|`[class*="title"]`|
+
+> 通常与其他选择器组合使用, 如 `li[data-liName="1"]`
+
+### 选择器组合
+
+|选择器组合|描述|示例|
+|:---:|:---:|:---:|
+|`A, B`|选中 `A` **和** `B` 元素|`.title, .navBar`|
+|`A B`|选中 `A` 元素的**后代** **`B`** 元素|`.container li`|
+|`A > B`|选中 `A` 元素的**子代** **`B`** 元素|`.container > .title`|
+|`A + B`|选中有同一个父元素且 `B` **紧随** `A` 后的 **`B`** 元素|`.title + .navBar`|
+|`A ~ B`|选中有同一个父元素且 `B` **位于** `A` 后的 **`B`** 元素|`.title ~ .navBar`|
+
+### 伪类选择器
+
+|伪类选择器|描述|示例|
+|:---:|:---:|:---:|
+|`:hover`|鼠标移到元素上时|`li:hover`|
+|`:root`|选中根元素, 通常是 `html`|`:root`|
+|`:has()`|选中包含指定元素的元素|`li:has(input:checked)`|
+|`:empty`|选中没有子元素的元素|`li:empty`|
+|`:link`|选中未访问过的链接|`a:link`|
+|`:visited`|选中已访问过的链接|`a:visited`|
+|`:active`|选中活动链接（鼠标按下但未弹起）|`a:active`|
+|`:focus`|选中获得焦点的元素|`input:focus`|
+|`:focus-visible`|只会在用户使用键盘导航时显示焦点|`input:focus-visible`|
+|`:checked`|选中被选中的元素, 如单选框、复选框|`input:checked`|
+|`:disabled`|选中被禁用的元素|`input:disabled`|
+|`:enabled`|选中未被禁用的元素|`input:enabled`|
+|`:required`|选中必填的元素|`input:required`|
+|`:first-child`|选中是父元素的第一个子元素的指定元素|`li:first-child`|
+|`:last-child`|选中是父元素的最后一个子元素的指定元素|`li:last-child`|
+|`:nth-child(n)`|选中**是父元素的第 `n` 个子元素**的指定元素, 从 `1` 开始|`li:nth-child(2)`|
+|`:nth-last-child(n)`|选中是父元素的倒数第 `n` 个子元素的指定元素, 从 `1` 开始|`li:nth-last-child(2)`|
+|`:first-of-type`|选中是父元素的指定类型子元素中的第一个元素的指定元素|`li:first-of-type`|
+|`:last-of-type`|选中是父元素的指定类型子元素中的最后一个元素的指定元素|`li:last-of-type`|
+|`:nth-of-type(n)`|选中**是父元素的指定类型子元素<mark>中的</mark>第 `n` 个**的指定元素, 从 `1` 开始|`li:nth-of-type(2)`|
+
+> 对于链接, 必须按照 `:link`、`:visited`、`:hover`、`:active` 这个顺序写
+
+**`n` 的取值**
+
+|`n`|描述|
+|:---:|:---:|
+|数字|选中第 `n` 个元素, 从 `1` 开始|
+|公式|以 `n` 构建公式, 从 `0` 开始|
+|`odd` 或 `2n + 1`|奇数|
+|`even` 或 `2n`|偶数|
+|`-n + x`|前 `x` 个元素|
+|`n + x`|从第 `x` 个元素开始|
+|`xn`|每 `x` 个元素|
+
+### 伪元素选择器
+
+|伪元素选择器|描述|示例|
+|:---:|:---:|:---:|
+|`::before`|在元素内部开头插入子元素, 默认为 `inline`|`div::before`|
+|`::after`|在元素内部结尾插入子元素, 默认为 `inline`|`div::after`|
+|[`::selection`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::selection)|用户选中的文本|`html::selection`|
+|`::placeholder`|表单元素的提示|`input::placeholder`|
+|[`::marker`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::marker)|列表项的标记符号|`li::marker`|
+|`::file-selector-button`|文件上传按钮|`input::file-selector-button`|
+|`::first-line`|选中元素的第一行|`p::first-line`|
+|`::first-letter`|选中元素的第一个字母|`p::first-letter`|
+
+- 必须的 `content` 属性用于设置 `::before`、`::after` 插入的内容, 如 `content: "Hi"`
+- 可以通过 `attr()` 函数获取元素的属性值, 如 `content: attr(data-liName)`
+- 可以与 `:hover` 等伪类选择器组合使用, 如 `li:hover::before`
+
+### 嵌套选择器
+`CSS Nesting`, 即在一个选择器内部再写一个选择器, 可以减少代码量, 提高可读性
+
+```css
+ul {
+  font-size: 20px;
+  & li {
+    color: red;
+  }
+  /* & 相当于父选择器 */
+  /* 在最新的标准中可以省略 */
+  /* 但留下时利于阅读且更兼容 */
+}
+
+/* 必须用 & 的情况 */
+.header {
+  &.active {
+    color: red;
+  } /* 显示正常 */
+  .active {
+    color: blue;
+  } /* 会被当成 .header .active */
+}
+
+/* & 也可以反过来用 */
+li {
+  .redul & {
+    color: red;
+  }
+  /* 相当于 .redul li */
+}
+.active {
+  .header& {
+    color: red;
+  }
+  /* 相当于 .header.active */
+}
+
+/* & 没有拼接字符串的功能 */
+.red {
+  color: blue; /* 正常 */
+  &ul {
+    color: red; /* 错误 */
+  }
+  /* 报错, 因为不能把类选择器和标签选择器紧挨在一起 */
+  /* 错误的嵌套选择器只会影响自身, 但不影响外层选择器 */
+}
+.redul { /* 正确写法 */
+  color: red; 
+}
+```
+
+## 属性
+#### 推荐书写顺序
+|顺序|属性|
+|:---:|:---:|
+|1|`display`|
+|2|`position`、`visibility`、`overflow` 等定位属性|
+|3|`top`、`margin`、`border` 等自身属性|
+|4|文本属性|
+|5|其他属性|
+
+#### 浏览器私有属性
+为了兼容老版本浏览器, `CSS` 有一些各家浏览器的私有属性; 在较新的浏览器中, 不必再写这些私有属性
+
+|私有属性|浏览器|
+|:---:|:---:|
+|`-webkit-`|`Chrome`、`Safari`|
+|`-moz-`|`Firefox`|
+|`-ms-`|`IE`|
+|`-o-`|`Opera`|
+
+> 个人开发者不用管这些; 如果要写, 建议先写私有属性如 `-webkit-border-radius`, 再写标准属性如 `border-radius`
+
+### 长度单位
+|单位|描述|
+|:---:|:---:|
+|`px`|像素, 会影响下级元素的 `em`|
+|`em`|相对于元素的 `font-size` 的倍数|
+|`rem`|相对于根元素的 `font-size` 的倍数|
+|`%`|相对于父元素的宽度或高度的百分比|
+|`vw` / `vh`|相对于视口宽度 / 高度的百分比<br>如 `100vw` 即为视口宽度|
+|`vmin` / `vmax`|相对于视口宽高度的较小 / 较大值|
+|`dvw` / `dvh`|相对于动态视口宽度 / 高度的百分比|
+|`dvmin` / `dvmax`|相对于动态视口宽高度的较小 / 较大值|
+|`fit-content`|自适应内容的宽度或高度|
+|`fit-content(x)`|自适应内容的宽度或高度, 但不超过 `x`|
+
+#### 物理像素和逻辑像素
+`CSS` 中的 `px` 是逻辑像素, 是相对单位, 会根据屏幕的 `DPI` 缩放; 例如: 
+
+- 在浏览器调试工具中, `iPhone 14 Pro Max` 的宽度为 `428px`, 而其物理像素为 `1284px`, `DPI` 为 `3`
+- `Windows` 中的 `缩放` 为 `150%` 时, `1000px` 在 `2160 x 1440` 的屏幕上显示的大小为 `1500px`, 占据了超过一半的屏幕宽度
+
+因此, 在选择图片等资源的尺寸时, 应当使其实际尺寸大于 `CSS` 中的尺寸, 以保证在高 `DPI` 屏幕上显示清晰 
+
+### 颜色单位
+|单位|描述|
+|:---:|:---:|
+|`red`|颜色名|
+|`#000000`|十六进制颜色值|
+|`rgb(0, 0, 0)`|红绿蓝颜色值, 取值范围 `0-255`|
+|`rgba(0, 0, 0, 1)`|红绿蓝透明度颜色值, 透明度范围 `0-1`|
+
+### 变量和计算
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`--变量名: 值;`|定义变量|`--color-font: #000000;`|
+|`var(--变量名)`|使用变量|`color: var(--color-font);`|
+|`calc(表达式)`|计算表达式|`width: calc(100% - 10px);`<br>运算符两侧必须有空格|
+|`min(x, y, ...)`|取最小值|`width: min(100% - 2rem, 200px);`|
+|`max(x, y, ...)`|取最大值|`width: max(100% - 2rem, 200px);`|
+
+- 可利用变量来实现两套主题的切换
+- `min` 和 `max` 内可以不用 `calc()`, 直接写表达式
+
+### 显示属性
+|`display` 属性|描述|
+|:---:|:---:|
+|`none`|隐藏元素, 元素不再占据空间|
+|`block`|块级元素, 独占一行 `宽度默认为100%`, 如 `div`、`p`; 不能放在文字类元素, 如 `span`、`hx` 内|
+|`flex`|弹性盒子, 详见[这个 `VScode` 插件](https://github.com/dzhavat/css-flexbox-cheatsheet), 介绍得比较详细|
+|`table`|表格; `table` 的默认为 `table`, `tr` 的默认为 `table-row`, `td` 的默认为 `table-cell`|
+|`inline`|行内元素, 不独占一行, 如 `span`、`a`、各种字体标签; 不能设置宽高边距等, 宽度等于内容宽度; 内部不能放块级元素|
+|`inline-block`|行内块级元素, 不独占一行, 但可以设置宽高边距等, 如 `img`、`input`|
+|`inline-flex`|行内弹性盒子|
+|`inline-table`|行内表格|
+
+- `<a>` 里不能再嵌套 `<a>`, 且 `<a>` 里一般不能再嵌套块级元素, 如需要, 可以设置 `<a>` 为块级元素
+- 通过将行高设置为块级元素的高度, 可以使单行文字在块级元素中垂直居中
+
+|`visibility` 属性|描述|
+|:---:|:---:|
+|`inherit`|继承父元素的 `visibility` 属性|
+|`visible`|默认值, 元素可见|
+|`hidden`|元素不可见, 但**仍然占据空间**|
+
+|`overflow` 属性|描述|
+|:---:|:---:|
+|`visible`|默认值, 内容不会被修剪, 会呈现在元素框之外|
+|`hidden`|内容会被修剪, 不会呈现在元素框之外, 包括通过定位移动的元素|
+|`scroll`|浏览器会始终显示滚动条, 哪怕没有内容溢出|
+|`auto`|如果内容被修剪, 则浏览器会显示滚动条以便查看其余的内容|
+
+### 字体属性
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`font-family`|字体|`font-family: "微软雅黑", "宋体", sans-serif;`, 优先使用前面的|
+|`font-size`|字体大小|`12px`、`1em`、`1rem`|
+|`font-weight`|字体粗细|`normal`、`bold`、`bolder`、`lighter`|
+|`font-style`|字体样式|`normal`、`italic`: 斜体|
+|`color`|字体颜色|`#000000`、`rgb(0, 0, 0)`、`aliceblue`|
+|`text-align`|文本水平对齐|`left`、`center`、`right`|
+|`text-decoration`|文本修饰|`none`、`underline`、`overline`、`line-through`|
+|`text-indent`|文本缩进|`10px`、`2em`|
+|`line-height`|行高|<b>`1.5`</b>、`1.5em`、`150%`, 文字高度加上下间距|
+|`text-shadow`|文字阴影|`10px 10px 10px #000000`: 水平偏移、垂直偏移、模糊半径、颜色|
+|`text-wrap`|文本换行|`normal`、`break-word`: 单词换行、`anywhere`: 任意换行、`balance`: 均匀换行|
+
+> 直接用 `font` 属性可以同时依此设置 `font: font-style font-weight font-size/line-height font-family;`, 必须按照顺序、必须保留 `font-size` 和 `font-family`
+
+### 背景属性
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`background-color`|背景颜色|`transparent`、`#000000`、`aliceblue`, 不包含 `margin` 区域|
+|`background-image`|背景图片|`none`、`url("/assets/avatar.jpg")`, 显示于背景颜色上方|
+|`background-repeat`|背景图片重复 `平铺`|`repeat`、`repeat-x`、`repeat-y`、`no-repeat`, 默认为 `repeat`|
+|`background-position`|背景图片位置|`center center`、`10px 10px`、`center 10em`, 默认为 `left top`|
+|`background-size`|背景图片大小|`cover`: 铺满并裁切多余部分、`contain`: 完整保留但尽量大、`100px 100px`|
+|`background-attachment`|背景图片是否随元素滚动|`scroll`、`fixed`, 默认为 `scroll`|
+
+> 直接用 `background` 属性可以同时设置, 无需按照顺序
+
+**`linear-gradient()` 线性渐变**
+
+```css
+background: linear-gradient(方向, 颜色1, 颜色2, ...);
+/* 毛玻璃效果 */
+background: linear-gradient(
+  to left top, 
+  rgba(255, 255, 255, 0.3), 
+  rgba(255, 255, 255, 0.7)
+);
+```
+
+|方向|描述|方向|描述|
+|:---:|:---:|:---:|:---:|
+|`to top`|从下到上|`to left`|从右到左|
+|`to bottom`|从上到下|`to right`|从左到右|
+|`to left top`|从右下到左上|`to right bottom`|从左上到右下|
+|`to left bottom`|从右上到左下|`to right top`|从左下到右上|
+|`xxxdeg`|角度, 如 `45deg`|`xxxturn`|圈数, 如 `0.5turn`|
+|`xxxrad`|弧度, 如 `0.5rad`|||
+
+{% folding red::动态渐变背景 %}
+```css
+.gradient {
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    -45deg,
+    #ffffff,
+    #ffe1e1,
+    #b7e6ff,
+    #f0ff9e,
+    #ffffff
+  );
+  background-size: 500% 500%;
+  animation: dynamicBG 20s ease infinite;
+}
+
+@keyframes dynamicBG {
+  0% { background-position: 0% 100%; }
+  25% { background-position: 50% 50%; }
+  50% { background-position: 100% 0%; }
+  75% { background-position: 50% 50%; }
+  100% { background-position: 0% 100%; }
+}
+```
+{% endfolding %}
+
+### 盒子模型属性
+![](/images/note/boxmodel.png)
+
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`width`|内容宽度, 默认不包含 `padding` 和 `border`|`10px`、`2em`、`5%`|
+|`height`|内容高度, 默认不包含 `padding` 和 `border`|`10px`、`2em`、`5%`|
+|`min/max-width/height`|最小（大）宽（高）度|`10px`、`2em`、`5%`|
+|`padding`|内边距|`10px`、`10px 20px 30px 40px`: 上右下左|
+|`border`|边框|`1px solid #000000`, 无顺序|
+|`margin`|外边距, 不在块级元素内（没有背景颜色）|`10px`、`10px 20px 30px 40px`: 上右下左|
+|`box-sizing`|盒子模型|`content-box`: 默认值、`border-box`: 宽高包含 `padding` 和 `border`|
+|`xxx-top`|`padding`、`border`、`margin` 的上边|`10px`、`2em`、`5%`|
+|`xxx-right`|`padding`、`border`、`margin` 的右边|`10px`、`2em`、`5%`|
+|`xxx-bottom`|`padding`、`border`、`margin` 的下边|`10px`、`2em`、`5%`|
+|`xxx-left`|`padding`、`border`、`margin` 的左边|`10px`、`2em`、`5%`|
+|`border-collapse`|表格单元格相邻边框合并|`collapse`、`separate`, 默认为 `separate`|
+|`border-radius`|边框圆角|`10px`、`10px 20% 3em 4rem`: 左上、右上、右下、左下|
+|`box-shadow`|盒子阴影|`10px -10px 10px 15px rgba(0, 0, 0, 0.3) inset`: 水平偏移、垂直偏移、模糊半径、阴影尺寸、颜色、内阴影: 不写为外阴影|
+|`box-sizing`|盒子模型|`content-box`: 默认值、`border-box`: 宽高包含 `padding` 和 `border`|
+
+- 有 `width` 的块级元素水平居中: `margin: 0 auto;`, 即左右外边距为 `auto`
+- 当没有设置 `width` 时, `padding` 不会撑开盒子
+- 两个嵌套的块级元素, 实际的 `margin` 为两者之间的最大值, 且两个元素并未如预期一样分开
+- 解决以上问题的方法: 父元素设置 `overflow: hidden;`、透明 `border`、绝对定位
+- 通常会用 `* { margin: 0; padding: 0; }` 来清除默认的外边距和内边距
+- 用 `border-radius` 画圆: `border-radius: 50%;`
+
+**边框的样式**
+
+|样式|描述|
+|:---:|:---:|
+|`none`|无边框|
+|`hidden`|隐藏边框|
+|`dotted`|点状边框|
+|`dashed`|虚线边框|
+|`solid`|实线边框|
+|`double`|双线边框|
+
+**隐藏块元素重复边框**
+
+```html
+<div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+
+<style>
+  div > div {
+    float: left;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #000000;
+    margin-left: -1px;
+    /* 通过负外边距隐藏重复边框 */
+  }
+  div > div:hover {
+    border-color: #ff0000;
+    position: relative;
+    z-index: 1;
+    /* 避免边框被压住 */
+  }
+</style>
+```
+
+### 浮动布局
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`float`|向某个方向浮动|`left`、`right`、`none`, 默认为 `none`|
+|`clear`|不允许自身接触浮动元素|`left`、`right`、`both`、`none`, 默认为 `none`|
+
+- 浮动布局是 `CSS` 中常用的布局方式, 它的特点是元素浮动到父元素的左边或右边, 其他元素会围绕它排列
+- 它可以使原本在标准布局中只能纵向排列的多个块级元素无缝地横向排列
+- 元素将脱离标准布局, 不再占据原本的位置, 后面的没有浮动的元素将占据其原本的位置, **但文字不会被浮动元素压住**
+- 浮动的元素不再能"撑开"父元素, 因此如果父元素没有固定高度, 需要在适当位置清除浮动, 避免后续元素重叠
+- 多个浮动的元素会顶端对齐, 装不下时会自动换行
+- 浮动后的元素会自动变成近似行内块元素, 可以设置宽高等属性
+
+**清除浮动**
+
+|方法|描述|
+|:---:|:---:|
+|额外标签法|在最后一个浮动元素后面添加一个空块元素, 设置 `clear: both;`|
+|`overflow: hidden;`|父元素设置 `overflow: hidden;`, 会自动清除浮动|
+|伪元素法|父元素设置 `::after` 伪元素, 设置 `clear: both;`、`content: "";`、`display: block;`、`height: 0;`、`visibility: hidden;`, 相当于额外标签法|
+|双伪元素法|父元素设置 `::before`、`::after` 伪元素, 设置 `content: ""; display: table; clear: both;`|
+
+**利用浮动实现文字环绕效果**
+
+```html
+<div>
+  <img src="avatar.jpg">
+  <p>这是一段文字</p>
+</div>
+
+<style>
+  div {
+    width: 200px;
+    height: 200px;
+    border: 1px solid #000000;
+  }
+  img {
+    float: left;
+    height: 200px;
+    margin-right: 10px;
+  }
+</style>
+```
+
+### 元素定位
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`position: static;`|默认值, 标准布局, 元素在文档流中|-|
+|`position: relative;`|相对定位, 设置的位置是相对于元素本来应该在的位置; 元素**依旧占据原来的位置**|`top: 10px; left: -10px;`: 往下和左移动 `10px`|
+|`position: absolute;`|绝对定位, 设置的位置是相对于最近的<b>非 `static`</b> 定位的父元素; 元素不再占据原来的位置|`top: 10px; left: 10px;`: 距离父元素顶部和左边 `10px`|
+|`position: fixed;`|固定定位, 设置的位置是相对于视口, 不随滚动条滚动; 元素不再占据原来的位置|`top: 10px; left: 10px;`: 距离视口顶部和左边 `10px`|
+|`position: sticky;`|粘性定位, 在父元素可见时为相对定位, 在父元素不可见时为固定定位; 元素**依旧占据原来的位置**|
+|`z-index`|设置元素的层叠顺序, 值越大越靠上, 默认值为 `auto` 或 `0`; 可以为负数, 只对有定位的元素生效|`z-index: 1;`|
+|`top`|元素顶部距离父元素顶部的距离|`0`、`10px`、`2em`、`5%`|
+|`right`|元素右边距离父元素右边的距离|`0`、`10px`、`2em`、`5%`|
+|`bottom`|元素底部距离父元素底部的距离|`0`、`10px`、`2em`、`5%`|
+|`left`|元素左边距离父元素左边的距离|`0`、`10px`、`2em`、`5%`|
+
+- 粘性定位可以利用 `top: 0;` 来实现滚动到顶后固定在顶部的效果
+- 固定定位可以利用 `calc(50% + 容器的一半宽度)` 来实现贴在容器边缘的效果
+- 绝对定位的元素可以利用 `calc(50% ± 自身一半的宽度)` 来实现居中效果
+- 有绝对定位或固定定位的行内元素可以直接设置宽高和边距
+- 有绝对定位或固定定位的块级元素的宽高默认是内容大小
+- 浮动元素不会压住标准布局内的文字, 但绝对定位的元素会; 因为浮动最初的作用其实是文字环绕
+
+**行内元素和行内块元素对齐**
+
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`vertical-align`|垂直对齐|`top`、<b>`middle`</b>、<b>`bottom`</b>、`baseline`|
+
+- `top`: 顶线, 字体的最上方
+- `middle`: 中线, 字体的中间; 多用于文字和图片或文本域对齐
+- `bottom`: 底线, 字体的最下方; 多用于消除块元素内图片的底部空隙 `将图片转为块元素也可`
+- `baseline`: 基线, `c`、`h` 等字母的底部; 是行内块的默认对齐方式
+- 只对行内元素和行内块元素有效
+
+**用行内块元素制作居中控件**
+
+```html
+<div class="container">
+  <button>上一页</button>
+  <a href="#">1</a>
+  <a href="#">2</a>
+  <a href="#">3</a>
+  <button>下一页</button>
+</div>
+
+<style>
+  .container {
+    text-align: center;
+    /* 让行内块元素居中 */
+  }
+  .container > * {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 50px;
+    border: 1px solid #000000;
+    /* 行内块之间默认就有间距 */
+    /* 无需再设置 margin */
+  }
+  .container > button {
+    width: 90px;
+  }
+</style>
+```
+
+### 用户界面
+#### 鼠标样式
+|`cursor` 属性|描述|
+|:---:|:---:|
+|`default`|默认值, 通常是箭头|
+|`pointer`|手指, 通常用于链接|
+|`move`|移动, 通常用于拖拽|
+|`text`|文本, 通常用于输入框|
+|`wait`|等待, 通常用于加载|
+|`help`|帮助, 通常用于提示|
+|`not-allowed`|禁止, 通常用于禁用的按钮|
+
+#### 表单的轮廓线
+|属性|描述|
+|:---:|:---:|
+|`outline`|`none`、`pink solid 1px`: 无序|
+|`outline-color`|颜色|
+|`outline-style`|样式|
+|`outline-width`|宽度|
+
+> `outline` 和 `border` 不同, 它不占用空间, 默认在 `input:focus` 时会出现
+
+#### 文本域拖拽
+|属性|描述|
+|:---:|:---:|
+|`resize`|`none`、`both`、`horizontal`、`vertical`, 默认为 `both`|
+
+> 只需设置 `<textarea style="resize: none;"></textarea>` 即可禁止拖拽
+
+#### 滚动条
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`scrollbar-color`|滚动条颜色|`#000 #fff` (滚动条颜色 滚动条背景色)|
+|`scrollbar-width`|滚动条宽度|`none`、`thin`、`auto`|
+
+### 滤镜属性
+|`filter` 属性|描述|示例|
+|:---:|:---:|:---:|
+|`blur()`|模糊|`blur(10px)`|
+|`brightness()`|亮度 `0-1`|`brightness(0.5)`|
+|`contrast()`|对比度 `0-1`|`contrast(0.5)`|
+|`grayscale()`|灰度 `0-1`|`grayscale(0.5)`|
+|`hue-rotate()`|色相旋转 `0-360deg`|`hue-rotate(180deg)`|
+|`invert()`|反色 `0-1`|`invert(0.5)`|
+|`opacity()`|透明度 `0-1`|`opacity(0.5)`|
+|`saturate()`|饱和度 `0-1`|`saturate(0.5)`|
+|`sepia()`|褐色 `0-1`|`sepia(0.5)`|
+|`drop-shadow()`|阴影 `水平偏移 垂直偏移 模糊半径 颜色`|`drop-shadow(10px 10px 10px #000000)`|
+
+- `filter` 属性可以叠加使用, 如 `filter: blur(10px) grayscale(0.5);`
+- `opacity` 属性可以独立使用, 如 `opacity: 0.5;`
+- `backdrop-filter` 属性的值同上, 对元素下方的内容生效
+- 网页默哀模式: `html { filter: grayscale(.95); }`
+
+### 过渡属性
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`transition`|过渡|`transition: width 1s ease 0.5s;`: 属性名、时间、速度曲线、延迟|
+
+|生效属性|描述|生效属性|描述|
+|:---:|:---:|:---:|:---:|
+|**`all`**|所有属性|`width`|宽度|
+|`height`|高度|`margin`|外边距|
+|`padding`|内边距|`border`|边框|
+|`background`|背景|`color`|颜色|
+|`font-size`|字体大小|`font-weight`|字体粗细|
+|`opacity`|透明度|`transform`|变换|
+|`box-shadow`|盒子阴影|`filter`|滤镜|
+|`border-radius`|边框圆角|`outline`|轮廓线|
+|`text-shadow`|文字阴影|`text-decoration`|文本修饰|
+|`text-indent`|文本缩进|...|...|
+
+|速度曲线|描述|
+|:---:|:---:|
+|`ease`|默认值, 慢速开始, 然后变快, 然后慢速结束|
+|`linear`|匀速|
+|`ease-in`|慢速开始|
+|`ease-out`|慢速结束|
+|`ease-in-out`|慢速开始和结束, 比 `ease` 程度更大|
+|`step-start`|立即跳到结束状态|
+|`step-end`|立即跳到开始状态|
+|`steps(n)`|分 `n` 步跳变|
+
+> 更复杂的速度曲线详见[MDN](https://developer.mozilla.org/zh-CN/docs/Web/CSS/transition)
+
+### 二维变换属性
+通过 `transform`, 可以在**不改变文档流**的情况下, 对元素进行变换; 对无定位的行内元素无效
+
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`transform`|变换|`transform: translate(10px, 10px) scale(1.5, 1.5);`: 平移、缩放|
+|`transform-origin`|变换中心|`transform-origin: center;`: 默认值是 `50% 50%`|
+
+|变换|描述|示例|
+|:---:|:---:|:---:|
+|`translate(x, y)`|平移|`translate(10px, 50%)`|
+|`rotate(angle)`|旋转|`rotate(45deg)`, 正值表示顺时针旋转|
+|`origin(x, y)`|旋转中心|`origin(center, 0)`, 默认值是 `50% 50%`|
+|`scale(x, y)`|缩放|`scale(1.5, 1.5)`、`scale(1.5)`|
+|`skew(x, y)`|倾斜|`skew(10deg, 10deg)`|
+
+- `transform` 属性可以叠加使用; 更多变换详见[MDN](https://developer.mozilla.org/zh-CN/docs/Web/CSS/transform)
+- `transform` 中的百分比都是相对于自身的
+- `transform` 中变换的顺序会影响最终的效果, 一般要把 `translate` 放在最前面, 因为旋转等操作会改变坐标系
+
+```html
+<div class="container">
+  <div class="box"></div>
+</div>
+<!-- 用 transform 实现水平垂直居中 -->
+<style>
+  .container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+  }
+  .box {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
+```
+
+### 三维变换属性
+以变换中心为原点, `x` 正方向为**右**, `y` 正方向为**下**, `z` 正方向为**外**
+
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`transform-style`|变换样式|`flat`: 默认值, 自身三维变换时, 子元素不会有透视效果<br>`preserve-3d`: 自身三维变换时, 子元素会有透视效果|
+|`backface-visibility`|背面可见性|`visible`: 默认值, 背面可见<br>`hidden`: 背面不可见, 下例中会用到|
+|`perspective`|透视|即眼屏距, 应写在变换元素的**父元素**上<br>为`none`: 默认值, 修改 `translateZ` 没有效果<br>不为 `0` 时, 会根据 `z` 值产生近大远小的效果|
+
+|变换|描述|示例|
+|:---:|:---:|:---:|
+|`translate3d(x, y, z)`|平移|`translate3d(10px, 10px, 10px)`|
+|`translateX(x)`|平移|`translateX(10px)`|
+|`translateY(y)`|平移|`translateY(10px)`|
+|`translateZ(z)`|平移|`translateZ(10px)`|
+|`rotate3d(x, y, z, angle)`|旋转|`rotate3d(1, 1, 1, 45deg)`|
+|`rotateX(angle)`|绕 `x` 轴旋转|`rotateX(45deg)`, 即 `rotate3d(1, 0, 0, 45deg)`|
+|`rotateY(angle)`|绕 `y` 轴旋转|`rotateY(45deg)`, 即 `rotate3d(0, 1, 0, 45deg)`|
+|`rotateZ(angle)`|绕 `z` 轴旋转|`rotateZ(45deg)`, 即 `rotate3d(0, 0, 1, 45deg)`|
+
+- `rotate3d` 中 `x`、`y`、`z` 为单位向量, 作为旋转轴
+- 判断旋转的正方向时, 采用**左手螺旋定则**
+
+{% folding red::硬币效果 %}
+```html
+<div class="container">
+  <div class="front">正面</div>
+  <div class="back">反面</div>
+</div>
+
+<style>
+  .container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    perspective: 100px;
+    transition: all 0.5s ease;
+    transform-style: preserve-3d;
+  }
+  .front, 
+  .back {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    line-height: 200px;
+    text-align: center;
+    border-radius: 50%;
+    background-color: #ffe1e1;
+    backface-visibility: hidden;
+  }
+  .back {
+    transform: rotateY(180deg);
+    z-index: -1;
+  }
+  .container:hover {
+    transform: rotateY(180deg);
+  }
+</style>
+```
+{% endfolding %}
+
+### 动画
+通过设置关键帧来控制动画的过程, 然后通过 `animation` 属性来控制动画的播放
+
+|属性|描述|示例|
+|:---:|:---:|:---:|
+|`@keyframes`|关键帧|`@keyframes move { 0% {xxx} 100% {xxx} }`|
+|`animation`|动画|下列属性按从上到下的顺序, 前两个参数必须写|
+|`animation-name`|动画名|`move`|
+|`animation-duration`|动画时间|`2s`、`0`: 默认|
+|`animation-timing-function`|速度曲线|同过渡属性, 默认为 `ease`|
+|`animation-delay`|动画延迟|`0.5s`、`0`: 默认|
+|`animation-iteration-count`|动画播放次数|`infinite`、`3`、`1`: 默认|
+|`animation-direction`|动画方向|`reverse`、`alternate`、`alternate-reverse`、`normal`: 默认|
+|`animation-fill-mode`|动画结束后和<br>`delay` 中的状态|`forwards`: 结束帧、`backwards`: 开始帧、`none`: 默认|
+|`animation-timeline`|动画时间线|`scroll()`、`view()`; **实验性属性**|
+|`animation-play-state`|动画播放状态|`paused`、`running`: 默认|
+
+```css
+/* 关键帧 */
+@keyframes move {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(100px, 100px); }
+  100% { transform: translate(0px, 100px); }
+}
+/* 动画 */
+.box {
+  width: 100px;
+  height: 100px;
+  background-color: #ffe1e1;
+  animation: move 2s ease infinite;
+}
+```
+
+### 弹性盒子布局
+`display: flex;` 可以将元素变成弹性盒子容器, 它的子元素会自动变成弹性盒子项目; 相比于传统的布局方式, 它有更多的属性可以控制布局
+
+|父元素属性|描述|示例|
+|:---:|:---:|:---:|
+|`flex-direction`|主轴方向|`row`: 默认值, 从左到右、`row-reverse`: 从右到左<br>`column`: 从上到下、`column-reverse`: 从下到上|
+|`flex-wrap`|换行|`nowrap`: 默认值, 不换行、`wrap`: 换行|
+|`flex-flow`|以上两项的简写|`row wrap`|
+|`justify-content`|主轴对齐方式|`flex-start`: 左对齐、`flex-end`: 右对齐、`center`: 居中<br>`space-between`: 两端对齐<br>`space-around`: 平分剩余空间<br>`space-evenly`: 均匀分布|
+|`align-items`|交叉轴对齐方式<br>（单行）|`normal`: 默认值、`stretch`: 拉伸、`center`: 居中<br>`flex-start`: 顶对齐、`flex-end`: 底对齐、`baseline`: 基线对齐|
+|`align-content`|交叉轴对齐方式<br>（多行）|`stretch`: 拉伸、`center`: 居中<br>`flex-start`: 顶部对齐、`flex-end`: 底部对齐<br>`space-between`: 两端对齐<br>`space-around`: 平分剩余空间|
+
+|子元素属性|描述|示例|
+|:---:|:---:|:---:|
+|`flex-grow`|项目宽度的和小于容器宽度时<br>分配剩余空间的比例|`0`: 默认值, 不分配、`1`、`2`|
+|`flex-shrink`|项目宽度的和大于容器宽度时<br>元素的缩小比例|`1`: 默认值, 等比例缩小、`0`: 不缩小|
+|`flex-basis`|元素的基础宽度<br>**优先级高于 `width` 和 `height`**|`auto`: 默认值, 由内容决定、`100px`: 固定大小|
+|`flex`|以上三项的的简写|`1 1 100px`|
+|`align-self`|交叉轴对齐方式|同上, 但是只对单个元素生效|
+|`order`|元素的排列顺序|默认值为 `0`, 可为负数, 越小越靠前|
+
+> 不为子元素设置 `width` 和 `height` 时, `flex-grow` 相当于把容器宽度按比例分配
+
+```html
+<div class="container">
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+</div>
+
+<style>
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .box {
+    width: 100px;
+    height: 100px;
+    background-color: #ffe1e1;
+  }
+</style>
+```
+
+### 网格布局
+`display: grid;` 可以将元素变成网格布局容器, 它的子元素会自动变成网格布局项目; 相比于传统的布局方式, 它有更多的属性可以控制布局
+
+> 单位 `fr` 表示内容占据的剩余空间的相对比例
+
+|父元素属性|描述|示例|
+|:---:|:---:|:---:|
+|`grid-template-columns`|列的大小|`repeat(5, 1fr)`、`auto auto`、`100px 2fr 1fr`<br>`repeat(auto-fill, minmax(100px, 1fr))`: **响应式**|
+|`grid-template-rows`|行的大小|同上|
+|`grid-template-areas`|区域的大小|`"a a b" "a a c" "d e f"`|
+|`grid-column-gap`|列的间距|`10px`|
+|`grid-row-gap`|行的间距|`10px`|
+|`grid-gap`|以上两项的简写|`10px`|
+|`justify-items`|单元格内的对齐方式|`start`、`end`、`center`、`stretch`|
+|`align-items`|单元格内的对齐方式|同上|
+|`justify-content`|主轴对齐方式|`start`、`end`、`center`、`stretch`<br>`space-between`、`space-around`|
+|`align-content`|交叉轴对齐方式|同上|
+
+|子元素属性|描述|示例|
+|:---:|:---:|:---:|
+|`grid-column`|元素占据的列|起始列 / 结束列（不含）, 如 `1 / 3`|
+|`grid-row`|元素占据的行|起始行 / 结束行（不含）, 如 `1 / 3`|
+|`grid-area`|以上两项的简写|`1 / 1 / 3 / 3`|
+
+- `grid-area` 可用于将第一个子元素放大显示（如哔哩哔哩首页）
+- 如果设置了 `grid-template-areas`, 则子元素可以通过 `grid-area: xxx;` 来设置区域
+
+## 媒体查询
+- `@media` 可以根据设备的不同特性, 来设置不同的样式
+- `@container` 可以根据容器的宽度, 来设置不同的样式
+
+```css
+@media 媒体类型 and/not (媒体特性) {
+  选择器 {
+    属性: 值;
+  }
+}
+
+@container (媒体特性) {
+  选择器 {
+    属性: 值;
+  }
+}
+```
+
+|媒体类型|描述|
+|:---:|:---:|
+|`all`|所有设备|
+|`print`|打印设备|
+|`screen`|屏幕|
+
+|媒体特性|描述|
+|:---:|:---:|
+|`width`|宽度|
+|`height`|高度|
+|`min-width`|最小宽度|
+|`max-width`|最大宽度|
+
+```css
+/* 当屏幕宽度小于 600px 时, 设置 rem 为 10px */
+@media screen and (max-width: 599px) {
+  html {
+    font-size: 10px;
+  }
+}
+/* 当屏幕宽度为 600-800px 时, 设置 rem 为 12px */
+@media screen and (min-width: 600px) and (max-width: 800px) {
+  html {
+    font-size: 12px;
+  }
+}
+/* 当屏幕宽度大于 800px 时, 设置 rem 为 14px */
+@media screen and (min-width: 801px) {
+  html {
+    font-size: 14px;
+  }
+}
+/* 根据容器宽度调整弹性盒子的排列方式 */
+@container (max-width: 600px) {
+  .container {
+    flex-direction: column;
+  }
+}
+```
+
+**通过媒体查询引入不同的样式**
+
+```html
+<link rel="stylesheet" href="style.css" media="screen and (min-width: 700px)">
+<link rel="stylesheet" href="style-mobile.css" media="screen and (max-width: 699px)">
+```
+
+**常见设备的宽度范围**
+
+|设备|宽度范围|
+|:---:|:---:|
+|手机|`(0, 767px]`|
+|平板纵向|`[768px, 1024px]`|
+|平板横向 / 一般电脑|`[1025px, 1440px]`|
+|宽屏显示器|`[1441px, ∞)`|
+
+> 进行响应式布局时, 可以通过控制元素的属性、容器排列方式（移动端纵, 电脑端横）、字体大小（修改 `rem`）、特定元素的显示与隐藏、网格的列数等来实现
+
+## 小技巧
+### 精灵图
+将多张小背景图片合并成一张大背景图片, 可以降低服务器压力, 提高加载速度; 通过 `background-position` 来显示不同的图片
+
+![](/images/note/jinglingtu.png)
+
+```css
+.icon {
+  width: 16px;
+  height: 16px;
+  background-image: url("icon.png");
+}
+.icon > .icon1 {
+  background-position: -128px -128px;
+} /* 妙蛙种子 */
+.icon > .icon2 {
+  background-position: -256px -512px;
+} /* 皮卡丘 */
+```
+
+### 字体图标
+一种将图标打包制作成字体文件的技术, 比较轻量化, 也能降低服务器压力, 可以在[IcoMoon](https://icomoon.io/app/#/select)免费生成; 通过 `font-family` 来显示不同的图标
+
+```css
+/* 在 IcoMoon 里选择图标和下载字体 */
+
+@font-face {
+  font-family: "iconfont";
+  src: url("iconfont.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.icon {
+  font-family: "iconfont";
+  font-size: xxxxx;
+  color: xxxxx;
+}
+
+/* 在 demo.html 里查看对应的符号并复制 */
+/* <span class="icon">x</span> */
+
+/* 如需追加, 本地的 selection.json 记录了现有的选择, 上传即可 */
+```
+
+> 通过伪元素 `::before` 和 `::after` 可以在元素前后插入内容, 可以用来显示字体图标
+
+### 画三角形
+利用 `border` 的特性, 可以画出三角形; 当盒子大小为零时, 边框宽度其实就是某一边的三角形的高
+
+```html
+<div class="triangle1"></div>
+<div class="triangle2"></div>
+
+<style>
+  <!-- 如果盒子没有大小, 但又有四个边框 -->
+  <!-- 则每个边框实际上都是一个指向盒子中心的三角形 -->
+  <!-- 底边为边框长度的两倍, 高是边框长度 -->
+  .triangle1 {
+    width: 0;
+    height: 0;
+    border: 50px solid transparent;
+    border-bottom-color: #000000;
+  }
+  <!-- 一边没有边框时, 那一半的长方形都会被移除 -->
+  <!-- 此时非对边的两个边框形成了不同的三角形 -->
+  <!-- 即腰为边框长度的等腰直角三角形 -->
+  .triangle2 {
+    width: 0;
+    height: 0;
+    border-top: 50px solid transparent;
+    border-left: 50px solid transparent;
+    border-right: 50px solid #000000;
+    border-bottom: none;
+  }
+  <!-- 此时再增大顶部边框的长度, 还可以画出不同的三角形 -->
+  .triangle3 {
+    width: 0;
+    height: 0;
+    border-top: 100px solid transparent;
+    border-left: 50px solid transparent;
+    border-right: 50px solid #000000;
+    border-bottom: none;
+  }
+  <!-- 通过调整四边, 能画出各种三角形 -->
+</style>
+```
+
+![](/images/note/sanjiao.png)
+
+### 溢出文字省略号
+当文字超出容器时, 可以用 `text-overflow` 来显示省略号
+
+```css
+/* 单行文字 */
+.ellipsisSingle {
+  overflow: hidden;
+  white-space: nowrap; /* 不换行 */
+  text-overflow: ellipsis; /* 省略号 */
+}
+
+/* 多行文字 */
+.ellipsisMulti {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* 兼容性设置 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* 显示行数 */
+}  
+```
+
+### 样式初始化
+各个浏览器的默认样式不同, 可以通过将这些默认样式清楚来统一样式
+
+```css
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  /* 让盒子的宽高包含内边距和边框 */
+}
+html {
+  scroll-behavior: smooth;
+  /* 滚动时平滑过渡 */
+}
+em,
+i {
+  font-style: normal;
+  /* 防止斜体 */
+}
+a {
+  text-decoration: none;
+  /* 防止下划线 */
+}
+li {
+  list-style: none;
+  /* 防止列表样式 */
+}
+img {
+  border: none;
+  vertical-align: center;
+  /* 防止图片底部空隙 */
+}
+button {
+  cursor: pointer;
+  /* 鼠标经过时显示可点击提示 */
+}
+body {
+  font-family: xxx;
+  background-color: xxx;
+}
+```
+
+> 可以把以上样式放在一个 `.css` 文件中, 然后在 `index.html` 中引入
+
+### 阅读进度条
+```html
+<nav>
+  <div class="line"></div>
+</nav>
+<article>
+  <p>...</p>
+  <p>...</p>
+  <p>...</p>
+</article>
+
+<style>
+@keyframes scroll {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+.line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 5px;
+  background-color: #fa255e;
+  animation: scroll 5s linear;
+  /* 上面的时间不重要, 以被下面的覆盖 */
+  animation-timeline: scroll();
+  /* 默认为纵向, scroll(x) 为横向 */
+}
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-color: #ffffff;
+}
+</style>
+```
+
+### 滑动轮播图
+```html
+<div class="container">
+  <div class="slide"></div>
+  <div class="slide"></div>
+  <div class="slide"></div>
+</div>
+```
+
+```css
+.container {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory; /* 滚动时吸附 */
+}
+.slide {
+  width: 200px;
+  height: 200px;
+  scroll-snap-align: center; /* 吸附的位置 */
+}
+```
+
+### 用户改变元素大小
+```css
+.resize {
+  resize: both;
+  /* none: 默认值, 不可改变大小 */
+  /* both: 可以改变宽高 */
+  /* horizontal: 可以改变宽 */
+  /* vertical: 可以改变高 */
+}
+```
+
+# &#x2B50;插件和脚本库
+## Swiper
+[Swiper](https://swiper.com.cn/) 是一款移动端 `JavaScript` 滑动插件, 可以用它来制作轮播图、图片画廊等效果, 可以[在这里](https://swiperjs.com/demos)查看演示、[在这里](https://swiperjs.com/swiper-api)查看文档
+
+{% note green %}
+**如果项目使用了打包工具 (如 `vite`), 推荐用 `npm` 安装, 方便管理和更新**
+
+```javascript
+import Swiper from 'swiper/bundle'
+import 'swiper/css/bundle'
+```
+{% endnote %}
+
+```html
+1. 引入样式表和脚本
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+2. 创建容器
+<div class="swiper">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide">Slide 1</div>
+        <div class="swiper-slide">Slide 2</div>
+        <div class="swiper-slide">Slide 3</div>
+    </div>
+    <!-- 如果需要分页器 -->
+    <div class="swiper-pagination"></div>
+    <!-- 如果需要导航按钮 -->
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+    <!-- 如果需要滚动条 -->
+    <div class="swiper-scrollbar"></div>
+</div>
+
+3. 初始化
+<script>
+  // 官方用的是 var, 这里为了统一用 const
+  const mySwiper = new Swiper ('.swiper', { // 根据容器的类名选择
+    direction: 'vertical', // 垂直切换选项
+    loop: true, // 循环模式选项
+    
+    // 如果需要分页器
+    pagination: {
+      el: '.swiper-pagination',
+    },
+    // 如果需要前进后退按钮
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    // 如果需要滚动条
+    scrollbar: {
+      el: '.swiper-scrollbar',
+    },
+  })        
+</script>
+
+4. 替换容器中的内容即可
+```
+
+## Bootstrap
+[Bootstrap](https://getbootstrap.com) 是一款前端开发框架, 可以用它来快速搭建网站, 可以[在这里](https://www.bootcss.com/docs)查看中文文档、[在这里](https://getbootstrap.com/docs)查看官方文档
+
+### 使用方法
+```html
+1. 引入样式表和脚本
+<!-- 样式 -->
+<!-- 最好放于最前, 方便覆盖 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<!-- 脚本 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 图标 --><!-- 可选 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+2. 创建布局容器
+<!-- 固定宽度并支持响应式布局 -->
+<div class="container"></div>
+<!-- 百分比宽度并支持响应式布局 -->
+<div class="container-fluid"></div>
+
+3. 按需在布局容器中添加组件、图标、插件等
+```
+
+> 在文档中, 可以查看到各种组件的使用方法, 如导航栏、按钮、表单、卡片、模态框等; **很多组件都有响应式设计**, 可以在不同设备上显示不同的样式
+
+### 栅格系统
+**Grid Systems**, 一种响应式布局, 可以用它来实现网页的自适应布局; 它是由行和列组成的, 类似于 `display: grid;`; `Bootstrap` 的栅格系统将 `.container` 划分为 `12` 列
+
+```html
+<div class="container">
+
+  <div class="row">
+    <div class="col-12">表示始终占 12 列</div>
+    <!-- 一行的总和小于 12 时, 会存在空白 -->
+    <!-- 一行的总和大于 12 时, 会换行显示 -->
+  </div>
+
+  <div class="row">
+    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12">
+      <!-- 表示在大屏（>= 1200px）时占 3 列 -->
+      <!-- 在中屏（>= 992px）时占 6 列 -->
+      <!-- 在小屏（>= 768px）时占 12 列 -->
+      <!-- 在超小屏（>= 0）时占 12 列 -->
+      <div>内容</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <div class="row">
+        <div class="col-6">嵌套的栅格系统</div>
+        <div class="col-6">嵌套的栅格系统</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-4">默认从左到右排列</div>
+    <div class="col-4 col-offset-4">向右偏移四行</div>
+    <!-- 也可以 col-lg-offset-4 等 -->
+  </div>
+
+  <div class="row">
+    <div class="col-4 order-2">我在后面（右边）</div>
+    <div class="col-4 order-1">我在前面（左边）</div>
+    <!-- 也可以 col-lg-order-1 等 -->
+  </div>
+
+  <div class="row">
+    <div class="col-4 align-self-start">顶部对齐</div>
+    <div class="col-4 align-self-center">居中对齐</div>
+    <div class="col-4 align-self-end">底部对齐</div>
+  </div>
+
+  <div class="row">
+    <div class="col-4 col-push-8">向右推 8 列</div>
+    <div class="col-8 col-pull-4">向左拉 4 列</div>
+    <!-- 也可以 col-lg-push-8 等 -->
+    <!-- 推拉不影响其他元素的位置 -->
+  </div>       
+
+</div>
+```
+
+> `row` 和 `col` 也可以不在 `.container` 中, 其宽度的实质是百分比（所以也可以单独控制宽度）
+
+### 文本类名
+|类名|描述|
+|:---:|:---:|
+|`text-center`|文本居中|
+|`text-left`|文本居左|
+|`text-right`|文本居右|
+|`text-justify`|文本两端对齐|
+|`text-nowrap`|文本不换行|
+|`text-truncate`|文本超出部分显示省略号|
+|`text-lowercase`|文本小写|
+|`text-uppercase`|文本大写|
+|`text-capitalize`|文本首字母大写|
+|`text-muted`|文本灰色|
+
+### 可见性类名
+```html
+<div class="container">
+  
+  <div class="row">
+    <div class="col-12">始终显示</div>
+    <div class="col-12 hidden-lg">大屏时隐藏</div>
+    <div class="col-12 hidden-md-down">中屏及以下时隐藏</div>
+    <div class="col-12 hidden-sm-up">小屏及以上时隐藏</div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">始终显示</div>
+    <div class="col-12 visible-lg">大屏时显示</div>
+    <div class="col-12 visible-md-down">中屏及以下时显示</div>
+    <div class="col-12 visible-sm-up">小屏及以上时显示</div>
+  </div>
+    
+</div>
+```
+
+### 其他常用类名
+|类名|描述|
+|:---:|:---:|
+|`clearfix`|清除浮动|
+
+

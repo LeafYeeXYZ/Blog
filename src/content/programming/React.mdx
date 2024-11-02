@@ -1,0 +1,2602 @@
+---
+title: React/Solid学习笔记
+comment: true
+excerpt: false
+date: 2024-03-18 20:25:46
+categories: 笔记
+tags: [Note,React,Coding,Javascript,HTML,CSS]
+cover: "/images/cover/react.jpeg"
+---
+**封面作者:[NOEYEBROW](https://x.com/noeyebrow313)**
+
+**请先阅读[JavaScript学习笔记](/2024/01/17/JavaScript/)**
+
+# &#x2B50;React
+`React` 是一个用于构建用户界面的开源 `JavaScript` 库, 由 `Facebook` 开发和维护; 使用 `pnpm create vite` 创建项目时, 可以选择 `React` 模板
+
+`React` 应用程序由一个个**组件**构成, 一个组件就是一个返回 `JSX` 元素的 `JavaScript` 函数 (为了与 `HTML` 标签区分, **必须**用大写字母开头的函数名)
+
+`JSX` 是一种 `JavaScript` 语法扩展, 可以在 `JavaScript` 中编写类似 `HTML` 的代码, 用于描述用户界面; 实际上, `JSX` 是 `React.createElement` 函数的语法糖
+
+```jsx
+// App.jsx
+export default function App() {
+  return ( // 多行 JSX 必须用括号包裹
+    <div>
+      <h1>Hello, React!</h1>
+      <Button />
+    </div>
+  )
+}
+
+function Button() {
+  return <button>Click me</button>
+}
+```
+
+- 不可以在组件内部定义组件 (会很慢且有 `bug`)
+- 由于一个组件就是一个函数, 所以按照一般 `ES Module` 的规范进行模块化即可
+- **组件函数应是纯函数**: 只负责自己的任务 (不修改函数作用域外对象), 输入相同则输出相同 (类似于数学公式)<br>**副作用**: 与渲染过程无关的操作, 如网络请求、定时器等<br>副作用通常属于事件处理函数, 因此事件处理函数不必是纯函数<br>如果一定要在渲染函数中执行副作用, 可以使用 `useEffect` 方法 (告诉 `React` 组件需要在渲染后执行某些操作)
+
+#### JSX
+- `JSX` 比 `HTML` 更严格:
+  1. **单标签必须闭合** (如 `<br />`)
+  2. **一个组件只能返回一个标签** (可以用 `<div></div>` 或 `<></>` 包裹, 其中 `<></>` 不会在 `DOM` 生成额外节点)
+  1. **使用小驼峰命名法命名属性** (如 `className`、`onClick`, 但 `data-*` 例外)
+  2. **通过 `{}` 插入 `JavaScript` 表达式** (只能在标签内文本或属性的 `={xxx}` 中使用)
+  3. 为避免与 `JavaScript` 关键字冲突, `JSX` 中的 `class` 和 `for` 属性分别用 `className` 和 `htmlFor` 代替
+- 可以使用[转换工具](https://transform.tools/html-to-jsx)将 `HTML` 转换为 `JSX`
+
+#### 渲染树和依赖树
+- **树**是表示实体之间关系的常见方式，它们经常用于建模 `UI`
+- **渲染树**表示单次渲染中 `React` 组件之间的嵌套关系
+- 使用条件渲染，渲染树可能会在不同的渲染过程中发生变化; 使用不同的属性值，组件可能会渲染不同的子组件
+- 渲染树有助于识别顶级组件和叶子组件; 顶级组件会影响其下所有组件的渲染性能，而叶子组件通常会频繁重新渲染; 识别它们有助于理解和调试渲染性能问题
+- **依赖树**表示 `React` 应用程序中的模块依赖关系
+- 构建工具使用依赖树来捆绑必要的代码以部署应用程序
+- 依赖树有助于调试大型捆绑包带来的渲染速度过慢的问题，以及发现哪些捆绑代码可以被优化
+
+| 渲染树 | 依赖树 |
+| :---: | :---: |
+| ![渲染树](/images/note/render_tree.webp) | ![依赖树](/images/note/module_dependency_tree.webp) |
+
+#### 引入现有项目
+注意, 应用的打包工具必须支持 `ES Module`, 如 `Webpack`、`Vite`、`Parcel` 等
+
+```bash
+# 安装 React
+npm install react react-dom
+```
+
+```html
+<!-- 给 React 组件一个容器 -->
+<div id="count"></div>
+```
+
+```javascript
+// 引入 React
+import { createRoot } from 'react-dom/client'
+import React, { useState } from 'react'
+// 定义组件
+function Counter() {
+  const [count, setCount] = useState(0)
+  function handleClick() setCount(count + 1)
+  return <button onClick={handleClick}>点击次数: {count}</button>
+}
+// 创建虚拟 DOM
+const root = createRoot(document.querySelector('#count'))
+// 渲染组件
+root.render(<Counter />)
+```
+
+> **虚拟 `DOM`** 是 `React` 的核心, 用于描述 `DOM` 结构, 当 `state` 发生变化时, `React` 会比较新旧 `DOM` 结构, 仅更新需要更新的部分, 以提高性能
+
+## Component
+{% notel green 本段导航 %}
+{% btn 添加数据::#添加数据 %} {% btn 条件渲染::#条件渲染 %} {% btn 列表渲染::#列表渲染 %} {% btn 响应事件::#响应事件 %} {% btn 事件冒泡::#事件冒泡 %} {% btn `<Suspense>`::#Suspense %}
+{% endnotel %}
+
+#### 添加数据
+```jsx
+const user = {name: '小叶子', age: 18, class: 'psychology'}
+const userStyle = {color: 'red', fontSize: '20px'}
+function UserInfo() {
+  return (
+    <div
+      className={user.class} // 从对象中获取属性添加类名
+      style={
+        ...userStyle, // 使用展开运算符合并样式
+        fontWeight: 'bold' // 使用驼峰命名法
+      }
+    >
+      <h2>{user.name}</h2>
+      <p>{user.age >= 18 ? '成年' : '未成年'}</p> // 使用三元运算符
+    </div>
+  )
+}
+```
+
+> 注意: 样式必须用小驼峰命名法 (`JavaScript` 的变量名不能有 `-`)
+
+#### 条件渲染
+```jsx
+function GreenButton() {
+  return <button style={{color: 'green'}}>Click me</button>
+}
+function RedButton() {
+  return <button style={{color: 'red'}}>Click me</button>
+}
+
+const user = { name: '小叶子', age: 18 }
+function Button() {
+  return (
+    <div> // 三元运算符实现条件渲染
+      {user.age >= 18 ? <GreenButton /> : ( user.age > 12 ? <RedButton /> : null )}
+    </div>
+  )
+}
+```
+
+> 组件在某些情况下可能不需要返回任何内容, 此时可以返回 `null`
+
+#### 列表渲染
+```jsx
+const list = ['apple', 'banana', 'cherry']
+// 使用 map 方法将列表转换为 JSX 元素数组
+const listItems = list.map(
+  (item, index) => <li key={index}>{item}</li>
+)
+function List() {
+  return <ul>{listItems}</ul>
+}
+```
+
+- 列表渲染时, 需要为每个子元素添加一个独一无二的 `key` 属性, 用于帮助 `React` 识别列表中的每个元素
+- 通常使用来自数据库的唯一 `id` 作为 `key` (如 `MongoDB` 的 `_id`)
+- 本地数据可以使用一个自增计数器或者 `uuid` 作为 `key`
+- **`key` 的值只需在兄弟节点中保持唯一即可**, 所以可以使用 `index` 作为 `key`
+
+#### 响应事件
+```jsx
+function Button() {
+  function handleClick() {
+    alert('Hello, React!')
+  } // 事件处理函数通常在组件内部定义
+  return <button onClick={handleClick}>Click me</button>
+}
+```
+
+#### 事件冒泡
+除 `onScroll` 外的所有事件都会冒泡, 除非使用 `event.stopPropagation()` 阻止冒泡
+
+```jsx
+function Button(props) {
+  return ( // 在回调函数中写了 event.preventDefault()
+    <button onClick={props.onClick}>
+      Click me
+    </button>
+  )
+}
+
+// 也可以不在回调函数中写 event.preventDefault()
+// 这样会比较灵活
+function Button(props) {
+  return (
+    <button onClick={e => {
+      e.preventDefault()
+      props.onClick()
+    }}>
+      Click me
+    </button>
+  )
+}
+```
+
+#### \<Suspense\> <span id='Suspense'></span>
+`<Suspense>` 组件用于在加载组件时显示一个加载指示器, 以避免显示空白页面
+
+```tsx
+import { Suspense } from 'react'
+
+<Suspense fallback={<Loading />}>
+  <SomeComponent />
+</Suspense>
+```
+
+## Props
+`props` 是组件的属性, 用于接收父组件传递的数据, 是**只读**的
+
+```jsx
+import { useState } from 'react'
+
+// 在父元素中定义 state
+function App() {
+  const [count, setCount] = useState(0)
+  function handleClick() {
+    setCount(count + 1)
+  }
+
+  return (
+    <div>
+      <Counter count={count} onClick={handleClick} />
+      <Counter count={count} onClick={handleClick} />
+    </div>
+  )
+}
+
+// 子组件接收 props
+function Counter({ count, onClick }) {
+  return (
+    <div>
+      <button onClick={onClick}>点击次数: {count}</button>
+    </div>
+  )
+}
+```
+
+- 在 `JSX` 的 `HTML` 标签中, 属性实际上也是 `props`, 如 `<img src="xxx" alt="xxx" />` 中的 `src` 和 `alt` 就是 `props` 对象的属性
+- `<Counter count={count} onClick={handleClick} />` 中的 `count` 和 `onClick` 是 `props` 对象的属性名, 并不会直接作用于子组件
+- `props` 对象是子组件函数的唯一参数 (可通过解构赋值获取内部元素)
+- `props` 也可以像函数形参那样有默认值, 如 `function Counter({ count = 0, onClick })`
+
+#### props.children
+`props.children` 是一个特殊的 `prop`, 用于接收组件的子元素
+
+```jsx
+function Card({ title, children }) {
+  return (
+    <div>
+      <h2>{title}</h2>
+      <div>{children}</div>
+    </div>
+  )
+}
+
+function Counter() {
+  const [count, setCount] = useState(0)
+  function handleClick() {
+    setCount(count + 1)
+  }
+  return <button onClick={handleClick}>点击次数: {count}</button>
+}
+
+export default function App() {
+  return (
+    <Card title="标题">
+      <Counter />
+    </Card>
+  )
+}
+```
+
+**最终渲染结果**
+
+```html
+<div>
+  <h2>标题</h2>
+  <div>
+    <!-- Counter 组件 -->
+    <button>点击次数: 0</button>
+  </div>
+</div>
+```
+
+## Hooks
+`Hook` 是特殊的函数, 只在 `React` 渲染时有效, 能让你 `Hook` 进 `React` 的特性, 如 `state`、生命周期等
+
+`Hook` 以 `use` 开头, 如 `useState`, **只能在组件或自定义 `Hook` 的顶层调用**, 不能在循环、条件语句中调用 (可以理解为在组件顶部导入 `模块`)
+
+#### 自定义 Hook
+自定义 `Hook` 是一个函数, 其名称以 `use` 开头, 函数内部可以调用其他 `Hook`, 用以复用一些逻辑, 例如下面的 `useOnlineStatus`; 自定义 `Hook` 也应当是纯函数
+
+### useState
+{% notel green 本段导航 %}
+{% btn 渲染机制::#渲染机制 %} {% btn 渲染函数::#渲染函数 %} {% btn 更新对象及 `useImmer` 库::#更新对象 %} {% btn 更新数组::#更新数组 %} {% btn 状态管理::#状态管理 %} {% btn 状态的保留和重置::#状态的保留和重置 %} {% btn `flushSync`::#flushSync %}
+{% endnotel %}
+
+`useState` 是 `React` 提供的一个内置 `Hook`, 用于定义组件的 `state`, 让组件能够保存和更新数据
+
+```jsx
+// 引入 useState
+import { useState } from 'react'
+// 定义组件
+function Counter() {
+  // 定义 state 变量
+  const [count, setCount] = useState(0)
+  // 定义事件处理函数
+  const handleClick = () => setCount(count + 1)
+  return (
+    <div>
+      // 使用 state 和 setState
+      <button onClick={handleClick}>点击次数: {count}</button>
+    </div>
+  )
+}
+```
+
+```tsx
+// 使用 TypeScript
+// 初始值非 any 类型时, 无需指定泛型类型
+const [count, setCount] = useState<number>(0)
+```
+
+- `useState` 接收一个参数, 即 `state` 的初始值
+- `useState` 返回一个数组, 第一个元素是 `state`, 第二个元素是更新 `state` 的函数
+- `state` 只能通过 `setState` 函数更新, 直接修改 `state` 不会触发重新渲染
+- 一个组件可以有多个 `state`; 每个组件的 `state` 是独立和私有的, 由 `React` 管理
+- **`state` 和 `setState` 可以作为 `props` 传递给子组件, 以实现数据共享; 这种行为称为 `状态提升`**
+
+#### 渲染机制
+组件显示到屏幕之前，其必须被 `React` 渲染; 有两种情况会导致组建的渲染: 组件的**初次渲染**和**组件或其祖先的状态 `state` 发生变化**
+
+```jsx
+// 初次渲染
+ReactDOM.createRoot(document.querySelector('#root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+) // 这是 vite 创建项目时的 main.jsx 文件
+
+// 状态发生变化
+import { useState } from 'react'
+export default function Form() {
+  // 定义 state 变量
+  const [isSent, setIsSent] = useState(false)
+  if (isSent) {
+    return <h1>Your message is on its way!</h1>
+  }
+  return (
+    <form onSubmit={e => {
+      e.preventDefault()
+      setIsSent(true)
+    }}>
+      // 点击按钮后, state 发生变化, 组件重新渲染
+      // 页面显示 "Your message is on its way!"
+      <button type="submit">Send</button>
+    </form>
+  )
+}
+```
+
+- `React.StrictMode` 是一个用于检测 `React` 应用中潜在问题的工具, 会在开发环境下检测副作用
+- 重新渲染一个组件时, `React` 会再次调用组件函数, 组件函数返回新的 `JSX` 元素, `React` 会比较新旧 `JSX` 元素, 仅更新需要更新的部分 (而不是整个元素乃至整个 `DOM`)
+- 事件处理函数执行完毕后才会触发重新渲染, 因此可以在事件处理函数中修改多个 `state` 变量, 只会触发一次重新渲染
+- `setState` 函数**不会立即更新 `state`**, 只会改变下次渲染时的 `state`, 见以下示例
+
+```jsx
+const [number, setNumber] = useState(0)
+return (
+  <>
+    <h1>{number}</h1>
+    <button onClick={() => {
+      // 此时 number 为 0
+      setNumber(number + 1)
+      // 此时 number 仍为 0, 下次渲染时 number 为 0 + 1
+      setNumber(number + 1)
+      // 此时 number 仍为 0, 下次渲染时 number 为 0 + 1
+      setNumber(number + 1)
+      // 此时 number 仍为 0, 下次渲染时 number 为 0 + 1
+      alert(number) // 0
+      setTimer(() => {
+        alert(number) // 还是 0!! number 依照调用时的值
+      }, 10000)
+    }}>+3</button>
+  </>
+) // 下次渲染时, number 为 1
+```
+
+> 总之, **一个 `state` 变量的值永远不会在一次渲染的内部改变**
+
+#### 渲染函数
+如果需要在下次渲染前, 多次更新同一个 `state`, 可以将一个函数传递给 `setState`
+
+```jsx
+const [number, setNumber] = useState(0)
+return (
+  <>
+    <h1>{number}</h1>
+    <button onClick={() => {
+      setNumber(number + 1) // 相当于 (n => number + 1)
+      // 将 number = 1 加入队列
+      setNumber(number + 1)
+      // 将 number = 1 加入队列
+      setNumber(n => n + 1)
+      // 将 number = number + 1 加入队列
+      setNumber(n => n + 1)
+      // 将 number = number + 1 加入队列
+      setNumber(n => n + 1)
+      // 将 number = number + 1 加入队列
+    }}>+3</button>
+  </>
+) // 下次渲染时, number 为 4
+```
+
+> 当渲染函数被传递给 `setState` 时, `React` 会将此函数加入队列, 以便在事件处理函数中的所有其他代码运行后进行处理; 在下一次渲染期间，`React` 会遍历队列并给你更新之后的最终 `state`
+
+#### 更新对象
+`state` 中可以保存任意类型的 `JavaScript` 值，包括对象; 但是，你不应该直接修改存放在 `React` `state` 中的对象; 相反，当你想要更新一个对象时，你需要创建一个新的对象（或者将其拷贝一份），然后将 `state` 更新为此对象
+
+简而言之, 应把 `state` 视作 `Object.freeze` 的对象, 不要直接修改 `state` 的属性, 而是同样使用 `setState` 函数给 `state` 赋新值
+
+```jsx
+const [potion, setPotion] = useState({ x: 0, y: 0 })
+
+// 错误示例
+onPointerMove={e => {
+  potion.x = e.clientX
+  potion.y = e.clientY
+}}
+
+// 正确示例
+onPointerMove={e => {
+  setPotion({ 
+    x: e.clientX,
+    y: e.clientY 
+  })
+}}
+```
+
+##### 使用展开运算符
+```jsx
+const [potion, setPotion] = useState({ x: 0, y: 0, z: 0 })
+
+updateX = x => setPotion({ ...potion, x })
+```
+
+> 注意: 展开运算符只会复制对象的第一层属性 (浅拷贝)
+
+##### 使用 Immer 库
+```bash
+pnpm add use-immer
+```
+
+```jsx
+import { useImmer } from 'use-immer'
+// 使用 useImmer 替代 useState
+
+const [potion, setPotion] = useImmer({ x: 0, y: 0, z: 0 })
+
+updateX = x => setPotion(draft => {
+  draft.x = x
+})
+```
+
+#### 更新数组
+更新数组时, 也应该创建一个新数组, 而不是直接修改原数组
+
+| 目的 | 避免使用 | 推荐使用 |
+| :---: | :---: | :---: |
+| 添加元素 | `push`, `unshift` | `concat`, `[...arr, item]` |
+| 删除元素 | `pop`, `shift`, `splice` | `filter`, `slice` |
+| 替换元素 | `splice`, `arr[i] = item` | `map` |
+| 排序 | `sort`, `reverse` | 先复制一份, 再排序 |
+
+- 如果数组中的元素是基本类型, 可以直接使用 `...` 运算符复制数组, 然后修改其中的元素
+- 如果数组中的元素是对象, 可以在 `map` 方法中使用展开运算符复制对象, 然后修改其中的属性
+- **同样, 可以使用 `useImmer` 库来更新数组**
+
+#### 状态管理
+`React` 控制 `UI` 的方式是声明式的; 不必直接操作 `DOM`, 只需声明 `UI` 在给定状态下应该是什么样子, `React` 会自动处理 `UI` 的更新
+
+以 `赛博画师小叶子` 为例, 命令式编程为 `点击生成按钮 -> 禁用按钮 -> 设置按钮文本 -> ... -> 重置按钮文本 -> 启用按钮`; 而声明式编程为 `点击生成按钮 -> 生成按钮变为加载状态 -> ... -> 生成按钮变为可点击状态`
+
+状态的改变可能是因为用户的操作, 也可能是因为网络请求、定时器等外部因素
+
+##### 使用 state 的一些原则
+- **合并关联的 `state`**: 如果你总是同时更新两个或更多的 `state` 变量，请考虑将它们合并为一个单独的 `state` 变量
+- **避免互相矛盾的 `state`**: 当 `state` 结构中存在多个相互矛盾或不一致的 `state` 时，你就可能为此会留下隐患; 应尽量避免这种情况
+- **避免冗余的 `state`**: 如果你能在渲染期间从组件的 `props` 或其现有的 `state` 变量中计算出一些信息，则不应将这些信息放入该组件的 `state` 中
+- **避免重复的 `state`**: 当同一数据在多个 `state` 变量之间或在多个嵌套对象中重复时，这会很难保持它们同步; 应尽可能减少重复
+- **避免深度嵌套的 `state`**: 深度分层的 `state` 更新起来不是很方便; 如果可能的话，最好以扁平化方式构建 `state`
+
+```jsx
+// 合并关联的 state, 错误示例
+const [x, setX] = useState(0)
+const [y, setY] = useState(0)
+const [z, setZ] = useState(0)
+// 正确示例
+const [state, setState] = useState({ x: 0, y: 0, z: 0 })
+
+// 避免互相矛盾的 state, 错误示例
+const [isSent, setIsSent] = useState(false)
+const [isError, setIsError] = useState(false)
+// 正确示例
+const [status, setStatus] = useState('sent')
+
+// 避免冗余的 state, 错误示例
+const [firstName, setFirstName] = useState('')
+const [lastName, setLastName] = useState('')
+const [fullName, setFullName] = useState('')
+// 正确示例
+const [firstName, setFirstName] = useState('')
+const [lastName, setLastName] = useState('')
+const fullName = `${firstName} ${lastName}`
+
+// 避免重复的 state, 错误示例
+const [user, setUser] = useState({ name: 'xiaoyezi', age: 18 })
+const [selectedUser, setSelectedUser] = useState({ name: 'xiaoyezi', age: 18 })
+// 正确示例
+const [user, setUser] = useState({ name: 'xiaoyezi', age: 18 })
+const [selectedUserName, setSelectedUserName] = useState('xiaoyezi')
+
+// 避免深度嵌套的 state
+// 可以使用 useImmer 库
+```
+
+#### 状态的保留和重置
+- 一个组件被卸载后, 其 `state` 会被销毁, 重新挂载时会重新初始化
+- 但在 `UI` 树中相同位置的相同组件 (但传入的属性可能不同, 如切换不同的显示状态或样式等) 会使 `state` 保留
+- 而在 `UI` 树中相同位置的不同组件 (如 `div` 和 `p`) 会使 `state` 重新初始化 (因为此时是销毁后重新挂载, 而上面是更新); 这也是为什么不要在组件内部定义组件
+- 如果在相同位置重置 `state`, 可以将组件渲染在不同的位置 (见下面的示例), 或者在 `key` 属性中传入一个随机值
+- `key` 属性是 `React` 用来识别组件的唯一标识, 当 `key` 改变时, `React` 会销毁原有组件, 并重新创建新的组件 `注意: key只需在兄弟节点中保持唯一即可`
+- 如果想在组件销毁后保留 `state`, 可以使用状态提升, 不销毁而是隐藏组件, 存入 `localStorage` 等方法
+
+```jsx
+// 渲染在同一个位置
+return (
+  <div>
+    {isPlayerA ? <Player role="A" /> : <Player role="B" />}
+  </div>
+)
+
+// 渲染在不同的位置
+return (
+  <div>
+    {isPlayerA && <Player role="A" />}
+    {isPlayerA || <Player role="B" />}
+  </div>
+)
+
+// 使用 key 属性
+return (
+  <div>
+    <Player key={isPlayerA ? 'A' : 'B'} role={isPlayerA ? 'A' : 'B'} />
+  </div>
+)
+```
+
+#### flushSync
+{% note yellow 重要提示 %}
+在异步函数 (`Promise`)、定时器、自定义事件中, `setState` 会使 `state` 立即更新, 页面立即重新渲染; `React18` 之后, 也引入了在这些情况下的 `batchedUpdates` 机制, 会在安全的情况下将多个 `setState` 合并为一个更新
+
+通常 `React` 能够正确判断是否需要合并更新 (如在 `赛博画师小叶子` 中, 提交表单后的事件处理函数内的 `setState` 不会被合并, 正如我期望的那样); 但是, 如果你需要在某些情况下立即更新 `state`, 可以使用 `flushSync` 函数
+{% endnote %}
+
+```jsx
+import { flushSync } from 'react-dom'
+
+// 在异步函数中立即更新 state
+async function fetchData() {
+  const data = await fetch('https://api.example.com/data')
+  flushSync(() => {
+    setData(data)
+  })
+}
+```
+
+> 参见[这篇文章](https://github.com/reactwg/react-18/discussions/21)
+
+### useReducer
+对于拥有许多 `state` 更新逻辑的组件来说，过于分散的事件处理程序可能会令人不知所措; 对于这种情况，可以将组件的所有 `state` 更新逻辑整合到一个外部函数中，这个函数叫作 `reducer`
+
+要将 `state` 更新逻辑整合到 `reducer` 中，可以通过以下三个步骤来实现:
+
+1. 将 `setState(value)` 函数替换为 `dispatch(action)` 函数
+  - `setState` 是告诉 `React` 要做什么, 而 `dispatch` 是告诉 `React` 用户做了什么 (即 `action`)
+  - 传递给 `dispatch` 的参数称为 `action` 对象, 通常包含一个 `type` 属性, 用于描述 `action` 的类型 
+2. 编写一个 `reducer` 函数
+  - `reducer` 函数接收两个参数: `state` (当前状态) 和 `action`, 并返回一个新的 `state` (新状态)
+  - `React` 会将 `state` 设置为 `reducer` 函数的返回值
+  - 由于 `reducer` 接受 `state` 作为参数, 所以**可以在组件外部定义 `reducer` 函数**
+  - 推荐在 `reducer` 函数中使用 `switch (action.type)` 语句, 以便根据 `action.type` 执行不同的操作
+3. 使用 `useReducer` `Hook`
+  - 例如 `const [state, dispatch] = useReducer(reducer, initialState)`
+  - 可以将 `reducer` 函数放在组件外部, 甚至是单独的文件中, 以便在多个组件之间共享
+  - `reducer` 函数也应当是纯函数, 即输入相同则输出相同, 且不包含异步请求或副作用
+
+{% note green %}
+`use-immer` 库提供了一个 `useImmerReducer` 函数, 用于在 `reducer` 函数中使用 `Immer` 库, 此时 `reducer` 函数接受 `draft, action` 两个参数, `draft` 为 `state` 的可变副本, 可以直接修改 `draft`
+{% endnote %}
+
+```jsx
+import { useReducer } from 'react'
+
+// 定义 reducer 函数
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return { count: state.count + 1 }
+    case 'decrement':
+      return { count: state.count - 1 }
+    default:
+      throw new Error()
+  }
+}
+
+// 使用 useReducer
+export default function Counter() {
+  const [state, dispatch] = useReducer(reducer, { count: 0 })
+  return (
+    <div>
+      <button onClick={() => dispatch({ type: 'decrement' })}>-</button>
+      <span>{state.count}</span>
+      <button onClick={() => dispatch({ type: 'increment' })}>+</button>
+    </div>
+  )
+}
+```
+
+### useContext
+{% notel green 本段导航 %}
+{% btn 注意事项::#注意事项 %} {% btn 与 `Reducer` 搭配使用::#与-Reducer-搭配使用 %}
+{% endnotel %}
+
+`Context` 提供了一种在组件之间共享值的方式, 而不必通过 `props` 一层层传递数据; 通过以下步骤使用 `Context`:
+
+- 首先, 在独立的文件引入 `createContext` 函数, 创建一个 `Context` 对象并导出; 例如 `export const LevelContext = createContext(1)`, 其中 `1` 为 `Context` 对象的初始值
+- 然后, 在需要共享数据的组件中, 使用 `const xxx = useContext(Context)` `Hook` 获取 `Context` 对象
+- 最后, 如果需要更新 `Context` 中的数据, 可以在父元素中使用 `<Context.Provider value={data}>{children}</Context.Provider>` 包裹子元素, 并在子元素中使用 `useContext` 获取 `Context` 对象 (此时 `Context` 对象的值为 `value` 属性的值)
+- 注意: 如果不使用 `Context.Provider` 更新 `Context` 中的数据, 则所有子孙组件中的 `Context` 对象的值都是初始值
+- 可以使用 `const level = useContext(LevelContext)` 和 `<LevelContext.Provider value={level + 1}>{children}</LevelContext.Provider>` 这样的写法实现 `Context` 逐级递增
+
+```jsx
+// LevelContext.js
+import { createContext } from 'react'
+export const LevelContext = createContext(1)
+
+// App.js
+import { Section } from './Section'
+export default function App() {
+  return (
+    <Section> // 显示当前层级: 1
+      <Section> // 显示当前层级: 2
+        <div>
+          <div>
+            <Section /> // 显示当前层级: 3
+          </div>
+        </div>
+      </Section>
+    </Section>
+  )
+}
+
+// Section.js
+import { useContext } from 'react'
+import { LevelContext } from './LevelContext'
+export function Section({ children }) {
+  const level = useContext(LevelContext)
+  return (
+    <LevelContext.Provider value={level + 1}>
+      <div>当前层级: {level}</div>
+      {children}
+    </LevelContext.Provider>
+  )
+}
+```
+
+#### 注意事项
+{% note yellow %}
+在 `React19` 之后, 无需再使用 `Context.Provider`, 直接使用 `Context` 即可
+
+```jsx
+// LevelContext.js
+import { createContext } from 'react'
+export const LevelContext = createContext(1)
+
+// App.js
+export default function App() {
+  return (
+    <>
+      <LevelContext value={1}>
+        <Section />
+      </LevelContext>
+    </>
+  )
+}
+```
+{% endnote %}
+
+- `Context` 对象的 `value` 属性可以是任何类型的值, 包括函数, 对象, 数组等
+- 不要滥用 `Context`, 而是优先在层级不多时使用 `props` 传递数据
+- `Context` 常用于定义全局主题、用户信息、路由信息等
+- 通常将 `reducer` 函数和 `Context` 对象放在同一个文件中搭配使用, 以便管理复杂的状态
+
+#### 与 Reducer 搭配使用
+将 `useReducer` 创建的 `state` 和 `dispatch` 函数放在 `Context` 中, 可以在任何组件中使用 `useContext` 获取 `state` 和 `dispatch` 函数, 以实现全局状态管理
+
+```jsx
+// CounterContext.js
+import { createContext, useReducer } from 'react'
+const [count, dispatch] = useReducer(reducer, 0)
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return state + 1
+    case 'decrement':
+      return state - 1
+    default:
+      throw new Error()
+  }
+}
+const CounterContext = createContext({ count, dispatch })
+
+// App.js
+export default function App() {
+  return (
+    <>
+      <Counter />
+      <Counter />
+    </>    
+  )
+}
+
+// Counter.js
+import { useContext } from 'react'
+import { CounterContext } from './CounterContext'
+export default function Counter() {
+  const { count, dispatch } = useContext(CounterContext)
+  return (
+    <div>
+      <button onClick={() => dispatch({ type: 'decrement' })}>-</button>
+      <span>{count}</span>
+      <button onClick={() => dispatch({ type: 'increment' })}>+</button>
+    </div>
+  )
+}
+```
+
+### useRef
+{% notel green 本段导航 %}
+{% btn 获取 `DOM` 元素::#使用-ref-获取-DOM-元素 %} {% btn 将 `ref` 传递给子组件::#将-ref-传递给子组件 %} {% btn `useImperativeHandle`::#useImperativeHandle %} {% btn `ref` 清理函数::#ref-清理函数 %}
+{% endnotel %}
+
+当希望在 `React` 组件中保存一个可变值, 但不希望因为值的改变而触发重新渲染时, 可以使用 `useRef`
+
+`ref` 是一种脱围机制, 应当只在需要 `跳出React` 的情况下使用; 应当避免通过 `ref` 更改由 `React` 管理的 `DOM` 元素, 除非该元素不会被更新
+
+```jsx
+import { useRef } from 'react'
+
+export default function Counter() {
+  // 创建 ref
+  const ref = useRef(0)
+  // 使用 ref
+  function handleClick() {
+    ref.current += 1
+    alert('你点击了 ' + ref.current + ' 次！')
+  }
+  // 渲染
+  return (
+    <button onClick={handleClick}>
+      点击我！
+    </button>
+  )
+}
+```
+
+```tsx
+// 使用 TypeScript
+const ref = useRef<HTMLDivElement>(null)
+```
+
+- `useRef` 返回一个可变的 `ref` 对象, 其 `current` 属性被初始化为传入的参数 (如果没有传入参数, 则为 `undefined`)
+- `ref.current` 属性可以保存任何值, 并且不会触发重新渲染, 可以用来保存计时器 `ID`、`DOM` 元素引用、不需要被用来计算 `JSX` 的值等
+- **不应在渲染时修改或使用 `ref.current` 的值**: 上面的例子中, 如果不是 `alert` 弹窗, 而是直接在 `DOM` 中显示点击次数, 则次数会随着点击次数的增加而增加, 但文本不会更新
+- 可以将 `ref` 视为没有 `setState` 的 `state`
+
+#### 使用 ref 获取 DOM 元素
+当将 `ref` 对象设置为 `JSX` 元素的 `ref` 属性时, `ref.current` 属性将引用该 `DOM` 元素; 而且, 当 `DOM` 元素被卸载时, `ref.current` 属性将被设置为 `null`
+
+```jsx
+import { useRef } from 'react'
+
+export default function App() {
+  // 为 input 元素创建 ref
+  const inputRef = useRef(null)
+  // 点击按钮时聚焦 input 元素
+  function focusInput() {
+    inputRef.current.focus()
+  }
+  // 渲染
+  return (
+    <div>
+      <input ref={inputRef} />
+      <button onClick={focusInput}>Focus</button>
+    </div>
+  )
+}
+```
+
+> 如果需要给不定量的 `DOM` 元素添加 `ref`, 可已不将元素本身作为 `ref` 的值, 而是将一个数组或 `Map` 作为 `ref` 的值
+
+#### 将 ref 传递给子组件
+`React` 默认不允许将 `ref` 属性传递给子组件 (如 `<Cover />`), 以使代码更健壮; 想要将自己的 `DOM` 节点暴露的组件必须用另一种方式来定义: `forwardRef()`
+
+{% note yellow %}
+在 `React19` 及之后的版本中, `ref` 可以直接作为 `props` 传递给子组件, 不再需要 `forwardRef` 函数
+
+```jsx
+// 父组件
+export default function App() {
+  const childRef = useRef(null)
+  return <Child ref={childRef} />
+}
+
+// 子组件
+export default function Child(props) {
+  return <input ref={props.ref} />
+}
+```
+{% endnote %}
+
+```jsx
+import { forwardRef, useRef } from 'react'
+
+// 子组件
+const Child = forwardRef((props, ref) => {
+  return <input ref={ref} />
+})
+
+// 父组件
+export default function App() {
+  // 创建 ref
+  const childRef = useRef(null)
+  // 聚焦 Child 组件
+  function focusInput() {
+    childRef.current.focus()
+  }
+  // 渲染, 将 ref 传递给子组件
+  return (
+    <div>
+      <Child ref={childRef} />
+      <button onClick={focusInput}>Focus</button>
+    </div>
+  )
+}
+```
+
+#### useImperativeHandle
+`useImperativeHandle` 可以让你在使用 `ref` 时只将需要暴露给父组件的实例值暴露出去
+
+```jsx
+import { forwardRef, useImperativeHandle, useRef } from 'react'
+
+// 子组件
+const Child = forwardRef((props, ref) => {
+  // 创建自己的 ref
+  const inputRef = useRef(null)
+  // 通过 useImperativeHandle
+  // 只将 inputRef 的 focus 方法暴露给父组件 ref
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current.focus()
+    }
+  }))
+  // 使用自己的 ref 绑定 input 元素
+  return <input ref={inputRef} />
+})
+
+// 父组件同上
+```
+
+#### ref 清理函数
+`React19` 之后, 给元素添加 `ref` 属性时, 可以返回一个清理函数, 用于在元素被卸载时执行清理操作
+
+```jsx
+<div ref={divRef => {
+  // 元素被挂载时执行
+  console.log('挂载')
+  return () => {
+    // 元素被卸载时执行
+    console.log('卸载')
+  }
+}} />
+// 在开发环境中, 将打印: 挂载, 卸载, 挂载
+```
+
+### useEffect
+{% notel green 本段导航 %}
+{% btn 移除不必要的 `Effect`::#移除不必要的-Effect %} {% btn `Effect` 的生命周期::#Effect-的生命周期 %} {% btn `useEffectEvent`::#useEffectEvent %}
+{% endnotel %}
+
+`Effect` 允许组件连接到**外部系统**并与之同步; 这包括处理网络、浏览器、`DOM`、动画、使用不同 `UI` 库 (如 `Vue`) 编写的小部件以及其他非 `React` 代码
+
+- `useEffect` 用于由渲染本身, 而非用户点击等事件, 触发的副作用的操作; 它接收两个参数: `(setup[, dependencies[]])`
+- `setup` 函数在必要时应返回一个 `清理函数`, 用于清理副作用; 在组件渲染后, `React` 会调用 `setup` 函数 (如 `连接`), 并在组件卸载或更新时调用 `清理函数` (如 `断开连接`)
+- 清理函数一般是断开连接、移除事件监听器、重置动画; 不管指不指定清理函数, **在开发环境中** `useEffect` 都会运行两次 (这个问题是**正常的**, 是为了检测副作用是否正确清理)
+- `dependencies` 数组用于指定 `setup` 函数的依赖项, **只有当依赖项发生变化时**, `setup` 函数才会重新执行
+- 依赖项可以是 `state` 变量、`props`、`context` 等任意渲染时可能改变的值; **不传入** `dependencies` 数组, 则 `setup` 函数在每次渲染时都会执行; **传入 `[]`**, 则 `setup` 函数只会在组件挂载时执行 (而 `清理函数` 只会在组件卸载时执行)
+- **自己**的 `ref`、`setState` 函数等**稳定的标识符**不需要放入 `dependencies` 数组中 (因为它们在每次渲染时都是相同的, 永远不会使 `setup` 函数执行)
+
+```jsx
+// 根据屏幕宽度随时更新 swiper 的 slidesPerView
+const [slidesPerView, setSlidesPerView] = useState(3)
+// 使用 useEffect
+useEffect(() => {
+  // 事件处理函数
+  function updateSlidesPerView() {
+    if (window.innerWidth < 1000) {
+      setSlidesPerView(1)
+    } else if (window.innerWidth < 1500) {
+      setSlidesPerView(2)
+    } else {
+      setSlidesPerView(3)
+    }
+  }
+  // 初始化
+  updateSlidesPerView()
+  // 监听 resize 事件
+  window.addEventListener('resize', updateSlidesPerView)
+  // 清理
+  return () => {
+    window.removeEventListener('resize', updateSlidesPerView)
+  }
+}, [])
+```
+
+#### 移除不必要的 Effect
+- `useEffect` 通常只应用于与**外部系统**交互, 例如这段代码会陷入死循环: `useEffect(() => setCount(count + 1))`
+- 如果使用了 `Next.js` 等框架, 推荐使用这些框架提供的数据获取机制取代 `useEffect`
+- 某些逻辑如果只需要在应用启动时执行一次, 可以将他们放于组件外部, 而不是使用 `useEffect` (**顶层代码会在组件被导入时执行一次**, 但也不要滥用这种方式)
+- 一些**昂贵**的计算, 可以使用 `useMemo` `Hook` 缓存计算结果, 而不是在 `useEffect` 中计算
+- 如果想要在 `props` 变化时重置 `state`, 不要用 `useEffect(() => setState(''), [props])` 这样的写法, 而是使用组件的 `key` 属性
+- **能放进事件处理函数的逻辑, 尽量不要放在 `useEffect` 中** (灵活使用状态提升、`Context` 等)
+- 如果需要订阅外部 `state` 变化, 可以使用 `useSyncExternalStore` `Hook`, 而不是在 `useEffect` 中订阅
+- 在使用 `useEffect` 异步获取数据时, 可能出现数据竞争问题, 除了使用 `Next.js` 等框架提供的数据获取机制, 还可以使用以下自定义 `Hook`
+
+> 未来版本的 `React` 会提供更好的数据获取机制, 以解决数据竞争问题
+
+```jsx
+function SearchResults({ query }) {
+  const [page, setPage] = useState(1)
+  const params = new URLSearchParams({ query, page })
+  const results = useData(`/api/search?${params}`)
+
+  function handleNextPageClick() {
+    setPage(page + 1)
+  }
+  // ...
+}
+
+function useData(url) {
+  const [data, setData] = useState(null)
+  useEffect(() => {
+    let ignore = false
+    fetch(url)
+      .then(response => response.json())
+      .then(json => {
+        if (!ignore) {
+          setData(json)
+        }
+      })
+    // 返回一个清理函数
+    // 忽略较早返回的异步请求
+    // 只有最新的请求才会更新数据
+    return () => {
+      ignore = true
+    }
+  }, [url])
+  return data
+}
+```
+
+#### Effect 的生命周期
+- 组件的生命周期有三个阶段: 挂载、更新、卸载
+- 而 `useEffect` 的生命周期有两个阶段: 开始同步 (主体代码) 和停止同步 (清理代码)
+- `Effect` 的生命周期与组件的生命周期不完全对应, 同步和停止同步都可能在组件的一个渲染周期内多次执行 (如果 `dependencies` 发生变化, 且该变化不会引起组件重新渲染)
+- **不**通过 `useSyncExternalStore` 获取的全局变量、`ref.current` 不能放入 `dependencies` 数组中, 因为它们打破了**组件应是纯函数**的原则; 配置了 `eslint` 时, 会有警告
+- `dependencies` 必须包含**所有** `useEffect` 中使用的**响应式值**, `eslint` 会检测并给出警告, 此时应添加所有依赖项或**向 `eslint` 证明其不需要这个依赖项** (即该变量是非响应式的), 如在组件外部定义该变量或函数
+- 一个 `useEffect` 应当只做一件事, 如果需要做多件事, 应当拆分成多个 `useEffect`, 从而使依赖项更加清晰和避免交叉干扰
+
+#### useEffectEvent
+{% note yellow %}
+`useEffectEvent` 是一个尚未在稳定版发布的实验性 `Hook`
+{% endnote %}
+
+如果在 `useEffect` 中同时包含一些响应式事件和非响应式事件, 那可能导致发生非响应式事件时, 由于 `dependencies` 的变化, 而不必要地触发一些行为
+
+`useEffectEvent` 可以将事件处理函数提取到一个单独的 `Hook` 中, 以便在 `useEffect` 中使用
+
+- 待 `useEffectEvent` 完全稳定后, 推荐**永远不要禁用 `eslint` 的提示**
+- 永远只应在 `useEffect` 中使用 `useEffectEvent`, 永远不要把 `useEffectEvent` 传递给其他 `Hook` 或组件
+- 通常在 `useEffect` 旁边定义 `useEffectEvent`
+- 为什么要用 `useEffectEvent`: 它是**非响应式的**, 只有在事件发生时才会执行, 例如, 如果从父组件传递的 `props` 中获取了一个处理函数, 但不想把它放入 `dependencies` 数组中, 可以使用 `useEffectEvent` (此时这个传入的处理函数可以变化, 但不会触发 `useEffect` 重新执行)
+
+```jsx
+// 错误示例
+function ChatRoom({ roomId, theme }) {
+  useEffect(() => {
+    const connection = createConnection(serverUrl, roomId)
+    connection.on('connected', () => {
+      showNotification('Connected!', theme)
+    })
+    connection.connect()
+    return () => connection.disconnect()
+  }, [roomId, theme]) // ❌ 切换主题时会重新连接
+
+  return <h1>Welcome to the {roomId} room!</h1>
+}
+
+// 正确示例
+function ChatRoom({ roomId, theme }) {
+  // 声明 onConnected 事件
+  const onConnected = useEffectEvent(() => {
+    showNotification('Connected!', theme)
+  })
+  // 使用 useEffectEvent
+  useEffect(() => {
+    const connection = createConnection(serverUrl, roomId)
+    connection.on('connected', () => {
+      onConnected()
+    })
+    connection.connect()
+    return () => connection.disconnect()
+  }, [roomId]) // ✅ 只有 roomId 变化时会重新连接
+  
+  return <h1>Welcome to the {roomId} room!</h1>
+}
+```
+
+```jsx
+// 错误示例
+function Page({ url }) {
+  const { items } = useContext(ShoppingCartContext);
+  const numberOfItems = items.length;
+
+  useEffect(() => {
+    logVisit(url, numberOfItems);
+  }, [url]); // 🔴 React Hook useEffect 缺少依赖项: ‘numberOfItems’
+  // ...
+}
+
+// 正确示例
+function Page({ url }) {
+  const { items } = useContext(ShoppingCartContext);
+  const numberOfItems = items.length;
+
+  const onVisit = useEffectEvent(visitedUrl => {
+    logVisit(visitedUrl, numberOfItems);
+  });
+
+  useEffect(() => {
+    onVisit(url);
+  }, [url]); // ✅ 声明所有依赖项
+  // ...
+}
+```
+
+### useMemo
+`useMemo(calculateValue, dependencies)` 用于缓存计算结果, 只有当 `dependencies` 数组中的值发生变化时, 才会重新计算
+
+- `calculateValue` 应当是没有任何参数和副作用的纯函数, `React` 会将其返回值缓存起来, 并在 `dependencies` 数组中的值发生变化时重新计算
+- `dependencies` 数组可以是 `state` 变量、`props`、`context` 等
+- 类似于 `useEffect`, 在开发环境中, `useMemo` 也会运行两次, 从而帮助开发者检测潜在的错误
+- 除非有特定原因, `React` **不会丢弃缓存的值**
+- 第一次渲染时, `useMemo` 会计算并缓存值, 然后将其返回; 之后的渲染, `useMemo` 会比较 `dependencies` 数组中的值是否发生变化, 如果没有变化, 则直接返回缓存的值
+- 可以用 `console.time('xxxA'); xxxxxxx; console.timeEnd('xxxA')` 来测试一个操作的耗时, 从而决定是否使用 `useMemo`
+
+```jsx
+import { useMemo, useState } from 'react'
+
+export default function App() {
+  const [number, setNumber] = useState(1000000)
+  const sum = useMemo(() => {
+    let result = 0
+    for (let i = 1; i <= number; i++) {
+      result += i
+    }
+    return result
+  }, [number])
+  return (
+    <>
+      <input value={number} onChange={e => setNumber(e.target.value)} />
+      <div>1 + 2 + ... + {number} = {sum}</div>
+    </>
+  )
+}
+```
+
+### useSyncExternalStore
+`useSyncExternalStore(subscribe, getSnapshot[, getServerSnapshot])` 用于订阅外部 `state` 变化, 并在组件卸载时取消订阅
+
+- `store`: 一个外部的可以改变的 `state`
+- `subscribe`：一个函数，接收一个单独的 `callback` 参数并把它订阅到 `store` 上; 当 `store` 发生改变，它应当调用被提供的 `callback`; 这会导致组件重新渲染; `subscribe` 函数会返回清除订阅的函数
+- `getSnapshot`：一个函数，返回组件需要的 `store` 中的数据快照; 在 `store` 不变的情况下，重复调用 `getSnapshot` 必须返回同一个值; 如果 `store` 改变，并且返回值也不同了（用 `Object.is` 比较），`React` 就会重新渲染组件
+- `getServerSnapshot`：可选, 一个函数，返回 `store` 中数据的初始快照; 它只会在**服务端渲染**时，以及在客户端进行服务端渲染内容的 `hydration` 时被用到; 快照在服务端与客户端之间必须相同，它通常是从服务端序列化并传到客户端的; 如果你忽略此参数，在服务端渲染这个组件会抛出一个错误
+
+```jsx
+// 订阅 navigator.onLine 的变化
+// 设计一个自定义 Hook
+import { useSyncExternalStore } from 'react'
+
+export function useOnlineStatus() {
+  const isOnline = useSyncExternalStore(subscribe, getSnapshot)
+  return isOnline
+}  
+
+function subscribe(callback) {
+  window.addEventListener('online', callback)
+  window.addEventListener('offline', callback)
+  return () => {
+    window.removeEventListener('online', callback)
+    window.removeEventListener('offline', callback)
+  }
+}
+
+function getSnapshot() {
+  return navigator.onLine
+}
+```
+
+```jsx
+// 使用自定义 Hook
+import { useOnlineStatus } from './useOnlineStatus'
+
+export default function App() {
+  const isOnline = useOnlineStatus()
+  return (
+    <div>
+      <p>{isOnline ? 'Online' : 'Offline'}</p>
+    </div>
+  )
+}
+```
+
+### useActionState
+`useActionState(action, initialState, permalink?)` 是 `React19` 新增的 `Hook`, 用于替代 `useFormState`
+
+```tsx
+import { useActionState } from 'react'
+
+// action 第一个参数是 state
+async function plus(previousState) {
+  return previousState + 1
+}
+
+export default function App() {
+  const [count, plusAction] = useActionState(plus, 0)
+  return (
+    <div>
+      {/* 最初是传入的初始状态 (0), 随后是 action 的返回值 */}
+      <p>{count}</p>
+      {/* 返回的新函数可以用作表单的 action 或按钮的 formAction */}
+      <button formAction={plusAction}>+1</button>
+    </div>
+  )
+```
+
+### useFormStatus
+`useFormStatus()` 是 `React19` 新增的 `Hook`, 用于表示表单状态
+
+```tsx
+import { useFormStatus } from 'react'
+
+// 注意: useFormStatus 必须在 form 的子组件中调用
+// 且只会追踪父 form 元素的状态
+function SubmitBtn() {
+  const status = useFormStatus()
+  return <button disabled={status.pending}>提交</button>
+}
+
+export default function App() {
+  return (
+    <form action={action}>
+      <Submit />
+    </form>
+  )
+}
+```
+
+![](/images/note/react-formstatus.png)
+
+### useOptimistic
+`useOptimistic()` 是 `React19` 新增的 `Hook`, 用于实现乐观更新
+
+```tsx
+// 返回的 optimisticState 是原 state 的一个副本
+// 但是它在异步操作时可以与 state 不同步 (通过 addOptimistic 函数)
+// 异步操作结束后, 不会影响 state 的值
+const [optimisticState, addOptimistic] = useOptimistic(
+  state, // 初始 state
+  (state, optimisticValue) => {
+    // optimisticValue 是 addOptimistic 函数的参数
+    // 返回在异步操作时的 optimisticState
+  }
+)
+```
+
+## 🚧 use API
+`use` 是 `React19` 新增的 `API`, 用于在同步组件中读取异步结果
+
+## Head
+{% notel green 本段导航 %}
+{% btn Preload::#Preload %} {% btn Link::#Link %} {% btn Meta::#Meta %} {% btn Title::#Title %}
+{% endnotel %}
+
+`React19` 提供了一些列无需使用 `useEffect` 就能向 `head` 标签添加 `meta`、`title`、`link` 等标签的 `API`
+
+#### Preload
+`React19` 提供了一系列 `preload` 方法, 用于在组件加载时预加载资源, 以提高性能
+
+```jsx
+import { ... } from 'react-dom'
+
+export default function Component() {
+  // 预加载脚本
+  preinit('https://example.com/script.js', { as: 'script' })
+  // 预加载字体
+  preload('https://example.com/font.woff', { as: 'font' })
+  // 预加载样式表
+  preload('https://example.com/style.css', { as: 'style' })
+  // 预查询 DNS
+  prefetchDNS('https://example.com')
+  // 预连接
+  preconnect('https://example.com')
+  
+  return (
+    <div>
+      ...
+    </div>
+  )
+}
+```
+
+```html
+<!-- 渲染结果 -->
+<html>
+  <head>
+    <script async src="https://example.com/script.js"></script>
+    <link rel="preload" as="font" href="https://example.com/font.woff" />
+    <link rel="preload" as="style" href="https://example.com/style.css" />
+    <link rel="prefetch-dns" href="https://example.com" />
+    <link rel="preconnect" href="https://example.com" />
+  </head>
+  <body>
+    <div>
+      ...
+    </div>
+  </body>
+</html>
+```
+
+#### Link
+`React19` 可以在组件中引入所需样式表, 并可通过 `precedence` 属性设置样式表的优先级
+
+```jsx
+function App() {
+  return (
+    <div>
+      <link rel="stylesheet" href="foo" precedence="high" />
+      <link rel="stylesheet" href="bar" precedence="default" />
+    </div>
+  )
+}
+```
+
+#### Meta
+`React19` 可以在组件中引入所需 `meta` 标签, 会自动替换 `head` 中的 `meta` 标签
+
+```jsx
+function Component() {
+  return (
+    <div>
+      <meta name="author" content="XiaoYeZi" />
+      <meta name="keywords" content="React, JavaScript" />
+    </div>
+  )
+}
+```
+
+#### Title
+`React19` 可以在组件中引入所需 `title` 标签, 会自动替换 `head` 中的 `title` 标签
+
+```jsx
+function Component() {
+  return (
+    <div>
+      <title>React19</title>
+    </div>
+  )
+}
+```
+
+## ReactCompiler
+`ReactCompiler` 是一个用于优化 `React` 应用性能的工具, 它会自动使用 `useMemo`, `useCallback` 等 `Hook` 来优化组件
+
+```bash
+# 检查项目的健康度
+bunx react-compiler-healthcheck@latest
+# 安装 eslint 插件
+bun add -D eslint-plugin-react-compiler
+# 配置 eslint
+{
+  plugins: ['eslint-plugin-react-compiler'],
+  rules: {
+    'react-compiler/react-compiler': 'error',
+  },
+}
+# 安装 babel 插件
+bun add -D babel-plugin-react-compiler
+# 配置 vite
+{
+  plugins: [
+    react({
+      babel: {
+        plugins: ['babel-plugin-react-compiler', {}],
+      },
+    })
+  ]
+}
+```
+
+- 在浏览器 `DevTools` 中安装 `React` 插件后, 被优化的组件旁边会有一个 `⭐ Memo` 标志
+- 如果有些组件出现问题, 可以在函数组件的第一行添加 `'use no memo'` 来禁用优化
+
+# &#x2B50;Zustand
+`zustand` 是一个小巧的 `React` 状态管理库, 用于管理全局状态
+
+```tsx
+// useZustandStore.ts
+import { create } from 'zustand'
+
+interface State {
+  count: number
+  increment: () => void
+  decrement: () => void
+}
+
+// 注意泛型后面的 “()”
+export const useZustandStore = create<State>()(set => ({
+  count: 0,
+  increment: () => set(state => ({ count: state.count + 1 })),
+  decrement: () => set(state => ({ count: state.count - 1 })),
+}))
+```
+
+```tsx
+// App.tsx
+import { useZustandStore } from './useZustandStore'
+
+export default function App() {
+  // 批量导入
+  const { increment, decrement } = useZustandStore()
+  // 导入单个
+  const count = useZustandStore(state => state.count)
+  // 使用
+  return (
+    <div>
+      <p>{count}</p>
+      <button onClick={increment}>+1</button>
+      <button onClick={decrement}>-1</button>
+    </div>
+  )
+}
+```
+
+# &#x2B50;Next.js
+`Next.js` 是一个基于 `React` 的全栈框架, 由 `Vercel` 开发和维护, 使用 `bun create next-app` 可以快速创建一个 `Next.js` 项目
+
+`Next.js` 基于文件系统进行路由, `app` 目录下的文件夹, 如果有 `page.js/ts/jsx/tsx` 或 `route.js/ts/jsx/tsx` 文件, 则会被映射为一个路由
+
+```bash
+# 创建项目
+bun create next-app
+# 安装依赖
+bun i
+# 设置 ESlint
+bun run lint
+# 启动开发服务器
+bun dev
+```
+
+{% notel green 本段导航 %}
+{% btn 服务端组件::#服务端组件 %} {% btn 数据缓存::#数据缓存 %} {% btn Server Action::#Server-Action %}
+{% endnotel %}
+
+#### 服务端组件
+`Next.js` 默认进行服务端渲染 `SSR`, 此时组件必须是服务端组件 `Server Components`, 以便在服务端渲染时使用; 它有以下特点:
+
+- 没有状态和生命周期，也就**不能**使用 `useState()`、`useReducer()`、`useEffect()`、`useLayoutEffect()`
+- **不能**使用浏览器相关的 API，如 `window`、`document`、`navigator`
+- **不能**使用基于状态和生命周期的自定义 `hook`，以及浏览器相关的工具库
+- **可以**使用服务端数据源，如文件系统、数据库、内部微服务
+- 可以渲染其他服务端组件、客户端组件以及原生 `DOM` 元素
+- 服务端组件**可以返回 `Promise`**
+- 要使用客户端组件，必须在组件或其祖先组件的第一行添加 `'use client'`
+- 在服务端组件中, 可以使用 `params`、`searchParams` `Prop` 来获取路由参数
+
+## 路由
+{% notel green 本段导航 %}
+{% btn 路由文件::#路由文件 %} {% btn 分组路由::#分组路由 %} {% btn 排除路由::#排除路由 %} {% btn 动态路由::#动态路由 %} {% btn 平行路由::#平行路由 %} {% btn 拦截路由::#拦截路由 %}
+{% endnotel %}
+
+#### 路由文件
+![](/images/note/react-route.png)
+
+- `public` 目录下的文件会被映射为静态资源, 可以通过 `/xxx` 访问
+- `layout.x` 应默认导出一个以 `children` 为 `props` 的组件, 用于包裹子孙组件
+- `template.x` 类似于 `layout.x`, 但是会为每个页面生成新的 `DOM` 元素
+- 通过在 `page.x` 或 `layout.x` 中 `export const metadata: MetaData` 来设置页面元数据
+- `loading.x` 用于设置加载中的页面, 位于 `layout.x` 之内, 实际上是被渲染为 `Suspense` 组件的 `fallback` 属性
+- `error.x` 必须是客户端组件, 具有 `error: Error` 和 `reset: () => void` 两个 `Prop`, 用于处理错误页面; `reset` 函数用于重新渲染错误的组件
+- `error.x` 位于 `layout.x` 之内, 如果需要处理 `layout.x` 或 `template.x` 的错误, 需要使用 `global-error.x`
+- 在 `page.x` (`Server Components`) 和 `route.x` 中, 只有**返回值**对客户端可见
+
+#### 分组路由
+`(folder)` 文件夹用于 `Route Groups`, 这个文件夹不会被映射为路由, 其内部的文件夹会映射为 `.../xxx` 而不是 `.../folder/xxx` (用于整理项目文件夹)
+
+`(folder)` 文件夹内可以有 `layout.x`, 为组内所有页面设置布局; 例如, 如果移除 `app/layout.x`, 则可以在 `app/(folder1)/layout.x` 和 `app/(folder2)/layout.x` 中分别设置根布局
+
+#### 排除路由
+`_folder` 文件夹及其内部的文件夹和文件会被排除在路由之外, 用于存放一些不需要被路由的文件
+
+处理之外, 也可以把不需要路由的文件直接放在 `app` 目录外, 例如 `src` 目录; 如果这种方法导致路径较为复杂, `Next.js` 支持 `tsconfig.json` 中的 `paths` 配置来作为导入的别名
+
+```tsx
+// tsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
+}
+
+// 使用别名
+import { ... } from '@/components'
+```
+
+#### 动态路由
+`[folder]` 文件夹用于动态路由, 真是路径可以通过 `layout.x`、`page.x`、`route.x` 中的 `params` `Prop` 获取
+
+例如, `app/blog/[id]/page.x` 可以通过 `params.id` 获取 `id` 参数
+
+此外, `[folderName]` 文件夹内的 `page.x` 还可以导出一个 `generateStaticParams` 函数, 返回 `{ folderName: string }[]`, 让 `Next.js` 在构建时就为这些路径生成静态页面
+
+##### 深层动态路由
+`[...folder]` 文件夹用于深层动态路由, 真实路径可以通过 `layout.x`、`page.x`、`route.x` 中的 `params` `Prop` 获取, 其中 `params.folder` 是一个数组
+
+例如, 对于 `app/blog/[...id]/page.x` 的 `params.id` 在访问 `/blog/1` 时是 `['1']`, 在访问 `/blog/1/2` 时是 `['1', '2']`
+
+##### 可选动态路由
+`[[folder]]` 文件夹用于可选动态路由, 相比于 `[...folder]`, `[[folder]]` 可以不传入参数
+
+例如, 对于 `app/blog/[[id]]/page.x` 的 `params.id` 在访问 `/blog` 时是 `undefined`, 在访问 `/blog/1` 时是 `['1']`
+
+##### 嵌套使用
+![](/images/note/react-dynamic.png)
+
+#### 平行路由
+`@folder` 文件夹用于平行路由, 内部的 `page.x` 将作为上层 `layout.x` 的 `props.folder` 传入, 用于并行渲染多个页面 (成为"插槽" `slot`)
+
+![](/images/note/react-parallel-routes.webp)
+
+`@folder` 不影响 `URL` 地址, 例如 `app/@folder/views/page.x` 的路径是 `/views`
+
+如果在某个插槽发生了导航行为, 则会在该插槽中重新渲染新的页面, 而不会影响其他插槽; **但是**, 如果此时页面刷新, 由于其他插槽无法判断当前的 `URL` 所对应的页面, 会呈现 `@folder` 下的 `default.x` 页面 (如果不存在, 则会呈现 `404` 页面)
+
+例如, 对于 `@folder1/views/page.x` 和 `@folder2/page.x`, 如果当前 `URL` 是 `/`, 而后点击 `@folder1` 下的某个链接跳转到 `/views`, 则 `@folder2` 下的页面不会发生变化; 但是, 如果此时刷新页面, 则会呈现 `@folder2` 下的 `default.x` 页面 (因为 `@folder2/views/page.x` 不存在)
+
+> `@folder` 内也支持 `layout.x`、`loading.x`、`error.x` 等文件
+
+##### useSelectedLayoutSegment
+`useSelectedLayoutSegment` 是一个用于获取特定插槽此时的实际路径的 `Hook`
+
+```tsx
+// app/layout.tsx
+
+import { useSelectedLayoutSegment } from 'next/navigation'
+
+export default function Layout({ auth }) {
+  const selectedSegment = useSelectedLayoutSegment('auth')
+  // 当用户导航到 app/@auth/login 时, selectedSegment 为 'login'
+  // 当用户导航到 app/@auth/register 时, selectedSegment 为 'register'
+  // ...
+}
+```
+
+#### 拦截路由
+`(..)folder` 等文件夹用于拦截路由, 详见[官方文档](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes)
+
+## 导航
+### \<Link\> 组件
+```tsx
+import Link from 'next/link'
+
+export default function Nav() {
+  return (
+    <nav>
+      <Link href="/">Home</Link>
+      <Link href="/about">About</Link>
+    </nav>
+  )
+}
+```
+
+> 对于 `Link`、`router.push`、`router.replace` 等导航方法, 可以设置 `scroll` 为 `false` 来禁用滚动到上次位置
+
+### usePathname
+客户端组件中, 可以使用 `usePathname` 来获取当前页面的路径 (具有响应性)
+
+```tsx
+'use client'
+
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+
+export default function Nav() {
+  const pathname = usePathname()
+  return (
+    <nav>
+      <Link href="/" className={pathname === '/' ? 'active' : ''}>Home</Link>
+      <Link href="/about" className={pathname === '/about' ? 'active' : ''}>About</Link>
+    </nav>
+  )
+}
+```
+
+### useSearchParams
+客户端组件中, 可以使用 `useSearchParams` 来获取当前页面的查询参数 (具有响应性)
+
+```tsx
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+
+export default function Search() {
+  const searchParams = useSearchParams()
+  return (
+    <form>
+      <input type="search" value={searchParams.get('q') || ''} />
+      <button type="submit">Search</button>
+    </form>
+  )
+}
+```
+
+### useRouter
+客户端组件中, 可以使用 `useRouter` 来改变路由
+
+| 方法 | 说明 |
+| :---: | :---: |
+| `router.push(href: string[, options: { scroll?: boolean }])` | 跳转到指定路径 |
+| `router.replace(href: string[, options: { scroll?: boolean }])` | 替换当前路径 (不会在历史记录中留下记录) |
+| `router.back()` | 返回上一页 |
+| `router.forward()` | 前进到下一页 |
+| `router.refresh()` | 刷新当前页面 |
+| `router.prefetch(href: string)` | 预加载指定路径的页面 |
+
+```tsx
+'use client'
+
+import { useRouter } from 'next/navigation'
+
+export default function Nav() {
+  const router = useRouter()
+  return (
+    <nav>
+      <button onClick={() => router.push('/')}>Home</button>
+      <button onClick={() => router.push('/about')}>About</button>
+    </nav>
+  )
+}
+```
+
+### redirect 函数
+服务端组件中, 可以使用 `redirect` 函数来重定向到指定路径
+
+```ts
+import { redirect } from 'next/navigation'
+
+export default function Redirect() {
+  redirect('/about')
+}
+```
+
+> `redirect` 函数是 `307` 或 `303` 重定向, 如果要使用 `308` 重定向, 可以使用 `permanentRedirect` 函数
+
+## API
+在 `route.x` 中, 可以定义 `Route Handlers` 来处理请求
+
+`Next.js` 支持 `GET`、`POST`、`PUT`、`DELETE`、`PATCH`、`OPTIONS`、`HEAD` 请求方法
+
+```ts
+// app/api/route.ts
+
+// GET 请求
+export async function GET(request: Request): Promise<Response> { }
+```
+
+#### 相关内容
+从 `next/headers` 中导入 `headers` 函数, 用于**读取**请求头
+
+```ts
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+
+// 自定义运行环境 (默认为 nodejs)
+export const runtime = 'edge'
+ 
+export async function GET(request: Request) {
+  const header = headers() // 请求头, 只读
+  redirect('/about') // 重定向
+}
+
+// 可以使用 NextRequest、NextResponse 来替代 Request、Response
+import { NextRequest, NextResponse } from 'next/server'
+export async function POST(request: NextRequest): Promise<NextResponse> { }
+```
+
+### NextRequest
+| 方法 | 说明 |
+| :---: | :---: |
+| `req.cookies` | `cookie` 相关方法, 详见[官方文档](https://nextjs.org/docs/app/api-reference/functions/next-request) |
+| `req.nextUrl.pathname` | 获取请求的路径 |
+| `req.nextUrl.searchParams` | 获取请求的查询参数 |
+| `req.nextUrl.basePath` | `Next.js` 的基础路径 |
+| `req.nextUrl.buildId` | `Next.js` 的构建 ID |
+| `req.ip` | 获取请求的 IP 地址<br>如果不在 `Vercel` 部署, 可能需要手动设置 `X-Forwarded-For` 请求头 |
+| `req.geo` | 获取请求的地理位置信息, 同样基于 `Vercel` 的服务<br>`{ city, country, region, latitute, longitude }` |
+
+### NextResponse
+| 方法 | 说明 |
+| :---: | :---: |
+| `NextResponse.next()` | 常用于中间件, 详见[官方文档](https://nextjs.org/docs/app/api-reference/functions/next-response) |
+| `res.cookies` | `cookie` 相关方法, 详见[官方文档](https://nextjs.org/docs/app/api-reference/functions/next-response) |
+| `NextResponse.json({})` | 返回 `JSON` 响应 |
+| `NextResponse.redirect(new URL('/xxx', request.url))` | 返回重定向响应 |
+| `NextResponse.rewrite(new URL('/xxx', request.url))` | 返回重写响应 |
+
+### 🚧 中间件
+`Next.js` 支持中间件, 用于处理请求前的逻辑, 例如重定向、鉴权、CORS、编辑请求头、处理国际化等; 要定义中间件, 可以创建 `app/middleware.ts` 文件
+
+中间件目前只支持 `edge` 运行环境, 详见[官方文档](https://nextjs.org/docs/app/building-your-application/routing/middleware)
+
+## SSR
+### 数据缓存
+`Next.js` 会在服务端进行 `fetch` 时缓存数据, 除非该请求位于 `Server Action` 或 `Route Handler` 的 `POST` 方法中
+
+```ts
+// force-cache 是默认值
+fetch('https://api.example.com/data', { cache: 'force-cache' })
+// 也可以使用 no-cache
+fetch('https://api.example.com/data', { cache: 'no-store' })
+// 可以基于时间重新验证数据 (单位: 秒)
+fetch('https://api.example.com/data', { next: { revalidate: 60 } })
+// 也可以在 layout.x page.x 中批量设置
+export const revalidate = 60
+// 也可以基于条件重新验证数据
+fetch('https://api.example.com/data', { next: { tags: ['tag1', 'tag2'] } })
+// 调用 revalidateTag 来重新验证数据
+import { revalidateTag } from 'next/cache'
+export default async function action() {
+  revalidateTag('collection')
+}
+// 重新验证某个路径
+import { revalidatePath } from 'next/cache'
+export default async function action() {
+  revalidatePath('/path')
+}
+```
+
+### Server Action
+`Server Action` 是运行于服务端的一部函数, 但可以在服务端组件和客户端组件中调用; 在服务端组件中, `Server Action` 是一个异步函数, 第一行应声明 `'use server'`, 在客户端组件中, `Server Action` 必须独立成一个文件, 第一行应声明 `'use server'`, 并导出数个异步函数
+
+`Server Action` 可以直接调用、用作 `Form` 的 `action`、以 `Prop` 传递、与 `useActionState`、`useOptimistic`、`useFormStatus` 等 `Hook` 配合使用
+
+在 `Next.js` 中, `Server Action` 返回的错误**不会**原样返回给客户端, 以避免泄露敏感信息
+
+|![](/images/note/react-sa1.png)|![](/images/note/react-sa2.png)|
+|:---:|:---:|
+
+### 优化
+`Next.js` 提供了数个用于优化的组件
+
+#### \<Image\> 组件
+```tsx
+import Image from 'next/image'
+
+export default function App() {
+  return (
+    <Image 
+      src='/image.jpg' // 图片路径
+      alt='image' // 图片描述
+      width={500} // 图片宽度 (会自动设置)
+      height={500} // 图片高度 (会自动设置)
+      blurDataURL='data:image/png;base64,...' // 模糊图片 (会自动设置)
+    />
+  )
+}
+```
+
+为了安全起见, 所有跨域图片都默认被静止, 需要手动允许:
+
+```ts
+// next.config.js
+module.exports = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 's3.amazonaws.com',
+        port: '',
+        pathname: '/my-bucket/**',
+      },
+    ],
+  },
+}
+```
+
+#### 字体
+在 `layout.x` 中, 可以导入 `next/font/google` 中的字体
+
+```tsx
+import { Inter } from 'next/font/google'
+ 
+// If loading a variable font, you don't need to specify the font weight
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+})
+ 
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" className={inter.className}>
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+> 还可以把字体变成 `TailwindCSS` 的类名, 详见[官方文档](https://nextjs.org/docs/app/building-your-application/optimizing/fonts)
+
+### 🚧 身份验证
+
+### \<Suspense\> 组件
+在服务端组件中, 可以使用 `Suspense` 组件来指定加载中的页面; `loading.x` 实质上是 `Suspense` 组件的 `fallback` 属性
+
+```tsx
+export default async function VideoComponent() {
+  const src = await getVideoSrc()
+ 
+  return <iframe src={src} frameborder="0" allowfullscreen />
+}
+```
+
+```tsx
+import { Suspense } from 'react'
+import VideoComponent from '../ui/VideoComponent.jsx'
+ 
+export default function Page() {
+  return (
+    <section>
+      <Suspense fallback={<p>Loading video...</p>}>
+        <VideoComponent />
+      </Suspense>
+      {/* Other content of the page */}
+    </section>
+  )
+}
+```
+
+# &#x2B50;Solid
+`Solid` 是一个[更高性能](https://krausest.github.io/js-framework-benchmark/current.html)的 `React` 替代品, 二者的设计理念和语法非常相似
+
+`Solid` 组件是**彼此完全独立的**, 并且**组件函数只会被调用一次**, 
+
+```bash
+# 使用 Vite 创建 Solid 项目
+pnpm create vite
+# 选择 Solid 模板
+# 你会发现项目结构和 React 项目一模一样
+```
+
+```jsx
+// 入口文件 index.jsx
+import { render } from 'solid-js/web'
+import './index.css'
+import App from './App'
+const root = document.getElementById('root')
+render(() => <App />, root)
+```
+
+#### 官方的迁移建议
+`Solid` 的更新模型与 `React` 完全不同，甚至与 `React + MobX` 完全不同; 不要将函数组件视为 `render` 函数，而是将它们视为 `constructor`
+
+在 `Solid` 中，`props` 和 `store` 是 `proxy` 对象，它们依赖于属性访问来进行跟踪和响应式更新; 注意解构或提前属性访问，这可能导致这些属性失去反应性或在错误的时间触发
+
+`Solid` 的 `primitive` 没有像 `Hook` 规则这样的限制，因此您可以随意嵌套它们
+
+你不需要使用列表行上的显式 `key` 来实现具有 `key` 的行为
+
+在 `React` 中，每当修改输入字段时都会触发 `onChange`，但这不是 `onChange` 原生工作的方式; 在 `Solid` 中，使用 `onInput` 订阅每个值的更改
+
+## Props
+{% notel green 本段导航 %}
+{% btn `children`::#solid-children %} {% btn `mergeProps`::#solid-mergeProps %} {% btn `splitProps`::#solid-splitProps %}
+{% endnotel %}
+
+`Solid` 的组件也是一个函数, 其参数也是 `props`, 但**不应通过解构 `props` 来访问属性**, 而应当直接访问 `props` 对象以确保属性的响应性
+
+如果要传递给子组件的 `props` 比较多, 可以使用 `props` 对象和展开运算符 `{...props}` 传递
+
+#### children<i id="solid-children"></i>
+`props.children` 是一个特殊的 `props`, 用于访问组件的子组件
+
+`Solid` 如此高性能的部分原因是 `Solid` 的组件基本上只是函数调用; 这意味着这些 `props` 会被惰性求值; `props` 的访问将被推迟到某些地方有用到它们; 这保留了响应性，而不会引入无关的封装代码或同步行为; 然而，这意味着存在子组件或元素的情况下，重复访问可能会导致重新创建
+
+大多数情况下，你只是将这些入参属性插入到 `JSX` 中，所以不会有问题; 但是由于 `children` 元素可能会被重复创建，所以当你处理 `children` 时需要格外小心
+
+出于这个原因，`Solid` 提供了 `children` 工具函数; 此方法既会根据 `children` 访问创建 `memo` 缓存，还会处理任何嵌套的子级响应式引用，以便可以直接与 `children` 交互
+
+```jsx
+// child.jsx
+export default function ColoredList(props) {
+  const c = children(() => props.children)
+  createEffect(() => c().forEach(item => item.style.color = props.color))
+  return <>{c()}</>
+}
+```
+
+```jsx
+// parent.jsx
+import ColoredList from './child'
+
+export default function App() {
+  const [color, setColor] = createSignal("purple")
+
+  return <>
+    <ColoredList color={color()}>
+      <For each={["Most", "Interesting", "Thing"]}>{item => <div>{item}</div>}</For>
+    </ColoredList>
+    <button onClick={() => setColor("teal")}>Set Color</button>
+  </>
+}
+```
+
+#### mergeProps<i id="solid-mergeProps"></i>
+`mergeProps` 函数用于将 `props` 对象与其他对象合并, 并确保 `props` 对象的响应性
+
+```jsx
+import { mergeProps } from 'solid-js'
+
+export default function MyComponent(props) {
+  const mergedProps = mergeProps(props, { className: 'my-class' })
+  return <div {...mergedProps}>Hello, World!</div>
+}
+```
+
+#### splitProps<i id="solid-splitProps"></i>
+`splitProps` 函数用于将 `props` 对象拆分为两个对象而不失去响应性
+
+```jsx
+import { splitProps } from 'solid-js'
+
+export default function MyComponent(props) {
+  const [myProps, divProps] = splitProps(props, ['myProp'])
+  return <div {...divProps}>Hello, World!</div>
+}
+```
+
+## 响应式接口
+### Signal<i id="solid-Signal"></i>
+相当于 `React` 的 `useState`，但是 `createSignal` 返回的是 `getter` 和 `setter`, 因此要使用某个值, 是 `xxx()` 而不是 `xxx`
+
+```jsx
+import { createSignal } from 'solid-js'
+
+export default function Counter() {
+  const [count, setCount] = createSignal(0)
+  return (
+    <div>
+      {/* 传入新值 */}
+      <button onClick={() => setCount(count() + 1)}>+</button>
+      <span>{count()}</span>
+      {/* 传入函数 */}
+      <button onClick={() => setCount(c => c - 1)}>-</button>
+    </div>
+  )
+}
+```
+
+### Effect<i id="solid-Effect"></i>
+相当于 `React` 的 `useEffect`, 但不需要传入依赖项数组 (**内部用到的 `Signal` 会自动成为依赖项**), 会在渲染完成会执行
+
+```jsx
+import { createEffect } from 'solid-js'
+
+export default function Counter() {
+  const [count, setCount] = createSignal(0)
+  createEffect(() => {
+    console.log('count:', count())
+  })
+  return (
+    <div>
+      <button onClick={() => setCount(count() + 1)}>+</button>
+      <span>{count()}</span>
+      <button onClick={() => setCount(count() - 1)}>-</button>
+    </div>
+  )
+}
+```
+  
+### Memo<i id="solid-Memo"></i>
+相当于 `React` 的 `useMemo`, 传入一个计算函数 (同样无需传入依赖项数组), 返回一个 `getter` 函数 (只读)
+
+```jsx
+// 以计算斐波那契数列为例
+import { createMemo, createSignal } from 'solid-js'
+
+function fibonacci(n) {
+  if (n <= 1) return n
+  return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+// 如果不用 memo, 每次点击按钮都会计算 5 次斐波那契数列
+export function Fibonacci() {
+  const [n, setN] = createSignal(0)
+  const fib = () => fibonacci(n())
+  return (
+    <div>
+      <input type="number" value={n()} onInput={e => setN(+e.target.value)} />
+      <div>{fib()}{fib()}{fib()}{fib()}{fib()}</div>
+    </div>
+  )
+}
+
+// 使用 memo, 只会计算一次
+export function Fibonacci() {
+  const [n, setN] = createSignal(0)
+  const fib = createMemo(() => fibonacci(n()))
+  return (
+    <div>
+      <input type="number" value={n()} onInput={e => setN(+e.target.value)} />
+      <div>{fib()}{fib()}{fib()}{fib()}{fib()}</div>
+    </div>
+  )
+}
+```
+
+### Store<i id="solid-Store"></i>
+`Store` 是 `Solid` 处理嵌套响应式的解决方案; `Store` 是代理对象, 其属性可以被跟踪, 并且可以包含其他对象, 这些对象会自动包装在代理中, 等等
+
+为了让事情变得简单, `Solid` 只为在跟踪范围内访问的属性创建底层 `Signal`; 因此, `Store` 中的所有 `Signal` 都是根据要求延迟创建的
+
+```jsx
+import { createStore } from 'solid-js/store'
+
+const [store, setStore] = createStore({ todos: [] })
+const addTodo = text => {
+  setStore('todos', todos => [...todos, { id: ++todoId, text, completed: false }])
+}
+const toggleTodo = id => {
+  setStore('todos', todo => todo.id === id, 'completed', completed => !completed)
+}
+```
+
+#### produce
+`produce` 函数用于在 `Store` 中进行复杂的更新, 类似于 `useImmer`
+
+```jsx
+import { createStore, produce } from 'solid-js/store'
+
+const [store, setStore] = createStore({ todos: [] })
+const addTodo = text => {
+  setStore('todos', produce(todos => {
+    todos.push({ id: ++todoId, text, completed: false })
+  }))
+}
+const toggleTodo = id => {
+  setStore('todos', todo => todo.id === id, produce(todo => {
+    todo.completed = !todo.completed
+  }))
+}
+```
+
+### Context<i id="solid-Context"></i>
+`Context` 是 `Solid` 的上下文解决方案, 用于在组件树中传递数据, 而不必一级一级手动传递 `props`
+
+`Context` 与 `React` 的 `Context` 类似, 但是 `Solid` 的 `Context` 是响应式的, 因此可以在 `Context` 中使用 `Signal` 和 `Store`
+
+```jsx
+// counter.jsx
+import { createSignal, createContext, useContext } from 'solid-js'
+
+const CounterContext = createContext()
+
+export function CounterProvider(props) {
+  const [count, setCount] = createSignal(props.count || 0)
+  const store = [
+    count,
+    {
+      increment() {
+        setCount(c => c + 1);
+      },
+      decrement() {
+        setCount(c => c - 1);
+      }
+    }
+  ]
+  return (
+    <CounterContext.Provider value={store}>
+      {props.children}
+    </CounterContext.Provider>
+  )
+}
+
+export function useCounter() { return useContext(CounterContext) }
+```
+
+```jsx
+// app.jsx
+import { CounterProvider, useCounter } from './counter'
+
+export default function App() {
+  const [count, { increment, decrement }] = useCounter()
+
+  return (
+    <CounterProvider count={10}>
+      <h1>Welcome to Counter App</h1>
+      <div>{count()}</div>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </CounterProvider>
+  )
+}
+```
+
+### Resource<i id="solid-Resource"></i>
+`Resource` 用于处理异步数据, 有点像 `React` 的 `useFormStatus` 和 `useActionState` 的结合
+
+```tsx
+import { createResource, createSignal } from 'solid-js'
+
+const fetchUser = async id => {
+  const response = await fetch(`https://api.example.com/user/${id}`)
+  return response.json()
+}
+
+export default function User() {
+  const [userID, setUserID] = createSignal()
+  const [user, { mutate, refetch }] = createResource(userID, fetchUser)
+
+  return (
+    <div>
+      <input 
+        type='number'
+        onInput={e => setUserID(+e.target.value)}
+      />
+
+      // 这两个数据虽然不是函数调用, 但是也是响应式的
+      <p>{user.loading && 'Loading...'}</p>
+      <p>{user.error && 'Error!'}</p>
+
+      <div>
+        // 开始请求数据
+        {user()}
+      </div>
+
+      // 重新请求数据 (即使 userID 没有变化)
+      <button onClick={refetch}>Refetch</button>
+
+      // 用 mutate 更新数据
+      <button onClick={() => mutate(123456)}>Mutate</button>
+    </div>
+  )
+}
+```
+
+## 流程控制
+{% notel green 本段导航 %}
+{% btn `Show`::#solid-Show %} {% btn `For`::#solid-For %} {% btn `Index`::#solid-Index %} {% btn `Switch`::#solid-Switch %} {% btn `Dynamic`::#solid-Dynamic %} {% btn `Portal`::#solid-Portal %} {% btn `ErrorBoundary`::#solid-ErrorBoundary %}
+{% endnotel %}
+
+除了像 `React` 一样的条件渲染和循环渲染, `Solid` 还提供了一些更加直观的流程控制组件
+
+#### Show<i id="solid-Show"></i>
+`Show` 是一个条件渲染组件, 比逻辑中断和三元表达式更加直观
+
+```jsx
+<Show 
+  when={condition} 
+  fallback={<div>条件不满足时显示的内容</div>}
+>
+  <div>条件满足时显示的内容</div>
+</Show>
+
+// 相当于
+{condition ? <div>条件满足时显示的内容</div> : <div>条件不满足时显示的内容</div>}
+```
+
+#### For<i id="solid-For"></i>
+`For` 是一个循环渲染组件, 可以用来遍历数组或对象; `index` 是一个 `Signal`, 所以将在移动 `index` 时重新渲染, 而 `item` 不是
+
+```jsx
+<For 
+  each={array} 
+  fallback={<div>数组为空时显示的内容</div>}
+>
+  {(item, index) => (
+    <div>{index}: {item}</div>
+  )}
+</For>
+
+// 相当于
+const content = array.map((item, index) => <div>{index()}: {item}</div>)
+{content.length ? content : <div>数组为空时显示的内容</div>}
+```
+
+#### Index<i id="solid-Index"></i>
+类似于 `For`, 但 `index` 不是 `Signal` 而 `item` 是
+
+```jsx
+<Index
+  each={array}
+  fallback={<div>数组为空时显示的内容</div>}
+>
+  {(item, index) => (
+    <div>{index}: {item()}</div>
+  )}
+</Index>
+```
+
+#### Switch<i id="solid-Switch"></i>
+`Switch` 用于处理多个条件的情况 (此时用 `Show` 会显得很臃肿)
+
+```jsx
+<Switch
+  fallback={<div>所有条件都不满足时显示的内容</div>}
+>
+  <Match when={condition1}>
+    <div>条件 1 满足时显示的内容</div>
+  </Match>
+  <Match when={condition2}>
+    <div>条件 2 满足时显示的内容</div>
+  </Match>
+  <Match when={condition3}>
+    <div>条件 3 满足时显示的内容</div>
+  </Match>
+</Switch>
+```
+
+#### Dynamic<i id="solid-Dynamic"></i>
+`<Dynamic>` 标签处理根据数据渲染时很有用; `<Dynamic>` 可以让你将元素的字符串或组件函数传递给它，并使用提供的其余 `props` 来渲染组件
+
+这通常比编写多个 `<Show>` 或 `<Switch>` 组件更简练
+
+```jsx
+// 用 Switch
+<Switch fallback={<BlueThing />}>
+  <Match when={selected() === "red"}>
+    <RedThing />
+  </Match>
+  <Match when={selected() === "green"}>
+    <GreenThing />
+  </Match>
+</Switch>
+
+// 用 Dynamic
+<Dynamic component={options[selected()]} />
+// options = { red: RedThing, green: GreenThing }
+```
+
+#### Portal<i id="solid-Portal"></i>
+类似于 `<dialog open>`，并且会把元素提取出来放到 `body` 中，以避免 `z-index` 问题
+
+```jsx
+<Portal>
+  <div>这个 div 会被放到 body 中</div>
+</Portal>
+```
+
+#### ErrorBoundary<i id="solid-ErrorBoundary"></i>
+源自 `UI` 的 `JavaScript` 错误不应破坏整个应用程序; 错误边界 `ErrorBoundary` 是一个可以捕获子组件树任何位置产生的 `JavaScript` 错误，错误边界 `ErrorBoundary` 会记录这些错误，并显示回退 `UI` 而非崩溃的组件树
+
+```jsx
+<ErrorBoundary
+  fallback={<div>出现错误时显示的内容</div>}
+>
+  <SomethingMightBroken />
+</ErrorBoundary>
+```
+
+## 生命周期
+{% notel green 本段导航 %}
+{% btn `onMount`::#solid-onMount %} {% btn `onCleanup`::#solid-onCleanup %}
+{% endnotel %}
+
+`Solid` 中只有少量的生命周期，因为一切的存活销毁都由响应系统控制; 响应系统是同步创建和更新的，因此唯一的调度就是将逻辑写到更新结束的 `Effect` 中
+
+#### onMount<i id="solid-onMount"></i>
+`onMount` 就是只执行一次的 `Effect`, 相当于 `useEffect(() => {}, [])` 的开始阶段
+
+```jsx
+import { onMount } from 'solid-js'
+
+export default function Counter() {
+  onMount(() => {
+    console.log('mounted')
+  })
+  return (
+    <div>
+      Hello World
+    </div>
+  )
+}
+```
+
+> 声明周期仅在浏览器中运行, 因此将代码放在 `onMount` 会让他们在 `SSR` 时不会运行
+
+#### onCleanup<i id="solid-onCleanup"></i>
+在任何地方都可以使用 `onCleanup`，包括**组件**和 `Effect` 中，它会在组件销毁或 `Effect` 重新运行时运行
+
+```jsx
+import { onCleanup } from 'solid-js'
+
+export default function Counter() {
+  onCleanup(() => {
+    console.log('cleaned up')
+  })
+  return (
+    <div>
+      Hello World
+    </div>
+  )
+}
+```
+
+## 绑定
+{% notel green 本段导航 %}
+{% btn 事件::#solid-事件 %} {% btn 样式::#solid-样式 %} {% btn Ref::#solid-Ref %} {% btn `:use`::#solid-use %}
+{% endnotel %}
+
+#### 事件<i id="solid-事件"></i>
+```jsx
+function App() {
+  const [pos, setPos] = createSignal({x: 0, y: 0})
+
+  function handleMouseMove(event) {
+    setPos({
+      x: event.clientX,
+      y: event.clientY
+    })
+	}
+
+  return (
+    <div onMouseMove={handleMouseMove}>
+      The mouse position is {pos().x} x {pos().y}
+    </div>
+  )
+}
+```
+
+#### 样式<i id="solid-样式"></i>
+`Solid` 传入对象设置样式时, 不采用驼峰命名法, 而是与 `CSS` 一致的短横线命名法
+
+```jsx
+<div 
+  style={{ 
+    color: 'red',
+    'font-size': '20px',
+    '--custom-color': '#333'
+  }}
+>
+  Hello World
+</div>
+```
+
+##### 类名
+`Solid` 支持使用 `class` 和 `className` 来以字符串形式设置类名; 但提供了一个 `classList` 属性, 用于以对像 `{ 'class-name': isEnable, ... }` 的形式设置类名
+
+```jsx
+// 以字符串形式设置类名
+<div
+  class={isEnable ? 'class-name' : ''}
+></div>
+
+// 以对象形式设置类名
+<div
+  classList={{
+    'class-name': isEnable,
+    'another-class-name': !isEnable
+  }}
+></div>
+```
+
+#### Ref<i id="solid-Ref"></i>
+类似于 `React` 的 `useRef`, 但 `Solid` 不需要声明这是一个 `ref`, 只需将任意变量传递给组件的 `ref` 属性即可
+
+```jsx
+export default function App() {
+  let ref
+  return (
+    <div>
+      <span ref={ref}>Hello World</span>
+      <button onClick={() => ref.textContent = 'Clicked'}>Click</button>
+    </div>
+  )
+}
+```
+
+##### Forward Ref
+`Solid` 也支持 `forwardRef`, 但是**不需要**使用 `forwardRef` 函数, 只需将 `ref` 传递给子组件, 子组件通过 `props.ref` 获取 `ref` 并绑定到元素上即可
+
+```jsx
+function Child(props) {
+  return <div ref={props.ref}>Hello World</div>
+}
+
+export default function App() {
+  let ref
+  return (
+    <div>
+      <Child ref={ref} />
+      <button onClick={() => ref.textContent = 'Clicked'}>Click</button>
+    </div>
+  )
+}
+```
+
+#### use:<i id="solid-use"></i>
+`Solid` 通过 `use:xxx` 语法支持自定义指令, 实际上是 `ref` 的一个语法糖, 支持在同一个元素上有多个绑定而不会冲突 (就像 `addEventListener` 一样)
+
+自定义指令函数接受两个参数: `element` 和 `valueAccesor`, `element` 是当前元素, `valueAccesor` 是一个获取绑定值的函数
+
+`use:` 需要被编译器检测并进行转换，并且函数需要在作用域内，因此不能作为传值的一部分或在组件上使用
+
+```jsx
+// App.jsx
+import { createSignal, Show } from "solid-js"
+import clickOutside from "./click-outside"
+
+function App() {
+  const [show, setShow] = createSignal(false)
+
+  return (
+    <Show
+      when={show()}
+      fallback={<button onClick={(e) => setShow(true)}>Open Modal</button>}
+    >
+      <div class="modal" use:clickOutside={() => setShow(false)}>
+        Some Modal
+      </div>
+    </Show>
+  )
+}
+```
+
+```jsx
+// click-outside.js
+import { onCleanup } from "solid-js"
+
+export default function clickOutside(el, accessor) {
+  // accesor()?.() 是什么逆天东西
+  const onClick = (e) => !el.contains(e.target) && accessor()?.()
+
+  document.body.addEventListener("click", onClick)
+
+  onCleanup(() => document.body.removeEventListener("click", onClick))
+}
+```
+
+## 响应性
+{% notel green 本段导航 %}
+{% btn 批量更新::#solid-batch %} {% btn 隐式读取::#solid-untrack %} {% btn 显式声明Effect依赖::#solid-on %}
+{% endnotel %}
+
+#### 批量更新<i id="solid-batch"></i>
+不同于 `React` 的 `setState`, `Solid` 的 `setSignal` 是同步的, 但是可以使用 `batch` 函数来进行批量更新
+
+```tsx
+import { createSignal, batch } from 'solid-js'
+
+export default function Page() {
+  const [firstName, setFirstName] = createSignal('John')
+  const [lastName, setLastName] = createSignal('Doe')
+
+  function handleClick() {
+    batch(() => {
+      setFirstName('Jane')
+      setLastName('Smith')
+    })
+  }
+
+  return (
+    <div>
+      <p>{firstName()} {lastName()}</p>
+      <button onClick={handleClick}>Change Name</button>
+    </div>
+  )
+}
+```
+
+#### 隐式读取<i id="solid-untrack"></i>
+`Solid` 会自动跟踪 `Signal` 的读取, 但是有时候我们不希望这样, 可以使用 `untrack` 函数来"悄悄地"读取 `Signal`
+
+```tsx
+import { createSignal, untrack } from 'solid-js'
+
+export default function Page() {
+  const [count, setCount] = createSignal(0)
+
+  function handleClick() {
+    untrack(() => {
+      console.log(count())
+    })
+  }
+  // 如果只需要值, 可以直接把 count 传入
+
+  return (
+    <div>
+      <p>{count()}</p>
+      <button onClick={handleClick}>Log Count</button>
+    </div>
+  )
+}
+```
+
+#### 显式声明 `Effect` 依赖<i id="solid-on"></i>
+`Solid` 的 `Effect` 会自动跟踪 `Signal` 的读取, 但是有时候我们不希望这样, 可以使用 `on` 函数来声明 `Effect` 的依赖
+
+```tsx
+import { createSignal, on, createEffect } from 'solid-js'
+
+export default function Page() {
+  const [count, setCount] = createSignal(0)
+
+  // 每次 count 变化都会触发
+  createEffect(() => {
+    console.log(count())
+  })
+  // 相当于
+  createEffect(on(count, (count) => {
+    console.log(count())
+  }))
+
+  // 只在 count 第一次变化时触发
+  createEffect(on(count, (count) => {
+    console.log(count())
+  }, { defer: true }))
+  // 注意: 这个并不和 React 的 useEffect 等效
+  // 因为 solid 可以直接把副作用写在组件函数里
+  // 组件函数只会执行一次
+
+  return (
+    <div>
+      <p>{count()}</p>
+      <button onClick={() => setCount(count() + 1)}>Increment</button>
+    </div>
+  )
+}
+```
+
+## 异步
+{% notel green 本段导航 %}
+{% btn `lazy`::#solid-lazy %} {% btn `Suspense`::#solid-Suspense %} {% btn `SuspenseList`::#solid-SuspenseList %} {% btn `Transition`::#solid-Transition %}
+{% endnotel %}
+
+#### 懒加载<i id="solid-lazy"></i>
+`Solid` 通过 `lazy` 函数实现组件的懒加载
+
+```tsx
+// App.tsx
+import { lazy } from 'solid-js'
+
+const LazyComponent = lazy(() => import('./MyComponent'))
+
+export default function App() {
+  return (
+    <div>
+      <LazyComponent />
+    </div>
+  )
+}
+```
+
+```tsx
+// MyComponent.tsx
+// 注意: Solid 的懒加载组件必须是一个异步函数
+export default async function MyComponent() {
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  return <div>Hello World</div>
+}
+```
+
+#### Suspense<i id="solid-Suspense"></i>
+同 `React` 的 `Suspense`, 多用于服务端
+
+```tsx
+import { Suspense } from 'solid-js'
+
+export default function App() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LazyComponent />
+    </Suspense>
+  )
+}
+```
+
+#### SuspenseList<i id="solid-SuspenseList"></i>
+`SuspenseList` 用于组织控制多个 `Suspense` 组件
+
+```tsx
+import { SuspenseList, Suspense } from 'solid-js'
+
+export default function App() {
+  return (
+    // revealOrder:
+    //   forwards: 从前到后, backwards: 从后到前, together: 等待所有组件加载完毕
+    // tail:
+    //   collapsed: 一旦有一个组件加载完毕, 就不再显示加载中的内容
+    //   hidden: 一直显示加载中的内容, 直到所有组件加载完毕
+    <SuspenseList revealOrder='forwards' tail='collapsed'>
+      <Suspense fallback={<div>Loading...</div>}>
+        <LazyComponent />
+      </Suspense>
+      <Suspense fallback={<div>Loading...</div>}>
+        <LazyComponent />
+      </Suspense>
+    </SuspenseList>
+  )
+}
+```
+
+#### Transition<i id="solid-Transition"></i>
+`Transition` 用于实现过渡动画, 从而避免反复显示 `fallback` 内容
+
+```tsx
+import { useTransition, createSignal } from 'solid-js'
+
+export default function App() {
+  const [show, setShow] = createSignal(false)
+  const [pending, start] = useTransition()
+
+  return (
+    <div>
+      <button onClick={() => start(() => setShow(!show()))}>Toggle</button>
+      
+      {pending() && <div>Loading...</div>}
+
+      <div classList={{ show: show() }}>
+        Hello World!
+      </div>
+    </div>
+  )
+}
+```
+
+# &#x2B50;SolidStart
+全栈开发框架, 类似于 `Next.js` 之于 `React`
+
+```bash
+# 创建项目
+bun create solid
+# 项目结构
+- public # 静态资源
+- src # 导入时可用 ~ 代替
+  - routes # 开发所用目录
+    - index.tsx
+  - entry-client.tsx # 客户端入口, 无需修改
+  - entry-server.tsx # 服务端入口, 无需修改
+  - app.tsx # HTML 入口
+```
+
+## 🚧 页面路由
+
+## 🚧 API 路由
+
+## 🚧 数据获取
+
+## 🚧 页面数据
+
+## 🚧 路由预加载
+
+## 🚧 静态资源
+
+## 🚧 中间件
