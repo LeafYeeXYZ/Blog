@@ -59,6 +59,31 @@
 	}
 }
 
+.toc {
+	& * {
+		@apply text-sm font-bold text-pretty text-ellipsis overflow-hidden whitespace-nowrap;
+	}
+	& .h1 {
+		@apply ml-0;
+	}
+	& .h2 {
+		@apply ml-4;
+	}
+	& .h3 {
+		@apply ml-8;
+	}
+	& .h4 {
+		@apply ml-12;
+	}
+	& .h5 {
+		@apply ml-16;
+	}
+	& .h6 {
+		@apply ml-20;
+	}
+}
+
 * {
-	@apply text-pretty;
+	@apply text-pretty scroll-smooth;
+	scrollbar-width: thin;
 }

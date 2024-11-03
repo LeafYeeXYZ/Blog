@@ -6,6 +6,6 @@ import tailwind from '@astrojs/tailwind'
 
 // https://astro.build/config
 export default defineConfig({
-    site: 'https://leafyee.xyz',
-    integrations: [mdx(), sitemap(), tailwind()],
+  site: 'https://leafyee.xyz',
+  integrations: [mdx(), sitemap(), tailwind()],
 })

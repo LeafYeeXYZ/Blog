@@ -1,0 +1,44 @@
+---
+type Props = {
+  headings: { depth: number; slug: string; text: string }[]
+  class?: string
+}
+
+const { headings, class: c } = Astro.props
+---
+
+<p 
+  class="fixed cursor-pointer top-16 right-4 text-center py-2"
+  id="toc-title"
+>
+  目录
+</p>
+<nav 
+  class:list={[
+    'toc w-[12rem] h-[75dvh] transition-[width] overflow-auto sticky top-24 bottom-24 pl-4',
+    c
+  ]}
+  id="toc"
+>
+  <ul class="border-l border-gray-900 pl-4">
+    {headings.map((heading) => (
+      <li class={`h${heading.depth}`}>
+        <a href={`#${heading.slug}`}>
+          {heading.text}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+<script>
+  document.querySelector('#toc-title')?.addEventListener('click', () => {
+    const toc = document.querySelector('#toc')
+    if (toc?.clientWidth === 0) {
+      toc.classList.remove('w-0', 'opacity-0')
+      toc.classList.add('w-[12rem]', 'opacity-100')
+    } else {
+      toc?.classList.remove('w-[12rem]', 'opacity-100')
+      toc?.classList.add('w-0', 'opacity-0')
+    }
+  })
+</script>
